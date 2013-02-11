@@ -1,0 +1,201 @@
+@import "variables";
+@import "mixins";
+
+
+// Baseline
+// --------------------------
+html {
+  overflow-y: scroll;
+}
+
+body {
+  background: #f6f2e8 url('/img/noise2.png');
+  color: lighten($gray-text, 10);
+  font-family: $baseFontFamily;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+}
+
+body > .container { margin: 25px auto 0; }
+
+@include mobile {
+  body .container { padding: 0 5px; }
+}
+
+.left { float: left }
+.right { float: right }
+
+.red { color: $red; }
+.orange { color: $orange; }
+
+
+// Typography
+// --------------------------
+h1 {
+  font-size: 1.9em;
+  margin-bottom: 15px;
+}
+
+h2 {
+  border-bottom: 1px solid lighten($med-gray, 10);
+  font-size: 1.6em;
+  margin: 25px 0 15px;
+  padding-bottom: 5px;
+}
+
+h3 {
+  @include bold(1.2em);
+  margin: 20px 0 10px;
+}
+
+strong { font-weight: bold; }
+
+p {
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+a {
+  color: #848484;
+
+  &:hover { color: #5b5b5b; }
+}
+
+
+
+// Header
+// --------------------------
+header {
+  background-color: #333;
+  padding: 5px 0 4px;
+
+  h1 {
+    float: left;
+    font-size: 1.5em;
+    margin: 4px 0 0 0;
+
+    a, a:hover { color: #eee; }
+  }
+
+  a { text-decoration: none; }
+
+  nav {
+    float: left;
+    margin-left: 20px;
+    margin-top: 2px;
+  }
+
+  li {
+    display: inline-block;
+    margin: 0;
+
+    a {
+      color: #c1c1c1;
+      display: inline-block;
+      float: left;
+      // font-size: 1.1em;
+      font-size: 0.9em;
+      margin-right: 5px;
+      padding: 8px 10px;
+
+      &:hover { color: white; }
+    }
+  }
+
+}
+
+
+
+// Sidebar
+// --------------------------
+.sidebar {
+  li {
+    margin: 0 0 10px 10px;
+  }
+}
+
+
+
+// Content
+// --------------------------
+.content {
+  @extend %whitebox;
+
+  code,
+  pre {
+    @include border-radius;
+    background-color: $light-gray;
+    border: 1px solid #ddd;
+    color: lighten($gray-text, 15);
+    font-family: $codeFontFamily;
+  }
+
+  code {
+    // Inline code snippets
+    font-size: 0.8em;
+    padding: 1px 2px;
+  }
+
+  pre {
+    // Code blocks
+    font-size: 0.8em;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+
+    code {
+      // Undo extra code stylings in markdown-fenced blocks
+      background: none;
+      border: none;
+      padding: 0;
+    }
+  }
+}
+
+
+
+
+table {
+  background-color: white;
+  border-collapse: separate;
+  text-align: left;
+  margin-bottom: 20px;
+  width: 100%;
+
+  th, td {
+    @include border-box;
+    border: 1px solid $med-gray;
+    border-top: 0;
+    border-right: 0;
+    padding: 8px;
+
+    &:last-child {
+      border-right: 1px solid $med-gray;
+    }
+  }
+
+  tr:first-child td {
+    border-top: 1px solid $med-gray !important;
+  }
+
+  tr.split td {
+    width: 50%;
+  }
+
+}
+
+
+footer {
+  @include border-box;
+  background-color: #333;
+  color: lighten($gray-text, 35);
+  font-size: 0.9em;
+  margin-top: 100px;
+  padding: 7px;
+
+  p { margin: 0; }
+  a {
+    text-decoration: none;
+    &:hover { color: #eee; }
+  }
+}
