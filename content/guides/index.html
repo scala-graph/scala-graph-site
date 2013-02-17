@@ -1,6 +1,35 @@
 ---
-title: User Guide
+title: User Guide Test Page
 ---
 
-<h1>User Guide</h1>
-<p>lorem ipsum</p>
+<h1><b>Constrained</b> User Guide</h1>
+<h2>Introduction</h2>
+
+<p>This module enables the user of <i>Graph for Scala</i> to seamlessly integrate predefined
+or custom constraints. Constraints are meant to ensure certain graph properties
+during the whole lifetime of graph instances which are not enforceable through
+type parameters. Examples for common constraints are <i>connected, acyclic, tree,
+planar</i> etc. Furthermore, the user is free to provide a custom constraint
+implementation covering any domain-specific requirements.</p>
+
+<p>Predefined constraints are placed in <kbd>scalax.collection.constrained.constraints</kbd>
+but currently few predefined constraints are provided. We would certainly be obliged
+if you contributed your constraint implementation to enhance the library.</p>
+
+<p>Graphs may be constrained dynamically or statically. A graph is called
+dynamically constrained if a constraint has been passed to its factory method on
+creation or if it is a result of an operation based on a dynamically constrained graph:</p>
+
+<code>
+import scalax.collection.GraphPredef._,
+       scalax.collection.GraphEdge._
+import scalax.collection.constrained._                                    
+import scalax.collection.constrained.constraints.Connected
+
+implicit val conf: Config = Connected            // ConstrainedConfig(...)
+
+val e = Graph(1~2, 3~4)                                         // Graph()
+val g = Graph(1~2, 2~4)                        // Graph(1, 2, 4, 1~2, 2~4)
+val h = g + 3                                  // Graph(1, 2, 4, 1~2, 2~4)
+val i = g + 2~3                        // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
+</code>

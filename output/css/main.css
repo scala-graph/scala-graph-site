@@ -7,7 +7,7 @@
   border-radius: 2px;
   *zoom: 1;
   background-color: white;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   padding: 20px 30px 30px; }
   .content:before, .content:after {
     display: table;
@@ -107,7 +107,7 @@ header {
   -moz-border-radius: 2px;
   border-radius: 2px;
   background-color: #f9f9f9;
-  border: 1px solid #ddd;
+  border: 1px solid #dddddd;
   color: #595959;
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace; }
 .content code {
