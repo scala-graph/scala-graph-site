@@ -60,19 +60,21 @@ if you contributed your constraint implementation to enhance the library.</p>
 dynamically constrained if a constraint has been passed to its factory method on
 creation or if it is a result of an operation based on a dynamically constrained graph:</p>
 
-<p><code>
+<pre>
+<code>
 import scalax.collection.GraphPredef._,
        scalax.collection.GraphEdge._
-import scalax.collection.constrained._                                    
+import scalax.collection.constrained._
 import scalax.collection.constrained.constraints.Connected
-</code><code>
+
 implicit val conf: Config = Connected            // ConstrainedConfig(...)
-</code><code>
+
 val e = Graph(1~2, 3~4)                                         // Graph()
 val g = Graph(1~2, 2~4)                        // Graph(1, 2, 4, 1~2, 2~4)
 val h = g + 3                                  // Graph(1, 2, 4, 1~2, 2~4)
 val i = g + 2~3                        // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
-</code></p>
+</code>
+</pre>
 
         </div>
 

@@ -32,6 +32,16 @@ route '/img/*' do
 end
 
 
+# --------------------------
+# Javascripts
+# --------------------------
+compile '/js/*' do
+end
+
+route '/js/*' do
+  item.identifier.chop + '.' + item[:extension]
+end
+
 
 
 
