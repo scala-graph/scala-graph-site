@@ -17,10 +17,20 @@
               <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/download">Download</a></li>
-                <li><a href="/guides">User Guide</a>
-                <li><a href="https://github.com/scala-graph/scala-graph">GitHub</a>
-                <li><a href="http://www.scala-graph.org/core/api/">Scaladoc</a></li>
-                <li><a href="/mailing">Mailing List</a></li>
+                <li><a href="/guides">User Guides</a>
+                <li><a href="https://github.com/scala-graph/scala-graph" target="_blank">GitHub</a>
+                <li>
+                  <a href="#" class="dropdown-toggle">Scaladoc</a>
+                  <div class="dropdown-container">
+                    <ul>
+                      <li><a href="http://www.scala-graph.org/core/api/">Core</a></li>
+                      <li><a href="http://www.scala-graph.org/constrained/api/">Constrained</a></li>
+                      <li><a href="http://www.scala-graph.org/dot/api/">Dot</a></li>
+                      <li><a href="http://www.scala-graph.org/json/api/">JSON</a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li><a href="https://groups.google.com/forum/?fromgroups#!forum/scala-graph" target="_blank">Mailing List</a></li>
               </ul>
             </nav>
           </div>
@@ -78,6 +88,19 @@ val i = g + 2~3                        // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
 
       </div>
     </div>
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="span-16">
+            <p>&copy; the Graph for Scala team. Site by <a href="http://andrewberls.com">Andrew Berls</a></p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/js/lib/jquery-1.9.1.min.js"></script>
+    <script src="/js/dropdown.js"></script>
 
   </body>
 </html>
