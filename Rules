@@ -3,6 +3,9 @@
 # --------------------------
 # Stylesheets
 # --------------------------
+compile '/css/' do
+end
+
 compile '/scss/*_*/' do
   # don’t compile partials
   nil
@@ -10,6 +13,7 @@ end
 
 compile '/scss/*/' do
   filter :sass, syntax: :scss
+  filter :relativize_paths, :type => :css
 end
 
 route '/scss/*_*/' do
@@ -19,7 +23,6 @@ end
 route '/scss/*/' do
   item.identifier.sub('scss','css').chop + '.css'
 end
-
 
 # --------------------------
 # Images
@@ -31,7 +34,6 @@ route '/img/*' do
   item.identifier.chop + '.' + item[:extension]
 end
 
-
 # --------------------------
 # Javascripts
 # --------------------------
@@ -41,9 +43,6 @@ end
 route '/js/*' do
   item.identifier.chop + '.' + item[:extension]
 end
-
-
-
 
 # --------------------------
 # Content
@@ -61,6 +60,7 @@ end
 compile '/guides/*' do
   filter :erb
   filter :kramdown
+  filter :relativize_paths, :type => :html
   layout 'guides'
 end
 
@@ -70,6 +70,7 @@ compile '*' do
   else
     filter :erb
     filter :kramdown
+    filter :relativize_paths, :type => :html
     layout 'default'
   end
 end

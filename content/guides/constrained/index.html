@@ -1,0 +1,205 @@
+---
+title: Constrained User Guide
+---
+<h1>Constrained User Guide</h1>
+<h2>Introduction</h2>
+<p> This module enables the user of <em id="G4S">Graph for Scala</em> to seamlessly integrate predefined
+    or custom constraints. Constraints are meant to ensure certain graph properties during the whole lifetime
+    of graph instances which are not enforceable through type parameters. Examples for common constraints are
+    <em>connected, acyclic, tree, planar</em> etc.
+    Furthermore, the user is free to provide a custom constraint implementation covering any domain-specific
+    requirements.
+</p>
+<p> Predefined constraints are placed in <code>scalax.collection.constrained.constraints</code> but currently
+    few predefined constraints are provided. We would certainly be obliged if you contributed your constraint
+    implementation to enhance the library.
+</p>
+<p> Graphs may be constrained dynamically or statically. A <code>Graph</code> is called <em>dynamically</em>
+    constrained if a constraint has been passed to its factory method on creation or if it is a result of an
+    operation based on a dynamically constrained <code>Graph</code>:
+</p>
+<pre>import scalax.collection.GraphPredef._,
+       scalax.collection.GraphEdge._
+import scalax.collection.constrained._ // replaces scalax.collection.Graph
+import scalax.collection.constrained.constraints.Connected
+
+implicit val conf: Config = Connected  // ConstrainedConfig(…)
+val e = Graph(1~2, 3~4) // Graph()
+val g = Graph(1~2, 2~4) // Graph(1, 2, 4, 1~2, 2~4)
+val h = g + 3           // Graph(1, 2, 4, 1~2, 2~4)
+val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
+</pre>
+<p>In the above example, <code>e</code>, <code>g,</code> <code>h</code> and <code>i</code> are
+    constrained by the <code>Connected</code> constraint. <code>e</code> remains empty because the initial elements
+    would not result in a connected graph. Likewise, <code>h</code> becomes equal to <code>g</code>.
+    Alternatives of error handling are covered in the following chapters.
+</p>
+<p> Constraints may also be combined by means of the <code>&amp;&amp;</code> and <code>||</code> operators.
+</p>
+<p> A <em>statically</em> constrained <code>Graph</code> incorporates all validations necessary to impose
+    the desired constraint on all operations. Thus no constraint needs to be passed to it on creation.
+    Clearly, any dynamically constrained <code>Graph</code> could also be implemented statically once the
+    constraint is known but dealing with constraints is more flexible and also cheaper to implement.
+    A static implementation might be worthwhile whenever we face broad use and/or need to restrict type
+    parameters such as in case of DAGs.
+</p>
+<p> <em id="G4S">Graph for Scala Constrained</em> is supplied as an extra module
+    (<code>Graph-constrained_&lt;ScalaVer&gt;-&lt;GraphVer&gt;.jar</code>) depending on
+    <code>Graph-core_&lt;ScalaVer&gt;-&lt;GraphVer&gt;.jar</code>.
+</p>
+<h2>Use Cases</h2>
+<p> Among others, the constrained module is worth considering in the following situations:
+</p>
+<ol><li>You have to ensure that some constraints which cannot be achieved by type constructors
+        are valid at any time for your <code>Graph</code> instances. Typical examples are acyclic graphs
+        or tree structures.</li>
+    <li>a) is valid and additionally, you must cope with the population or modification of <code>Graph</code>
+        instances in an uncontrolled way such as</li>
+    <ul><li>user input that is not fully validatable with respect to the <code>Graph</code> or</li>
+        <li>import of invalidated data from an external source.</li>
+    </ul>
+    <li>You want to log or monitor any kind of <code>Graph</code> creation/modification <code>&#8211;</code>
+        proper or improper.</li>
+</ol>
+<h2>The Constraint Lifecycle</h2>
+<p> For the purpose of a comparison, let's first illustrate the "lifecycle" of an operation such as
+    <code>+</code> or <code>++</code> on a simple, non-constrained <code>Graph</code>:
+</p>
+<figure>
+    <img border=0 width=383 height=71 alt="Empty Lifecycle" hspace=1 vspace=1 src="/img/guides/constrained/EmptyLifecycle.jpg">
+    <figcaption>Diagram: Empty Lifecycle of simple <code>Graph</code> operations.</figcaption>
+</figure>
+<p>In contrast, operations on constrained <code>Graph</code>s have the following sophisticated lifecycle:
+</p>
+<img border=0 width=648 height=370 alt="" hspace=1 vspace=1 src="/img/guides/constrained/Lifecycle.jpg">
+<figure>
+    <img border=0 width=648 height=370 alt="" hspace=1 vspace=1 src="/img/guides/constrained/Lifecycle.jpg">
+    <figcaption>Diagram: Empty Lifecycle of constrained <code>Graph</code> operations.</figcaption>
+</figure>
+<p> <em>Pre-check</em>, <em>post-check</em> and <em>handle</em> depict the three groups of callback-methods
+    to be defined by the implementer of the constraint class. Each group consists of a few concrete methods
+    such as <span class=rvts10>preAdd(node: N)</span>, <span class=rvts10>preAdd(edge: E[N])</span>etc.
+</p>
+<p> The pre-check call-back methods are a means to inspect the underlying <code>Graph</code> and the arguments
+    of the operation before the operation takes place. They take control over whether the operation is to be
+    carried out or aborted (return: <code>Abort</code>). The carry-out case offers to carry out the operation
+    either with (return: <code>PostCheck</code>) or without (return: <code>Complete</code>) a subsequent
+    post-check.
+</p>
+<p> In the post-check call-back methods one may inspect the underlying <code>Graph</code> as it would be
+    after the operation and take control over whether the operation is to be committed (return: <code>true</code>)
+    or rolled back (return: <code>false</code>).
+</p>
+<p> Whenever the operation has been told by the constraint to be aborted, the appropriate constraint handler is called.
+    It is up to the implementer to throw an Exception in the handler, to leave it silent or undertake
+    any other desirable action.
+</p>
+<h2>Altering Existing Constraints</h2>
+<p> Modifying an existing constraint is as easy as supplying a new companion object with the modified behavior.
+    For instance, to let the <code>onAdditionRefused</code> error handler of the predefined
+    <code>Acyclic</code> constraint throw an exception on improper <code>Graph</code> creation or
+    on addition of any improper elements, just proceed as follows:
+</p>
+<pre>object AcyclicWithException extends ConstraintCompanion[Acyclic] {
+  def apply [N, E[X] <: EdgeLikeIn[X]] (self: Graph[N,E]) =
+    new Acyclic[N,E] (self) {
+      override def onAdditionRefused(refusedNodes: Iterable[N],
+                                     refusedEdges: Iterable[E[N]],
+                                     graph:        Graph[N,E]) = {
+        throw new CycleException("Addition refused: " +
+                  "nodes = " + refusedNodes + ", " +
+                  "edges = " + refusedEdges)
+      }
+    }
+}
+class CycleException(msg: String) extends IllegalArgumentException(msg)
+</pre>
+<h2>Implementing New Constraints</h2>
+<p> If none of the supplied constraints suffices your needs you are encouraged to implement your own constraint.
+</p>
+<p> To warm up, you might contemplate the rather simple predefined constraint <code>Connected.scala</code>
+    along with its accompanying test <code>TConnected.scala</code>.
+</p>
+<p> Constraint implementations involve the following steps:
+</p>
+<ol>
+    <li>Constraint Class</li>
+</ol>
+    <ul><li>Create your constraint class extending the <code>Constrained</code> trait.</li>
+        <li>Decide on each call-back method, whether abstract or concrete, whether and how to override it:</li>
+        <ul><li><code>preCreate</code>'s default implementation calls <code>preAdd</code> for each node and edge.
+                This will be insufficient for all cases where the set of these elements must be considered in its total.
+                For instance, cycles cannot be detected by examining nodes and edges separately.<br>If it is maintained
+                that on loading the <code>Graph</code> it is already consistent, you can simply return
+                <code>PreCheckResult(Complete)</code>.</li>
+            <li>Implement <code>preAdd(node: N)</code> and <code>preAdd(edge: E[N])</code>. Ensure to make all checks
+                possible at this early stage.</li>
+            <li>Decide on whether <code>preAdd(elems: GraphParamIn[N,E]*)</code> is to be overridden.
+                Here the same holds as for <code>preCreate</code>, as the default implementation just calls
+                <code>preAdd</code> element-wise.</li>
+            <li>Decide on whether <code>postAdd</code> is to be overridden. If you have made all necessary checks
+                in the pre-checks concerned with addition, you need not do anything as <code>postAdd</code>'s
+                default return is <code>true</code> which advises Graph to commit the addition.</li>
+            <li>Do the same with respect to the call-back methods concerned with subtraction.</li>
+            <li>Decide on whether to override any of the error handlers <code>onAdditionRefused</code> or
+                <code>onSubtractionRefused</code>. They return <code>true</code> by default meaning that
+                any operation that aborts or roll-backs will be left without a notice.</li>
+       </ul>
+    </ul>
+<ol>
+    <li>Constraint Companion Object</li>
+</ol>
+    <ul><li>Create your constraint companion object by extending the <code>ConstrainedCompanion</code> trait.
+            Ensure that the type constructor argument for <code>ConstrainedCompanion</code> is your custom
+            constraint class.</li>
+        <li>Override <code>apply</code> in your constraint companion object to return an instance of your
+            constraint class.</li>
+    </ul>
+<ol><li>Constraint Test</li>
+</ol>
+<p> Although call-backs are designed to be passed all necessary arguments to decide on how to deal
+    with the operation, sometimes you might desire to carry over intermediate results computed in a
+    pre-check to the corresponding post-check. For this purpose, you just need to subclass <code>Result</code>,
+    fill an instance of your type with the computational results and return it in place of a simple
+    <code>PreCheckResult</code> instance. Examine <code>scalax.collection.constrained.constraints.
+    Acyclic</code><span class=rvts21> for an example</span>.
+</p>
+<p> Once again, if you feel the community could benefit of your constraint implementation, please consider
+    contributing it.
+</p>
+<h2>Composing Constraints</h2>
+<p> Constraints may be composed by the <code>&amp;&amp;</code> and <code>||</code> operators like:
+</p>
+<pre>implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(…)
+val e = Graph.from(nodeList, edgeList)
+</pre>
+<h2>Providing Aliases</h2>
+<p> By now you know when and how to implement constraints and how to pass them to <code>Graph</code>
+    values at instantiation time. You may wonder how to go a step even further by calling the factory
+    methods without repeatedly supplying your constraints.
+</p>
+<p> Suppose you prefer writing
+</p>
+<pre>val t = Tree.from(nodeList, edgeList) // Tree(…)
+</pre>
+<p> in contrast to the example in 6. Well, you can do this right away because the <code>Tree</code> alias
+    is already present in the <code>constrained</code> module. This is how it has been achieved:
+</p>
+<pre>import scalax.collection.GraphEdge._
+import scalax.collection.constrained.Graph // immutable
+
+type Tree[N] = Graph[N,UnDiEdge]
+object Tree extends CompanionAlias[UnDiEdge](Connected && Acyclic
+                                             withStringPrefix "Tree")
+</pre>
+<p> Obviously, you can provide your own aliases following the above pattern.
+</p>
+<p> <code>CompanionAlias</code> is a wrapper trait enabling you to easily construct constrained
+    <code>Graph</code> companion module aliases. You may use it as long as the edge type of your
+    <code>Graph</code> instances is constant. If you are using an edge type other than <code>UnDiEdge</code>,
+    such as a labelled edge type in your <code>Tree</code>, you might consider defining your own alias with
+    a labelled edge type parameter or simply forego using an alias.
+</p>
+<p> Finally, <code>withStringPrefix</code> enables you to replace the default <code>Graph</code> prefix
+    used by <code>toString</code> with a prefix of you choice.
+</p>
