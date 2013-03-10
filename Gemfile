@@ -7,3 +7,5 @@ gem 'sass'
 gem 'adsf'
 
 gem 'nanoc'
+
+gem 'nokogiri'
