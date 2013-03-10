@@ -2,7 +2,7 @@
 title: Constrained User Guide
 ---
 <h1>Constrained User Guide</h1>
-<h2>Introduction</h2>
+<h2 id="Introduction">Introduction</h2>
 <p> This module enables the user of <em id="G4S">Graph for Scala</em> to seamlessly integrate predefined
     or custom constraints. Constraints are meant to ensure certain graph properties during the whole lifetime
     of graph instances which are not enforceable through type parameters. Examples for common constraints are
@@ -47,7 +47,7 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
     (<code>Graph-constrained_&lt;ScalaVer&gt;-&lt;GraphVer&gt;.jar</code>) depending on
     <code>Graph-core_&lt;ScalaVer&gt;-&lt;GraphVer&gt;.jar</code>.
 </p>
-<h2>Use Cases</h2>
+<h2 id="UseCases">Use Cases</h2>
 <p> Among others, the constrained module is worth considering in the following situations:
 </p>
 <ol><li>You have to ensure that some constraints which cannot be achieved by type constructors
@@ -60,7 +60,7 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
     <li>You want to log or monitor any kind of <code>Graph</code> creation/modification &#8211;
         proper or improper.</li></ul>
 </ol>
-<h2>The Constraint Lifecycle</h2>
+<h2 id="Lifecycle">The Constraint Lifecycle</h2>
 <p> For the purpose of a comparison, let's first illustrate the "lifecycle" of an operation such as
     <code>+</code> or <code>++</code> on a simple, non-constrained <code>Graph</code>:
 </p>
@@ -71,12 +71,12 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
 <p>In contrast, operations on constrained <code>Graph</code>s have the following sophisticated lifecycle:
 </p>
 <figure>
-    <img alt="" src="/img/guides/constrained/Lifecycle.jpg">
+    <img alt="Lifecycle" src="/img/guides/constrained/Lifecycle.jpg">
     <figcaption>Diagram: Empty Lifecycle of constrained <code>Graph</code> operations.</figcaption>
 </figure>
 <p> <em>Pre-check</em>, <em>post-check</em> and <em>handle</em> depict the three groups of callback-methods
     to be defined by the implementer of the constraint class. Each group consists of a few concrete methods
-    such as <span class='rvts10'>preAdd(node: N)</span>, <span class='rvts10'>preAdd(edge: E[N])</span>etc.
+    such as <code>preAdd(node: N)</code>, <code'>preAdd(edge: E[N])</code>etc.
 </p>
 <p> The pre-check call-back methods are a means to inspect the underlying <code>Graph</code> and the arguments
     of the operation before the operation takes place. They take control over whether the operation is to be
@@ -92,13 +92,13 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
     It is up to the implementer to throw an Exception in the handler, to leave it silent or undertake
     any other desirable action.
 </p>
-<h2>Altering Existing Constraints</h2>
+<h2 id="Altering">Altering Existing Constraints</h2>
 <p> Modifying an existing constraint is as easy as supplying a new companion object with the modified behavior.
     For instance, to let the <code>onAdditionRefused</code> error handler of the predefined
     <code>Acyclic</code> constraint throw an exception on improper <code>Graph</code> creation or
     on addition of any improper elements, just proceed as follows:
 </p>
-<pre>object AcyclicWithException extends ConstraintCompanion[Acyclic] {
+<pre class="prettyprint lang-scala">object AcyclicWithException extends ConstraintCompanion[Acyclic] {
   def apply [N, E[X] <: EdgeLikeIn[X]] (self: Graph[N,E]) =
     new Acyclic[N,E] (self) {
       override def onAdditionRefused(refusedNodes: Iterable[N],
@@ -112,7 +112,7 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
 }
 class CycleException(msg: String) extends IllegalArgumentException(msg)
 </pre>
-<h2>Implementing New Constraints</h2>
+<h2 id="Implementing">Implementing New Constraints</h2>
 <p> If none of the supplied constraints suffices your needs you are encouraged to implement your own constraint.
 </p>
 <p> To warm up, you might contemplate the rather simple predefined constraint <code>Connected.scala</code>
@@ -122,7 +122,6 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
 </p>
 <ol>
     <li>Constraint Class</li>
-</ol>
     <ul><li>Create your constraint class extending the <code>Constrained</code> trait.</li>
         <li>Decide on each call-back method, whether abstract or concrete, whether and how to override it:</li>
         <ul><li><code>preCreate</code>'s default implementation calls <code>preAdd</code> for each node and edge.
@@ -144,46 +143,45 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
                 any operation that aborts or roll-backs will be left without a notice.</li>
        </ul>
     </ul>
-<ol>
     <li>Constraint Companion Object</li>
-</ol>
     <ul><li>Create your constraint companion object by extending the <code>ConstrainedCompanion</code> trait.
             Ensure that the type constructor argument for <code>ConstrainedCompanion</code> is your custom
             constraint class.</li>
         <li>Override <code>apply</code> in your constraint companion object to return an instance of your
             constraint class.</li>
     </ul>
-<ol><li>Constraint Test</li>
+    <li>Constraint Test</li>
 </ol>
 <p> Although call-backs are designed to be passed all necessary arguments to decide on how to deal
     with the operation, sometimes you might desire to carry over intermediate results computed in a
     pre-check to the corresponding post-check. For this purpose, you just need to subclass <code>Result</code>,
     fill an instance of your type with the computational results and return it in place of a simple
     <code>PreCheckResult</code> instance. Examine <code>scalax.collection.constrained.constraints.
-    Acyclic</code><span class='rvts21'> for an example</span>.
+    Acyclic</code> for an example.
 </p>
 <p> Once again, if you feel the community could benefit of your constraint implementation, please consider
     contributing it.
 </p>
-<h2>Composing Constraints</h2>
+<h2 id="Composing">Composing Constraints</h2>
 <p> Constraints may be composed by the <code>&amp;&amp;</code> and <code>||</code> operators like:
 </p>
-<pre>implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(…)
+<pre class="prettyprint lang-scala">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(…)
 val e = Graph.from(nodeList, edgeList)
 </pre>
-<h2>Providing Aliases</h2>
+
+<h2 id="Aliases">Providing Aliases</h2>
 <p> By now you know when and how to implement constraints and how to pass them to <code>Graph</code>
     values at instantiation time. You may wonder how to go a step even further by calling the factory
     methods without repeatedly supplying your constraints.
 </p>
 <p> Suppose you prefer writing
 </p>
-<pre>val t = Tree.from(nodeList, edgeList) // Tree(…)
+<pre class="prettyprint lang-scala">val t = Tree.from(nodeList, edgeList) // Tree(…)
 </pre>
 <p> in contrast to the example in 6. Well, you can do this right away because the <code>Tree</code> alias
     is already present in the <code>constrained</code> module. This is how it has been achieved:
 </p>
-<pre>import scalax.collection.GraphEdge._
+<pre class="prettyprint lang-scala">import scalax.collection.GraphEdge._
 import scalax.collection.constrained.Graph // immutable
 
 type Tree[N] = Graph[N,UnDiEdge]

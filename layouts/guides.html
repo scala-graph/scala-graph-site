@@ -19,10 +19,17 @@
               <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/download">Download</a></li>
-                <li><a href="/guides/constrained/index.html">User Guides</a>
-                <li><a href="https://github.com/scala-graph/scala-graph" target="_blank">GitHub</a>
-                <li>
-                  <a href="#" class="dropdown-toggle">Scaladoc</a>
+                <li><a href="#" class="dropdown-toggle">User Guides</a>
+                  <div class="dropdown-container">
+                    <ul>
+                      <li><a href="/guides/core/index.html">Core</a></li>
+                      <li><a href="/guides/constrained/index.html">Constrained</a></li>
+                      <li><a href="/guides/dot/index.html">Dot</a></li>
+                      <li><a href="/guides/json/index.html">JSON</a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li><a href="#" class="dropdown-toggle">Scaladoc</a>
                   <div class="dropdown-container">
                     <ul>
                       <li><a href="http://www.scala-graph.org/core/api/" target="_blank">Core</a></li>
@@ -32,6 +39,7 @@
                     </ul>
                   </div>
                 </li>
+                <li><a href="https://github.com/scala-graph/scala-graph" target="_blank">GitHub</a></li>
                 <li><a href="https://groups.google.com/forum/?fromgroups#!forum/scala-graph" target="_blank">Mailing List</a></li>
               </ul>
             </nav>
@@ -46,10 +54,13 @@
         <div class="span-3 sidebar">
           <h3>Links</h3>
           <ul>
-            <li><a href="#">Test</a></li>
-            <li><a href="#">Test</a></li>
-            <li><a href="#">Test</a></li>
-            <li><a href="#">Test</a></li>
+            <li><a href="#Introduction">Introduction</a></li>
+            <li><a href="#UseCases">Use Cases</a></li>
+            <li><a href="#Lifecycle">The Contraint Lifecycle</a></li>
+            <li><a href="#Altering">Altering Existing Constraints</a></li>
+            <li><a href="#Implementing">Implementing New Constraints</a></li>
+            <li><a href="#Composing">Composing Constraints</a></li>
+            <li><a href="#Aliases">Providing Aliases</a></li>
           </ul>
         </div>
 
@@ -64,7 +75,7 @@
       <div class="container">
         <div class="row">
           <div class="span-16">
-            <p>&copy; the Graph for Scala team. Site by <a href="http://andrewberls.com">Andrew Berls</a></p>
+            <p>&copy; the Graph for Scala team. Site by <a href="http://andrewberls.com">Andrew Berls.</a></p>
           </div>
         </div>
       </div>
