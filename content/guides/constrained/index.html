@@ -18,7 +18,7 @@ title: Constrained User Guide
     constrained if a constraint has been passed to its factory method on creation or if it is a result of an
     operation based on a dynamically constrained <code>Graph</code>:
 </p>
-<pre>import scalax.collection.GraphPredef._,
+<pre class="sh_scala">import scalax.collection.GraphPredef._,
        scalax.collection.GraphEdge._
 import scalax.collection.constrained._ // replaces scalax.collection.Graph
 import scalax.collection.constrained.constraints.Connected
@@ -57,27 +57,26 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
         instances in an uncontrolled way such as</li>
     <ul><li>user input that is not fully validatable with respect to the <code>Graph</code> or</li>
         <li>import of invalidated data from an external source.</li>
-    </ul>
-    <li>You want to log or monitor any kind of <code>Graph</code> creation/modification <code>&#8211;</code>
-        proper or improper.</li>
+    <li>You want to log or monitor any kind of <code>Graph</code> creation/modification &#8211;
+        proper or improper.</li></ul>
 </ol>
 <h2>The Constraint Lifecycle</h2>
 <p> For the purpose of a comparison, let's first illustrate the "lifecycle" of an operation such as
     <code>+</code> or <code>++</code> on a simple, non-constrained <code>Graph</code>:
 </p>
 <figure>
-    <img border=0 width=383 height=71 alt="Empty Lifecycle" hspace=1 vspace=1 src="/img/guides/constrained/EmptyLifecycle.jpg">
+    <img alt="Empty Lifecycle" src="/img/guides/constrained/EmptyLifecycle.jpg">
     <figcaption>Diagram: Empty Lifecycle of simple <code>Graph</code> operations.</figcaption>
 </figure>
 <p>In contrast, operations on constrained <code>Graph</code>s have the following sophisticated lifecycle:
 </p>
 <figure>
-    <img border=0 width=648 height=370 alt="" hspace=1 vspace=1 src="/img/guides/constrained/Lifecycle.jpg">
+    <img alt="" src="/img/guides/constrained/Lifecycle.jpg">
     <figcaption>Diagram: Empty Lifecycle of constrained <code>Graph</code> operations.</figcaption>
 </figure>
 <p> <em>Pre-check</em>, <em>post-check</em> and <em>handle</em> depict the three groups of callback-methods
     to be defined by the implementer of the constraint class. Each group consists of a few concrete methods
-    such as <span class=rvts10>preAdd(node: N)</span>, <span class=rvts10>preAdd(edge: E[N])</span>etc.
+    such as <span class='rvts10'>preAdd(node: N)</span>, <span class='rvts10'>preAdd(edge: E[N])</span>etc.
 </p>
 <p> The pre-check call-back methods are a means to inspect the underlying <code>Graph</code> and the arguments
     of the operation before the operation takes place. They take control over whether the operation is to be
@@ -161,7 +160,7 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
     pre-check to the corresponding post-check. For this purpose, you just need to subclass <code>Result</code>,
     fill an instance of your type with the computational results and return it in place of a simple
     <code>PreCheckResult</code> instance. Examine <code>scalax.collection.constrained.constraints.
-    Acyclic</code><span class=rvts21> for an example</span>.
+    Acyclic</code><span class='rvts21'> for an example</span>.
 </p>
 <p> Once again, if you feel the community could benefit of your constraint implementation, please consider
     contributing it.
