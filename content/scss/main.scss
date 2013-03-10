@@ -126,7 +126,7 @@ header {
   pre {
     @include border-radius;
     background-color: $light-gray;
-    border: 1px solid #ddd;
+    border: 1px solid #ddd !important; // Overwrite prettify defaults
     color: lighten($gray-text, 15);
     font-family: $codeFontFamily;
   }
@@ -142,7 +142,7 @@ header {
     font-size: 0.8em;
     line-height: 1.4;
     margin-bottom: 15px;
-    padding: 10px 15px;
+    padding: 10px 15px !important; // Overwrite prettify defaults
 
     code {
       // Undo extra code stylings in markdown-fenced blocks
