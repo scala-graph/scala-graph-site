@@ -1,4 +1,4 @@
-@import "variables";
+﻿@import "variables";
 @import "mixins";
 
 // Baseline
@@ -9,7 +9,7 @@ html {
 
 body {
   background: #f6f2e8 url('/img/noise2.png');
-  color: lighten($gray-text, 10);
+  color: black;
   font-family: $baseFontFamily;
   font-size: 15px;
   text-rendering: optimizeLegibility;
@@ -133,13 +133,13 @@ header {
 
   code {
     // Inline code snippets
-    font-size: 0.8em;
+    font-size: 0.9em;
     padding: 1px 2px;
   }
 
   pre {
     // Code blocks
-    font-size: 0.8em;
+    font-size: 0.9em;
     line-height: 1.4;
     margin-bottom: 15px;
     padding: 10px 15px !important; // Overwrite prettify defaults
