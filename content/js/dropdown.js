@@ -1,8 +1,8 @@
-$doc       = $(document)
-$toggle    = $('.dropdown-toggle')
-$container = $('.dropdown-container')
+var $doc = $(document)
 
-$toggle.click(function(e) {
+$('.dropdown-toggle').click(function(e) {
+  $container = $(this).next('.dropdown-container')
+  $('.dropdown-container').not($container).hide() // Hide any open dropdowns
   $container.toggle();
   e.stopPropagation();
 
