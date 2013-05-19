@@ -6,21 +6,20 @@ title: DOT User Guide
 <p>
 	This document inducts the user of <em id="G4S">Graph for Scala</em>,
 	who is interested in visualizing graphs, into how to translate Graph
-	instances to the <a href="http://www.graphviz.org/doc/info/lang.html">DOT
-		Language</a>. Thus, it may be viewed as a supplement of the (core) User
-	Guide.
+	instances to the <a href="http://www.graphviz.org/doc/info/lang.html" target="_blank">
+	DOT Language</a>. Thus it may be viewed as a supplement of the Core User Guide.
 </p>
-<p>At present, DOT-Import is not yet covered.</p>
+<p>At present DOT-Import is not yet supported.</p>
 <p>
 	<em id="G4S">Graph for Scala DOT</em> is supplied as an extra module
 	(jar). Except for minor versions, <code>Graph-dot_XXX.jar</code> depends on
 	<code>Graph-core_XXX</code>.
 </p>
 <p>
-	Beginning with chapter 3.2, the examples are based on a labeled graph
-	shown on <em>wikipedia</em>, more specifically at <a
-		href="http://en.wikipedia.org/wiki/File:Commutative_diagram_fixed.svg">
-		commutative diagram</a>.
+	The following examples are based on a labeled graph shown on <em>wikipedia</em>,
+	more specifically at <a
+	href="http://en.wikipedia.org/wiki/File:Commutative_diagram_fixed.svg">
+	commutative diagram</a>.
 </p>
 <p>
 	For the complete example please refer to
@@ -71,7 +70,7 @@ val dot = g.toDot(dotRoot, edgeTransformer)
 <pre class="prettyprint lang-json">digraph {
   attr_1 = "one"
   attr_2 = &lt;two&gt;
- </pre>
+</pre>
 <p>For completeness, a REPLable version of the above example looks
 	like</p>
 <pre class="prettyprint lang-scala">import scalax.collection.Graph,
@@ -242,10 +241,8 @@ g.toDot(root, edgeTransformer, Some(nodeTransformer))
 </p>
 <p>
 	While testing the above code examples in REPL you might have noticed
-	that
-	<code>toDot</code>
-	´s resulting lines were indented by TABs. The reason for this is that
-	we did not supply an argument different from
+	that <code>toDot</code>'s resulting lines were indented by TABs.
+	The reason for this is that we did not supply an argument different from
 	<code>DefaultSpacing</code>
 	. For more details see the API Scaladoc.
 </p>

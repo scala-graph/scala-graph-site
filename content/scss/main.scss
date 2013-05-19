@@ -6,106 +6,113 @@
 html {
   overflow-y: scroll;
 }
-
 body {
-  background: #f6f2e8 url('/img/noise2.png');
   color: black;
   font-family: $baseFontFamily;
   font-size: 15px;
   text-rendering: optimizeLegibility;
 }
-
-body > .container { margin: 25px auto 0; }
-
+body > .container { margin: 25px auto 0;
+}
 @include mobile {
   body .container { padding: 0 5px; }
 }
-
 .left { float: left }
 .right { float: right }
 
 .red { color: $red; }
-.orange { color: $orange; }
-
 
 // Typography
 // --------------------------
 h1 {
-  font-size: 1.9em;
-  margin-bottom: 15px;
-}
-
-h2 {
-  border-bottom: 1px solid lighten($med-gray, 10);
   font-size: 1.6em;
-  margin: 25px 0 15px;
-  padding-bottom: 5px;
+  text-align: center;
+  color: white;
+  padding: 5px;
+  margin-bottom: 0px;
+  background-image: url('/img/defbg-green.gif');
+  background-repeat: repeat-x;
 }
-
+h2 {
+  font-size: 1.4em;
+  color: white;
+  margin: 15px 0 15px;
+  padding: 5px;
+  background-image: url('/img/defbg-blue.gif');
+  background-repeat: repeat-x;
+}
 h3 {
   @include bold(1.2em);
-  margin: 20px 0 10px;
+  margin: 15px 0 10px;
+  border-bottom: 1px solid black;
 }
-
-strong { font-weight: bold; }
-
-em { font-style: italic; }
-
+strong { font-weight: bold;
+}
+em { font-style: italic;
+}
+#G4S {
+  color: darken($orchid,12);
+  font-style: normal;
+}
 p {
   margin-bottom: 10px;
   line-height: 1.4;
 }
-
 a {
-  color: #848484;
-
-  &:hover { color: #5b5b5b; }
+  color: #36648B;
+  &:hover { color: darken($orchid,12); }
 }
 
-
+// Common for Header and Footer
+// --------------------------
+header, header * div, header * span, header * nav,
+footer, footer * div, footer * p  {
+  background-color: $orchid;
+  color: white;
+}
+header * a,
+footer * a  {
+  text-decoration: none;
+  color: white;
+  &:hover {
+    color: white; 
+    text-decoration: underline; }
+}
 
 // Header
 // --------------------------
 header {
-  background-color: #333;
-  padding: 5px 0 4px;
-
-  h1 {
+  #logo {
     float: left;
     font-size: 1.5em;
-    margin: 4px 0 0 0;
-
-    a, a:hover { color: #eee; }
+    background-color: $light-gray-azure;
+    a {
+      color: black;
+      display: inline-block;
+      margin-right: 5px;
+      padding: 8px 10px;
+      &:hover { text-decoration: underline; }
+    }
   }
-
-  a { text-decoration: none; }
-
   nav {
     float: left;
     margin-left: 20px;
-    margin-top: 2px;
+    margin-top: 5px;
   }
-
   nav li {
     display: inline-block;
     margin: 0;
     position: relative;
 
     a {
-      color: #c1c1c1;
       display: inline-block;
       float: left;
-      font-size: 0.9em;
+      font-size: 1.0em;
       margin-right: 5px;
       padding: 8px 10px;
-
-      &:hover { color: white; }
     }
   }
-
 }
-
-
 
 // Sidebar
 // --------------------------
@@ -115,8 +122,6 @@ header {
   }
 }
 
-
-
 // Content
 // --------------------------
 .content {
@@ -125,34 +130,29 @@ header {
   code,
   pre {
     @include border-radius;
-    background-color: $light-gray;
-    border: 1px solid #ddd !important; // Overwrite prettify defaults
-    color: lighten($gray-text, 15);
+    background-color: $light-gray-azure;
+    border: none !important;
+    color: black;
     font-family: $codeFontFamily;
   }
-
   code {
     // Inline code snippets
     font-size: 0.9em;
     padding: 1px 2px;
   }
-
   pre {
     // Code blocks
     font-size: 0.9em;
     line-height: 1.4;
     margin-bottom: 15px;
-    padding: 10px 15px !important; // Overwrite prettify defaults
-
+    padding: 10px 15px !important;
     code {
       // Undo extra code stylings in markdown-fenced blocks
       background: none;
-      border: none;
       padding: 0;
     }
   }
 }
-
 table {
   background-color: white;
   border-collapse: separate;
@@ -165,47 +165,33 @@ table {
     border: 1px solid $med-gray;
     border-top: 0;
     border-right: 0;
-    padding: 8px;
+    padding: 2px;
 
     &:last-child {
       border-right: 1px solid $med-gray;
     }
   }
-
   tr:first-child td {
     border-top: 1px solid $med-gray !important;
   }
-
   tr.split td {
     width: 50%;
   }
-
 }
-
 ol { list-style: decimal; }
-
 ul { list-style: disc; }
-
 li { margin-left: 30px; }
 
 // Footer
 // --------------------------
 footer {
   @include border-box;
-  background-color: #333;
-  color: lighten($gray-text, 35);
   font-size: 0.9em;
-  margin-top: 100px;
+  margin-top: 15px;
   padding: 7px;
 
   p { margin: 0; }
-  a {
-    text-decoration: none;
-    &:hover { color: #eee; }
-  }
 }
-
-
 
 // Dropdown
 // --------------------------
@@ -216,25 +202,22 @@ footer {
 
   ul {
     @include border-radius(2px);
-    border: 1px solid darken($med-gray, 5);
+    border: 1px solid darken($orchid,12);
     border-bottom: none;
   }
-
   li {
     display: block;
 
     a {
       background-color: white;
-      border-bottom: 1px solid $med-gray;
-      color: lighten($gray-text, 10);
+      border-bottom: 1px solid darken($orchid,12);
+      color: darken($orchid,12);
       display: block;
       float: none;
       margin: 0;
-      padding: 7px 65px;
-
+      padding: 4px 10px;
       &:hover {
-        background-color: darken(white, 5);
-        color: lighten($gray-text, 5);
+        text-decoration: underline;
       }
     }
   }

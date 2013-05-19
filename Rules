@@ -7,8 +7,6 @@ compile '/css/' do
 end
 
 compile '/scss/*_*/' do
-  # don’t compile partials
-  nil
 end
 
 compile '/scss/*/' do
@@ -47,16 +45,6 @@ end
 # --------------------------
 # Content
 # --------------------------
-# compile '/docs/*' do
-#   filter :kramdown
-#   layout 'default'
-# end
-
-# compile '/tutorials/*' do
-#   filter :kramdown
-#   layout 'default'
-# end
-
 compile '/guides/*' do
   filter :erb
   filter :kramdown
@@ -75,8 +63,8 @@ compile '*' do
   end
 end
 
-route '/guides/*/' do
-  item.identifier + 'index.html'
+route '/guides/*' do
+  item[:filename].gsub(/^content/, '') 
 end
 
 route '*' do

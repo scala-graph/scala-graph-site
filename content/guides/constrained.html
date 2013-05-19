@@ -23,7 +23,7 @@ title: Constrained User Guide
 import scalax.collection.constrained._ // replaces scalax.collection.Graph
 import scalax.collection.constrained.constraints.Connected
 
-implicit val conf: Config = Connected  // ConstrainedConfig(…)
+implicit val conf: Config = Connected  // ConstrainedConfig(...)
 val e = Graph(1~2, 3~4) // Graph()
 val g = Graph(1~2, 2~4) // Graph(1, 2, 4, 1~2, 2~4)
 val h = g + 3           // Graph(1, 2, 4, 1~2, 2~4)
@@ -76,7 +76,7 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
 </figure>
 <p> <em>Pre-check</em>, <em>post-check</em> and <em>handle</em> depict the three groups of callback-methods
     to be defined by the implementer of the constraint class. Each group consists of a few concrete methods
-    such as <code>preAdd(node: N)</code>, <code'>preAdd(edge: E[N])</code>etc.
+    such as <code>preAdd(node: N)</code>, <code>preAdd(edge: E[N])</code>etc.
 </p>
 <p> The pre-check call-back methods are a means to inspect the underlying <code>Graph</code> and the arguments
     of the operation before the operation takes place. They take control over whether the operation is to be
@@ -140,7 +140,7 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
             <li>Do the same with respect to the call-back methods concerned with subtraction.</li>
             <li>Decide on whether to override any of the error handlers <code>onAdditionRefused</code> or
                 <code>onSubtractionRefused</code>. They return <code>true</code> by default meaning that
-                any operation that aborts or roll-backs will be left without a notice.</li>
+                operations that abort or roll back will be left without a notice.</li>
        </ul>
     </ul>
     <li>Constraint Companion Object</li>
@@ -165,7 +165,7 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
 <h2 id="Composing">Composing Constraints</h2>
 <p> Constraints may be composed by the <code>&amp;&amp;</code> and <code>||</code> operators like:
 </p>
-<pre class="prettyprint lang-scala">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(…)
+<pre class="prettyprint lang-scala">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(�)
 val e = Graph.from(nodeList, edgeList)
 </pre>
 
@@ -176,7 +176,7 @@ val e = Graph.from(nodeList, edgeList)
 </p>
 <p> Suppose you prefer writing
 </p>
-<pre class="prettyprint lang-scala">val t = Tree.from(nodeList, edgeList) // Tree(…)
+<pre class="prettyprint lang-scala">val t = Tree.from(nodeList, edgeList) // Tree(�)
 </pre>
 <p> in contrast to the example in 6. Well, you can do this right away because the <code>Tree</code> alias
     is already present in the <code>constrained</code> module. This is how it has been achieved:

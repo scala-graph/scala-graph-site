@@ -45,7 +45,6 @@
   }
 }
 
-
 %whitebox {
   // A pretty white box with a light gray border
   // Things such as padding can easily be overridden
@@ -54,8 +53,7 @@
   @include border-radius(2px);
   @include clearfix;
   background-color: white;
-  border: 1px solid #ccc;
-  padding: 20px 30px 30px;
+  padding: 0px;
 }
 
 @mixin bold($font_size: 1em) {
