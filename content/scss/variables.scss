@@ -1,9 +1,25 @@
 $baseFontFamily: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 $codeFontFamily: 'Courier New', 'Courier', monospace;
 
-$med-gray:   #ccc;
+$med-gray: #ccc;
+$red:      #CD0000;
 
 $light-gray-azure: #DADFE6;
-$orchid: #8B4789;
+$steelblue4:       #36648B;
 
-$red: #CD0000;
+$pale-green:    #9AFF9A;
+$darksee-green: #D8FFD8;
+$seegreen4:     #2E8B57;
+
+$gray87: #DEDEDE;
+
+$orchid:    #8B4789;
+
+$primary-light: lighten($darksee-green,2);
+$primary-dark:  $seegreen4;
+$primary-dark-darkened: darken($primary-dark,5);
+
+$secondary-light: $gray87;
+$secondary-dark:  x;
+
+$contrast:      $orchid;

@@ -25,21 +25,17 @@ body > .container { margin: 25px auto 0;
 // Typography
 // --------------------------
 h1 {
-  font-size: 1.6em;
+  @include bold(1.3em);
   text-align: center;
-  color: white;
-  padding: 5px;
+  color: $primary-dark-darkened;
   margin-bottom: 0px;
-  background-image: url('/img/defbg-green.gif');
-  background-repeat: repeat-x;
 }
 h2 {
-  font-size: 1.4em;
+  font-size: 1.3em;
   color: white;
   margin: 15px 0 15px;
-  padding: 5px;
-  background-image: url('/img/defbg-blue.gif');
-  background-repeat: repeat-x;
+  padding: 1px;
+  background-color: $primary-dark;
 }
 h3 {
   @include bold(1.2em);
@@ -51,23 +47,22 @@ strong { font-weight: bold;
 em { font-style: italic;
 }
 #G4S {
-  color: darken($orchid,12);
-  font-style: normal;
+  color: darken($contrast,12);
 }
 p {
   margin-bottom: 10px;
   line-height: 1.4;
 }
 a {
-  color: #36648B;
-  &:hover { color: darken($orchid,12); }
+  color: $primary-dark-darkened;
+  &:hover { color: darken($contrast,10); }
 }
 
 // Common for Header and Footer
 // --------------------------
 header, header * div, header * span, header * nav,
 footer, footer * div, footer * p  {
-  background-color: $orchid;
+  background-color: $contrast;
   color: white;
 }
 header * a,
@@ -85,7 +80,8 @@ header {
   #logo {
     float: left;
     font-size: 1.5em;
-    background-color: $light-gray-azure;
+    font-style: italic;
+    background-color: $primary-light;
     a {
       color: black;
       display: inline-block;
@@ -117,8 +113,19 @@ header {
 // Sidebar
 // --------------------------
 .sidebar {
+  a {
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+  ul {
+    // padding-top: 37px;
+    padding-left: 17px;
+    list-style-position: outside; 
+    list-style-image: url(/img/arrow-right.png);
+  }
   li {
-    margin: 0 0 10px 10px;
+    color: $primary-dark-darkened;
+    margin: 0 0 7px 7px;
   }
 }
 
@@ -130,20 +137,20 @@ header {
   code,
   pre {
     @include border-radius;
-    background-color: $light-gray-azure;
     border: none !important;
     color: black;
     font-family: $codeFontFamily;
   }
   code {
-    // Inline code snippets
     font-size: 0.9em;
+    background-color: $secondary-light;
     padding: 1px 2px;
   }
   pre {
     // Code blocks
     font-size: 0.9em;
     line-height: 1.4;
+    background-color: $primary-light;
     margin-bottom: 15px;
     padding: 10px 15px !important;
     code {
@@ -202,7 +209,7 @@ footer {
 
   ul {
     @include border-radius(2px);
-    border: 1px solid darken($orchid,12);
+    border: 1px solid darken($contrast,12);
     border-bottom: none;
   }
   li {
@@ -210,8 +217,8 @@ footer {
 
     a {
       background-color: white;
-      border-bottom: 1px solid darken($orchid,12);
-      color: darken($orchid,12);
+      border-bottom: 1px solid darken($contrast,12);
+      color: darken($contrast,12);
       display: block;
       float: none;
       margin: 0;
