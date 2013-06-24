@@ -57,6 +57,20 @@ a {
   color: $primary-dark-darkened;
   &:hover { color: darken($contrast,10); }
 }
+figcaption {
+  margin-top: 2px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: bold;
+}
+caption {
+  caption-side: bottom;
+  text-align: left;
+  margin-top: 2px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: bold;
+}
 
 // Common for Header and Footer
 // --------------------------
@@ -228,4 +242,10 @@ footer {
       }
     }
   }
+}
+
+// Table Specialties
+// --------------------------
+.predefEdges {
+  td { text-align: right; }
 }

@@ -1,0 +1,673 @@
+---
+title: Core User Guide
+sideMenuItems: >
+  <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
+  <li><a href="/guides/core-inner-outer.html">Inner and Outer Objects</a></li>
+  <li><a href="/guides/core-operations.html">Graph Operations</a></li>
+  <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
+  <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
+---
+<h1>Core User Guide: Graph Operations</h1>
+<h2>Iterating</h2>
+<pre class="prettyprint lang-scala">val g = Graph(2~3, 3~1)
+g mkString "-"	             // 1-2-3-2~3-3~1
+g.nodes mkString "-"         // 1-2-3
+g.edges mkString "-"         // 2~3-3~1
+</pre>
+<p>As to</p>
+<ol>
+	<li>Iterating over a <code>Graph</code> instance you get all nodes 	and all edges.
+		<code>Graph</code> extends <code>Set[GraphParam]</code>. <code>GraphParam</code>
+		is 	an algebraic type for outer nodes, outer 	edges, inner nodes and inner
+		edges.
+	</li>
+	<li><code>nodes</code> returns the node set which in turn is an instance of
+		<code>Set[NodeT]</code>.
+	</li>
+	<li><code>edges</code> returns the edge set which in turn is an 	instance of
+		<code>Set[EdgeT]</code>.
+	</li>
+</ol>
+<p> Both <code>Graph</code> and its inner classes <code>NodeSet</code> and
+	<code>EdgeSet</code> extend <code>scala.collection.Set</code>.
+	Thus, you can call the gamut of well-known <code>TraversableLike</code> methods
+	on these such as <code>filter</code>, <code>foreach</code> etc.
+</p>
+<h2>Looking up Nodes and Edges</h2>
+<pre class="prettyprint lang-scala">val g = Graph(1~2)
+g find 1                          // Option[g.NodeT] = Some(1)
+g find 3                          // Option[g.NodeT] = None
+g get 1                           // g.NodeT = 1
+g get 3                           // NoSuchElementException
+g find 1~2                        // Option[g.EdgeT] = Some(1~2)
+g addAndGet 5                     // g.NodeT = 5
+g find (g having (node = _ == 1)) // g.NodeT = 1
+</pre>
+<p>As to</p>
+<ol>
+	<li>Searches for and finds the inner node wrapping the outer node 	<code>1</code>.
+	</li>
+	<li>Searches for the inner node wrapping the outer node 3 but cannot find it.
+	</li>
+	<li>Searches for, finds and gets the inner node wrapping the outer
+		node <code>1</code>.
+	</li>
+	<li>Searches for but does not find an inner node wrapping the
+		outer node <code>3</code>.
+	</li>
+	<li>Searches for and finds the inner edge wrapping the outer edge
+		<code>1~2</code>. Looking up edges works in the same manner as for
+		nodes.
+	</li>
+	<li>In case of a mutable <code>Graph,</code> adds <code>5</code>
+		to the node set and returns the added inner node. This method enables
+		you to couple adding and getting the same node.
+	</li>
+	<li>This is no more a direct access to a specific element, but
+		rather a search over all nodes stopping at the first node with the
+		predicate <code>_ == 1</code>. <code>having </code>may take a <code>node</code>
+		and/or an <code>edge</code> argument.
+	</li>
+</ol>
+<p> Looking up nodes and edges is necessary to invoke graph functionality
+	on a specific element - also called root - of a given graph. This is similar to
+	getting a value of a <code>Map</code> entry by passing a key to the map.
+	In case of <code>Graph</code> the "key" is an outer node or edge and the returned
+	"value" is the inner node or edge. The default implementation uses <code>hashCode</code>
+	for look-ups.
+</p>
+<h2>Equality of Inner and Outer Objects</h2>
+<pre class="prettyprint lang-scala">val g = Graph(1~2)
+(g get 1) == 1	        // true
+(g get 1~2) == 2~1	    // true
+(g get 1~2) eq 2~1	    // false
+(g get 1~2) == 2~2	    // false
+</pre>
+<p>As to</p>
+<ol>
+	<li>The inner node <code>1 </code>equals to the outer node <code>1</code>.
+	</li>
+	<li>The inner edge <code>1~2 </code>equals to the outer edge <code>2~1</code>.
+		This example also demonstrates, that in case of undirected edges the
+		order of nodes does not influence equality.
+	</li>
+	<li><code>eq</code> fails, because an inner edge can never be the
+		same instance as an outer edge.</li>
+	<li>Obviously, <code>1~2 </code>does not equal to <code>2~2</code>.
+	</li>
+</ol>
+<h2>Adding and Subtracting</h2>
+<pre class="prettyprint lang-scala">val g = Graph(1, 2~3)  // immutable or mutable
+g + 1                  // == g
+g + 0                  // Graph(0, 1, 2, 3, 2~3)
+g + 1.2                // error: overloaded method...
+g + 0~1                // Graph(0, 1, 2, 3, 0~1, 2~3)
+g ++ List(1~2, 2~3)    // Graph(1, 2, 3, 1~2, 2~3)
+g ++ List[GraphParam[Int,UnDiEdge]](1~2, 2~3, 0)
+                       // Graph(0, 1, 2, 3, 1~2, 2~3)
+g - 0                  // == g
+g - 1                  // Graph(2, 3, 2~3)
+g - 2                  // Graph(1, 3)
+g -? 2                 // == g
+g - 2~3                // Graph(1, 2, 3)
+g -! 2~3               // Graph(1)
+g --  List(2, 3~3)     // Graph(1, 3)
+val g = scalax.collection.mutable.Graph(1, 2~3)
+                       // Graph[Int,UnDiEdge]
+                       // to be assigned before each example
+g += 0                 // Graph(0, 1, 2, 3, 2~3)
+g ...=                 // (mutated graph)
+g +~= (3~>1)           // Graph(1, 2, 3, 2~3, 3~>1)
+implicit val factory = scalax.collection.edge.LDiEdge
+g.addLEdge(3,4)("red") // true
+g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
+</pre>
+<p>As to</p>
+<ol>
+	<li>Node <code>1</code> is not added because it is already 	contained,
+		so the same instance is returned.
+	</li>
+	<li>Node 0 is added to a new <code>Graph</code> instance.
+	</li>
+	<li><code>Double</code> is incompatible with <code>Int</code> so
+		the compiler will issue an error.</li>
+	<li>Edge <code>0~1</code> is added to a new <code>Graph</code> 	instance.
+	</li>
+	<li>All edges contained in the right hand operand are added to a
+		new <code>Graph</code> instance.
+	</li>
+	<li>All edges or nodes contained in the right hand operand are
+		added to a new <code>Graph</code> instance.
+	</li>
+	<li>Node <code>0</code> is not removed because it is not
+		contained, so the same instance is returned.
+	</li>
+	<li>Node <code>1</code> is removed from a new <code>Graph</code>
+		instance. This node was not incident with any edge.
+	</li>
+	<li>Node <code>2</code> along 	with <code>2~3</code> is <em>ripple</em> removed
+		from a new <code>Graph</code> instance. Node <code>2</code> was incident
+		with <code>2~3</code>.
+	</li>
+	<li>Node <code>2</code> is not 	removed because this <em>gentle</em> removal
+		succeeds only if the node is not incident with any edge.
+	</li>
+	<li>Edge <code>2~3</code> is removed from a new <code>Graph</code> instance
+		leaving its incident nodes in place.
+	</li>
+	<li>Edge <code>2~3</code> along with its incident nodes <code>2</code> and
+		<code>3</code> is removed from a new <code>Graph</code> instance.
+		Incident nodes will only be removed if they are not incident with
+		any other edge.
+	</li>
+	<li>All edges or nodes contained in the right hand operand are
+		removed from a new <code>Graph</code> instance.
+	</li>
+	<li>Node 0 is added to the same mutable <code>Graph</code>
+		instance.
+	</li>
+	<li>All addition and subtraction operations valid for immutable
+		graphs have their mutable counterparts with <code>=</code> as the last
+		operand character.
+	</li>
+	<li><code>+~= </code>is an edge creation operator with its
+		counterpart methods <code>addEdge</code> and <code>addAndGetEdge</code>.
+	</li>
+	<li><code>addLEdge</code> (same as <code>+~+=</code>) adds a
+		labeled edge to a mutable graph specifying its nodes and label. This
+		class of methods (operators) doesn't require outer edge parameters but
+		has an <code>implicit </code>edge factory parameters, instead.
+	</li>
+</ol>
+<p> The <code>Graph</code> operators <code>+</code>, <code>+=</code> for adding
+	and <code>-</code>, <code> -=</code> for subtracting may have an inner or outer
+	node or edge at the right hand side.
+	<em id="G4S">Graph for Scala</em> guarantees a consistent state of the node and
+	edge sets after any operation including duplicate node/edge prevention
+	as demonstrated in <em>e)</em>.
+</p>
+<p> Both <em>ripple</em> and <em>gentle</em> removal schemas are supported.
+	Using the standard operators <code>-</code> and <code>-=</code>, removals comply
+	with the definition of node and edge removal in graph theory:
+	<em>ripple</em> removal of nodes as in <em>i)</em> and
+	<em>gentle</em> removal of edges as in <em>k)</em>.
+	In addition, <em>gentle</em> removal of nodes by <code>-?</code> and
+	<code>-?=</code> as in <em>j)</em> as well as <em>ripple</em> removal of edges by
+	<code>-!</code> and <code>-!=</code> as in <em>l)</em> are also supported.
+</p>
+<p>	It is also possible to add elements to or subtract elements from node and edge
+	sets. However, these operations have less practical relevance as the result
+	is always a decoupled immutable set.
+</p>
+<p>In case of mutable graphs, two kinds of edge addition are supported:</p>
+<ul>
+	<li><em>Standard</em> addition is achieved by the operator <code>+=
+		</code>requiring an instance of <code>EdgeLike</code> at the right hand side
+		<code>&#8211;</code> see example <em>d)</em>.
+	</li>
+	<li><em>Factory-based</em> addition is achieved by special <code>add*</code>
+		methods or the corresponding operators having the incident nodes and
+		optionally an edge weight and label as arguments. The edge factory to
+		be used for internal edge creation must be defined as <code>implicit
+		val</code> - see example <em>q)</em>. Factory based addition should
+		slightly outperform standard addition.
+	</li>
+</ul>
+<p> For adding or subtracting elements of another <code>Graph</code> instance in bulk
+	see <em>4.5</em>.
+</p>
+<h2>Computing Union, Difference and Intersection</h2>
+<pre class="prettyprint lang-scala">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
+val h = Graph(3~4, 3~5, 4~6, 5~6)
+g union h      // Graph(1~2, 2~3, 2~4, 3~5, 4~5, 3~4, 4~6, 5~6) 
+g diff h       // Graph(1~2)
+g intersect h  // Graph(3~5, 4)
+g &= h         // Graph(3~5, 4), same instance
+</pre>
+<p> Also <code>union</code> (same as <code>++</code>), difference (<code>diff</code>
+	same as <code>--</code>) and intersection (<code>intersec</code> same as
+	<code>&amp;</code>) work in compliance with the corresponding definitions in
+	graph theory. Use any of the previous operators followed by <code>=</code>
+	for the mutable variants.
+</p>
+<h2>Inspecting Endpoints</h2>
+<pre class="prettyprint lang-scala">val uE = 3~4	// UnDiEdge[Int] = 3~4
+uE._1 * uE._2           // Int = 12
+uE product              // Int = 12
+val dE = 1~>2           // DiEdge[Int] = 1~>2
+dE.from - dE.to         // Int = -1
+uE.arity == dE.arity    // Boolean = true
+val hE = 1~2~11~12      // HyperEdge[Int] = 1~2~11~12
+hE._n(hE.arity - 1)     // Int = 12
+hE sum                  // Int = 26
+</pre>
+<p>As to</p>
+<ol>
+	<li><code>_1</code> and <code>_2</code> provide access to the first and
+		second node of an edge.
+	</li>
+	<li>Edges are <code>Iterable</code>, too.
+	</li>
+	<li>The first node of a directed edge may be accessed by <code>_1</code>,
+		<code>from</code> or <code>source</code>, the second by <code>_2</code>,
+		<code>to</code> or <code>target</code>.
+	</li>
+	<li>Both <code>uE</code> and <code>dE</code> have an <code>arity</code>
+		of 2.
+	</li>
+	<li><code>_n</code> also enables direct access. Here we access the
+		last node of <code>hE</code>.
+	</li>
+	<li>Once again, all edges including hyperedges are <code>Iterable</code>.
+	</li>
+</ol>
+<h2>Inspecting Neighbors and Incident Edges</h2>
+<pre class="prettyprint lang-scala">val g = Graph(0, 1~3, 3~>2)
+val (n0, n2, n3) = (g get 0, g get 2, g get 3)
+n0 diSuccessors          // Set[g.NodeT] = Set()
+n2.diSuccessors.isEmpty  // Boolean = true
+n3 diSuccessors          // Set[g.NodeT] = Set(1, 2)
+n3 diPredecessors        // Set[g.NodeT] = Set(1)
+n2 incoming              // Set[g.EdgeT] = Set(3~>2)
+n3 ~>? n2                // Option[g.EdgeT] = Some(3~>2)
+</pre>
+<p>As to</p>
+<ol>
+	<li>Node <code>n0</code> is independent so the set of direct
+		successor nodes is empty.
+	</li>
+	<li>Node <code>n2</code> is reachable but has no direct successor
+		so the set of its out-neighbors is empty, too.
+	</li>
+	<li>From node <code>n3</code>, <code>1</code> and <code>2</code> are reachable.
+	</li>
+	<li>The only direct predecessor of node <code>n3</code> is node <code>1</code>.
+	</li>
+	<li>From the perspective of node <code>n2</code> there is only one
+		incoming edge namely <code>3~&gt;2</code>.
+	</li>
+	<li><code>~&gt;?</code> is a synonym to <code>findOutgoingTo</code>.
+	</li>
+</ol>
+<p>	All in all, given a specific node, the following methods are available to inspect
+	incident edges and neighbors:</p>
+<table>
+	<tr><td><strong>Result Type</strong></td>
+		<td><strong>Method name</strong></td>
+		<td><strong>Synonyms</strong></td>
+	</tr>
+	<tr><td><strong><code>Set[NodeT]</code></strong></td>
+		<td><code>diSuccessors</code></td>
+		<td><code>outNeighbors</code>, <code>~&gt;|</code></td>
+	</tr>
+	<tr><td></td>
+		<td><code>diPredecessors</code></td>
+		<td><code>inNeighbors</code>, <code>&lt;~|</code></td>
+	</tr>
+	<tr><td></td>
+		<td><code>neighbors</code></td>
+		<td><code>~|</code></td>
+	</tr>
+	<tr><td><strong><code>Set[EdgeT]</code></strong></td>
+		<td><code>outgoing</code></td>
+		<td><code>~&gt;</code></td>
+	</tr>
+	<tr><td></td>
+		<td><code>outgoingTo</code></td>
+		<td><code>~&gt;</code></td>
+	</tr>
+	<tr><td></td>
+		<td><code>incoming</code></td>
+		<td><code>&lt;~</code></td>
+	</tr>
+	<tr><td></td>
+		<td><code>incomingFrom</code></td>
+		<td><code>&lt;~</code></td>
+	</tr>
+	<tr><td><strong><code>Option[EdgeT]</code></strong></td>
+		<td><code>findOutgoingTo</code></td>
+		<td><code>~&gt;?</code></td>
+	</tr>
+	<tr><td></td>
+		<td><code>findIncomingFrom</code></td>
+		<td><code>&lt;~?</code></td>
+	</tr>
+</table>
+<figure>
+	<figcaption>Neighbor and Incident Methods.</figcaption>
+</figure>
+<p> See also:
+	<code>object scalax.collection.Graph#InnerNodeLike</code>.
+</p>
+<h2>Querying by Function</h2>
+<pre class="prettyprint lang-scala">val g = Graph(2~>3, 3~1, 5)
+g.nodes filter (_ > 2)                  // Set[g.NodeT] = Set(5,3)
+g.nodes filter (_.degree > 1)           // Set[g.NodeT] = Set(3)
+g.edges filter (_.diSuccessors.isEmpty) // Set[g.EdgeT] = Set()
+g filter ((i: Int) => i >= 2)           // Graph(2,3,5, 2~>3)
+g filter g.having(node = _ >= 2)        // Graph(2,3,5, 2~>3)
+g filter g.having(edge = _.directed)    // Graph(2,3, 2~>3)
+g count  g.having(node = _ >= 3, edge = _.directed) // Int = 3
+</pre>
+As to
+</p>
+<ol><li>Filters the node set by <code>(NodeT) =&gt; _ &gt; 2</code>.
+	</li>
+	<li>Filters nodes with a <code>degree &gt; 1</code>.
+	</li>
+	<li>Filters edges with no adjacent edges.</li>
+	<li>Creates a subgraph of <code>g</code> 	with nodes satisfying
+		<code>_ &gt;= 2</code> and their incident edges.
+	</li>
+	<li>Same as <em>d)</em> utilizing <code>having</code>. Method <code>having</code>,
+		returning a partial function, helps to reduce code by internally
+		<code>match</code>ing nodes and edges.
+	</li>
+	<li>Creates a subgraph of <code>g</code> consisting of <code>directed</code>
+		edges only. Note that filtering <code>g.edges</code> is not an
+		alternative because it would return a set of contained edges, not a
+		subgraph.
+	</li>
+	<li>Counts the number of nodes and edges satisfying either of the
+		given predicates.
+	</li>
+</ol>
+<p> <code>Graph</code> queries may start at the node set <code>nodes</code>,
+	the edge set <code>edges</code> or at the <code>Graph</code> instance.
+	Filtering a graph results in a subgraph obtained by node and/or edge
+	predicates.
+</p>
+<h2>Finding Paths</h2>
+<figure>
+	<img alt="Finding Paths" src="/img/guides/core/MixedGraph.jpg">
+	<figcaption>A mixed graph example.</figcaption>
+</figure>
+<pre class="prettyprint lang-scala">val g = Graph(	1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
+    3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
+def n(outer: Int) = g get outer            // look-up helper for known nodes
+n(1) findSuccessor (_.outDegree >  3)      // Option[g.NodeT] = None 
+n(1) findSuccessor (_.outDegree >= 3)      // Option[g.NodeT] = Some(3)
+n(4) findSuccessor (_.edges forall (_.undirected)) // Some(2)
+n(4) isPredecessorOf n(1)                  // true 
+n(1) pathTo n(4)       // Some(Path(1, 1~5 % 3, 5, 3~5 % 2, 3, 3~4 % 1, 4))
+n(1) pathUntil (_.outDegree >= 3)  // Some(Path(1, 1~5 % 3, 5, 3~5 % 2, 3))
+val p = n(3) shortestPathTo n(1) get	     // Path(3, 3~4 % 1, 4, ..., 1)
+p nodes                            // List[g.NodeT] = List(3, 4, 5, 1)
+p weight                           // Long = 4
+val oP = n(4) pathTo (n(2), nodeFilter = _ < 4)
+if (oP.isDefined) oP.get.nodes     // Some(List(4, 3, 2))
+val oP = n(4) pathTo (n(2), edgeFilter = _.weight != 2)
+if (oP.isDefined) oP.get.nodes     // Some(List(4, 5, 1, 2))
+</pre>
+<p>As to</p>
+<ol>
+	<li>Searches for any (direct or indirect) successor of node <code>1</code>
+		having <code>outDegree &gt; 3</code> and finds <code>None</code>.
+	</li>
+	<li>Searches for any successor of node <code>1</code> having <code>outDegree
+		&gt;= 3</code> and finds node <code>3</code>. This also means that there
+		exists a path from node <code>1</code> to node <code>3</code>
+		but this path is not to be determined by this method call.
+	</li>
+	<li>Searches for any successor of node <code>4</code> having only
+		undirected edges and finds node <code>2</code>.
+	</li>
+	<li>Successfully tests for node <code>4</code> being a predecessor
+		of node <code>1</code>.
+	</li>
+	<li>Finds an arbitrary path from node <code>1</code> to node <code>4</code>.
+	</li>
+	<li>Finds a path from node <code>1</code> to an arbitrary node 	having
+		<code>outDegree &gt;= 3</code>.
+	</li>
+	<li>Determines the shortest path from node <code>3</code> to node
+		<code>1</code> and <code>get</code>s the result from <code>Option</code>.
+		Calling <code>get</code> is okay in this example because we know that
+		there must exist a path.
+	</li>
+	<li>Reduces path <code>p</code> to the List of nodes on the path.
+		The returned path is an instance of the inner class <code>Path</code>
+		facilitating further functionality...
+	</li>
+	<li>...so, among others, it provides <code>weight</code> to 	calculate the
+		total of the edge weights on this path.
+	</li>
+	<li>Finds a path from node <code>4</code> to node <code>2</code> under the
+		constraint that all nodes on the path must have a value less than
+		<code>4</code>. The inner case class <code>g.Nav</code> enables
+		functional navigation.
+	</li>
+	<li>Finds a path from node <code>4</code> to node <code>2</code> under the
+		constraint that no edge on the path may have a weight of <code>2</code>.
+	</li>
+</ol>
+<p> All methods relying on recursion are tail recursive.
+</p>
+<h2>Traversing</h2>
+<p> Let <code>g</code> be the mixed graph defined in chapter <em>4.9 Finding Paths</em>.
+	Then
+</p>
+<pre class="prettyprint lang-scala">def n(outer: Int) = g get outer	// looks up inner node equaling outer
+import scalax.collection.GraphTraversal.VisitorReturn._
+var sum = 0                  // for node visitor side-effects
+var weights = 0L             // for edge visitor side-effects
+object Visitors {            // needed in REPL
+  def add(node: g.NodeT) = { // a node visitor
+    sum += node              // sum up the value of the visited node
+    Continue                 // let the traversal Continue
+  }
+  def add(edge: g.EdgeT) = { // an edge visitor
+    weights += edge.weight   // sum up the weight of the visited edge
+  }
+}
+import Visitors._
+</pre>
+<pre class="prettyprint lang-scala">sum = 0 
+n(4).traverseNodes() { add }
+sum                // Int = 15
+sum = 0 
+n(4).traverseNodes(maxDepth = 1) { add }
+sum                // Int = 12
+sum = 0 
+n(4).traverseNodes(nodeFilter = _ <= 4) { add }
+sum                // Int = 10
+weights = 0
+n(4).traverseEdges() { weights += _.weight }
+weights            // Long = 30
+weights = 0
+n(4).traverseEdges(maxDepth = 1) { add }
+weights            // Long = 2
+sum = 0; weights = 0
+n(4).traverse(nodeFilter = _ <= 4,
+              edgeFilter = _.weight < 4)(
+              nodeVisitor = add,
+              edgeVisitor = add)
+sum                // Int = 9
+weights            // Long = 9  
+val traversal = g.newTraversal(nodeFilter  = _ <= 4,
+                               nodeVisitor = add)
+sum = 0
+traversal (n(4), maxDepth = 1)
+traversal (n(2), breadthFirst = false)
+sum               // Int = 17
+</pre>
+<p>As to</p>
+<ol>
+	<li>Sums up the values of all nodes in <code>g</code> because the
+		traversal is unrestricted and <code>g</code> is connected.
+	</li>
+	<li>With <code>maxDepth = 1</code> the traversal is restricted to
+		one layer so the root node and the nodes <code>3</code> and <code>5</code>
+		will be visited.
+	</li>
+	<li>Filtering nodes by <code>_ &lt;= 4 </code>results in the
+		exclusion of node <code>5</code> from the traversal.
+	</li>
+	<li>As in <em>a)</em> this is a full traversal but with an edge
+		visitor. The value of <code>weights</code> after this traversal is
+		greater than the sum of weights over all edges because undirected
+		edges can be visited from both ends.
+	</li>
+	<li>This traversal has the same restriction as that in <em>b)</em>.
+		The signature of <code>traverseEdge</code> ensures that the edge
+		visitor will be called. The resulting <code>weights</code> if the sum
+		of <code>0</code>, <code>1</code> and <code>1</code> including the
+		hook at <code>4</code>.
+	</li>
+	<li><code>traverse</code> has a generic signature which allows
+		both a node and an edge visitor argument.
+	</li>
+	<li>Whenever subsequent traversals share filters and visitors, it
+		is advantageous to explicitly create a <code>Traversal</code> instance
+		and use it for starting traversals at different roots.
+	</li>
+</ol>
+<p>	Inspecting the neighbors of a node could also be regarded as a one-step
+	traversal (covered in <em>4.7</em>). But a traversal in the real sense
+	of the word allows unlimited steps beginning at a specific <em>root node</em>
+	with each step following some kind of edges from the node being visited.
+	Set the <code>direction</code> parameter to one of <code>Successors</code>
+	(default), <code>Predecessors</code> or <code>AnyConnected</code>
+	to determine whether only outgoing, only incoming or all edges should
+	be followed.
+</p>
+<p> Unfiltered traversals in an undirected graph or in a directed graph
+	with <code>direction = AnyConnected</code> will visit all nodes and edges
+	provided the graph is connected. By their nature, traversals are limited
+	to the component containing the root node.
+</p>
+<p> It is worth mentioning that, among others, visitors may also call
+	nested traversals.</p>
+<h3>Down-up Visitors</h3>
+<p> Let's suppose, you have to traverse a graph, especially a tree, in a
+	stack-like manner i.e. you need to carry out one action when touching
+	a node the first time and another, related, action when toughing the
+	same node a second time in course of moving back from already visited
+	nodes. For this purpose, you obviously need an additional visitor that
+	we call <em>node-up visitor</em>:
+</p>
+<pre class="prettyprint lang-scala">val root = "A"
+val g = Graph(root~>"B1", root~>"B2")
+val result = ListBuffer.empty[String]
+(g get root).traverseDownUp()(
+  nodeDown = (n: g.NodeT) => {
+    result += (if (n == root) "(" else "[") += n
+    Continue
+  },
+  nodeUp = (n: g.NodeT) =>
+    result += (if (n == root) ")" else "]")
+)
+("" /: result)(_+_)  // (A[B1][B2])  
+</pre>
+<h3>Sorting</h3>
+<p>As another special case, you might want to control the order of
+	nodes to be visited as it is undetermined by default. This could be
+	useful a) for accelerating path searches whenever you can assume that
+	the processing of adjacent nodes in a specific order promises to reach
+	the goal node faster or b) for printed reports like in the following
+	breadth first search:</p>
+<pre class="prettyprint lang-scala">import edge.WDiEdge
+val root = 1
+val g = Graph(root~>4 % 2, root~>2 % 5, root~>3 % 4,
+                 3~>6 % 4,    3~>5 % 5,    3~>7 % 2)
+// traverse edges in reverse order of their weights 
+def edgeOrdering = g.EdgeOrdering(g.Edge.WeightOrdering.reverse.compare)
+val results = new Array[Int](g.order)
+var idx = 0
+(g get root).traverseNodes(ordering = edgeOrdering){ node =>
+  results(idx) = node.value
+  idx += 1
+  Continue
+}
+results	// Array(1,2,3,4,5,6,7)
+</pre>
+<h2>Measuring Graphs and Grouping Nodes by Degree</h2>
+<p> Assume <code>g</code> being the mixed graph in chapter <em>Finding Paths</em>.
+	Then
+</p>
+<pre class="prettyprint lang-scala">g.order	// Int = 5 
+g.graphSize                 // Int = 8
+g.size                      // Int = 13
+g.totalDegree               // Int = 16 
+g.degreeSet                 // TreeSet(4, 3, 2)
+g.degreeNodeSeq(g.InDegree) // List((4,3), (3,5), (2,1), (2,4), (2,2))
+g.degreeNodesMap            // Map(2->Set(2), 3->Set(5,1), 4->Set(3,4))
+g.degreeNodesMap(degreeFilter = _ > 3)  // Map(4 -> Set(3,4))
+</pre>
+<p>As to</p>
+<ol>
+	<li>The order of (number of nodes in) <code>g</code>.
+	</li>
+	<li>The size of (number of edges in) <code>g</code>.
+	</li>
+	<li>The number of all contained elements (nodes and edges) of <code>g</code>.
+	</li>
+	<li>The total degree (sum of degrees over all nodes) of <code>g</code>.
+	</li>
+	<li>The distinct, decreasing set of degrees over all nodes of <code>g</code>.
+	</li>
+	<li>The non-decreasing sequence of in-degrees over all nodes in <code>g</code>
+		with inner node references.
+	</li>
+	<li>A map of degrees over all nodes in <code>g</code> with nodes
+		having the degree of key.
+	</li>
+	<li>The same map as in g) restricted to degrees greater than <code>3</code>.
+	</li>
+</ol>
+<p>All degree methods have implicit parameters to query in- or
+	out-degrees and filtering degrees.
+</p>
+<h2>Classifying Graphs</h2>
+<pre class="prettyprint lang-scala">val g = Graph(1, 2~>3) 
+g.isConnected                   // false 
+(g + 2~>1).isConnected          // true
+(g get 2).findConnected(_ == 3) // Some(3)
+g.isCyclic                      // false
+(g + 3~>2).isCyclic             // true
+g.isComplete                    // false 
+(g ++ List(1~>2, 1~>3, 2~>1, 3~>1, 3~>2)).isComplete // true
+</pre>
+<p>As to</p>
+<ol>
+	<li>Besides determining whether <code>g</code> is connected it is
+		also possible to call <code>findConnected</code> at a specific node.
+	</li>
+	<li>See also <code>findCycle</code> on the graph instance or
+		starting at a specific node.
+	</li>
+</ol>
+<h2>Detecting Cycles</h2>
+<pre class="prettyprint lang-scala">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
+val fc1 = g.findCycle         // Some(Cycle(3, 3~>4, 4, 4~>2, 2, 2~>3, 3))
+val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
+(for (c1 <- fc1; c2 <- fc2) yield c1 == c2) get     // false
+(for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2) get // true
+</pre>
+<p>As to</p>
+<ol>
+	<li>Finds an arbitrary cycle in <code>g</code>, if any.
+	</li>
+	<li>Finds an arbitrary cycle reachable from node <code>4</code>,
+		if any.
+	</li>
+	<li><code>c1</code> and <code>c2</code> are not equal because they
+		start at different nodes.
+	</li>
+	<li>Though they start at different nodes, <code>c1</code> and <code>c2</code>
+		depict the same cycle in a semantic sense.
+	</li>
+</ol>
+<p> You may also call <code>findCycle</code> passing a node and/or edge filter.
+</p>
+<p> Cycle detecting works for directed, undirected and mixed graphs, alike.
+	If you have to ensure that your <code>Graph</code> instance is acyclic on
+	any operation consider utilizing the <code>Acyclic</code> constraint in
+	the Constrained module.
+</p>
+<h2>Chaining Method Calls</h2>
+<pre class="prettyprint lang-scala">g.nodes find (_.inDegree > g.order / 5) orElse Some(g.nodes.head)
+</pre>
+<p>Graph is designed for functional style programming enabling to
+	chain method calls as you feel inclined.</p>

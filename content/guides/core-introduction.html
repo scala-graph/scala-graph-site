@@ -1,0 +1,80 @@
+---
+title: Core User Guide
+sideMenuItems: >
+  <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
+  <li><a href="/guides/core-inner-outer.html">Inner and Outer Objects</a></li>
+  <li><a href="/guides/core-operations.html">Graph Operations</a></li>
+  <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
+  <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
+---
+<h1>Core User Guide: Introduction</h1>
+<h2>Motivation</h2>
+<p> This document provides an example-driven, comprehensive coverage of the
+	functionality of <em id="G4S">Graph for Scala</em> as part of the Extended Scala Library.
+	In each chapter examples are listed first. You may then read the explanations
+	following the examples to make them more coherent or skip them and go directly
+	to the next chapter.
+</p>
+<p> References to specific <code>Graph</code> classes in this document may be looked
+    up in the Scaladoc API reference. This guide is not meant to be complete.
+</p>
+<p> For the sake of simplicity, most examples are based on graphs spanned
+	over nodes of the type <code>Int</code>.
+	<code>Graph</code> customization is shown by the node type <code>Airport</code>
+	and the edge type <code>Flight</code>.
+</p>
+<h2>Why Use Graph for Scala?</h2>
+<p> The most important reasons why <em id="G4S">Graph for Scala</em> speeds up your
+    development are:
+</p>
+<ul>
+	<li><strong>Simplicity</strong>: Creating, manipulating and
+		querying <code>Graph</code> is intuitive.</li>
+	<li><strong>Consistency</strong>: <em id="G4S">Graph for Scala</em> seamlessly
+		maintains a consistent state of nodes and edges including prevention
+		of duplicates, intelligent addition and removal.</li>
+	<li><strong>Conformity</strong>: As a regular collection class, <code>Graph</code>
+		has the same "look and feel" as other members of the Scala collection
+		framework. Whenever appropriate, result types are Scala collection
+		types themselves.</li>
+	<li><strong>Flexibility</strong>: All kinds of graphs including
+		mixed graphs, multi-graphs and hypergraphs are supported.</li>
+	<li><strong>Functional Style</strong>: <em id="G4S">Graph for Scala</em>
+		facilitates a concise, functional style of utilizing graph
+		functionality, including traversals, not seen in Java-based libraries.</li>
+	<li><strong>Extendibility</strong>: You can easily customize
+		<em id="G4S">Graph for Scala</em> to reflect the needs of you application
+		retaining all benefits of <code>Graph</code>.
+	</li>
+	<li><strong>Documentation</strong>: Ideal progress curve through
+		adequate documentation.</li>
+</ul>
+<p>Look and see!
+</p>
+<h2>Terminology</h2>
+<p> Throughout the library we use the terms <em>node</em> as a synonym to
+	vertex and <em>edge</em> as a generic term for hyperedge, line
+	(undirected edge) or arc (directed edge).
+</p>
+<h2>Status of Work</h2>
+<p>
+	Among others, <code>Graph</code> creation, editing, functional traversal,
+	path operations, degree calculation and cycle detection have been completed.
+	More functionality is due to be added. You are invited to request enhancements
+	based on your problem domain.
+</p>
+<h2>Limitations</h2>
+<ul>
+	<li>There is no direct support for <em>half-edges</em> but they
+		can be simulated by <code>Option</code>.
+	</li>
+	<li>Neither node nor edge sets may be <em>infinite</em> although
+		this could be achieved by a custom implementation.
+	</li>
+</ul>
+<h2>Modules</h2>
+<p> The <em id="G4S">Graph for Scala</em> library consists of the Core and
+	further optional modules. Each module comes with its separate User
+	Guide and is built as a separate Jar.
+</p>
