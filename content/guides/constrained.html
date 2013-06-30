@@ -26,7 +26,7 @@ sideMenuItems: >
     constrained if a constraint has been passed to its factory method on creation or if it is a result of an
     operation based on a dynamically constrained <code>Graph</code>:
 </p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.GraphPredef._,
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.GraphPredef._,
        scalax.collection.GraphEdge._
 import scalax.collection.constrained._ // replaces scalax.collection.Graph
 import scalax.collection.constrained.constraints.Connected
@@ -106,7 +106,7 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
     <code>Acyclic</code> constraint throw an exception on improper <code>Graph</code> creation or
     on addition of any improper elements, just proceed as follows:
 </p>
-<pre class="prettyprint lang-scala linenums">object AcyclicWithException extends ConstraintCompanion[Acyclic] {
+<pre class="prettyprint lang-scala nolinenum">object AcyclicWithException extends ConstraintCompanion[Acyclic] {
   def apply [N, E[X] <: EdgeLikeIn[X]] (self: Graph[N,E]) =
     new Acyclic[N,E] (self) {
       override def onAdditionRefused(refusedNodes: Iterable[N],
@@ -173,7 +173,7 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
 <h2 id="Composing">Composing Constraints</h2>
 <p> Constraints may be composed by the <code>&amp;&amp;</code> and <code>||</code> operators like:
 </p>
-<pre class="prettyprint lang-scala linenums">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(�)
+<pre class="prettyprint lang-scala nolinenum">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(�)
 val e = Graph.from(nodeList, edgeList)
 </pre>
 
@@ -184,12 +184,12 @@ val e = Graph.from(nodeList, edgeList)
 </p>
 <p> Suppose you prefer writing
 </p>
-<pre class="prettyprint lang-scala linenums">val t = Tree.from(nodeList, edgeList) // Tree(�)
+<pre class="prettyprint lang-scala nolinenum">val t = Tree.from(nodeList, edgeList) // Tree(�)
 </pre>
 <p> in contrast to the example in 6. Well, you can do this right away because the <code>Tree</code> alias
     is already present in the <code>constrained</code> module. This is how it has been achieved:
 </p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.GraphEdge._
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.GraphEdge._
 import scalax.collection.constrained.Graph // immutable
 
 type Tree[N] = Graph[N,UnDiEdge]

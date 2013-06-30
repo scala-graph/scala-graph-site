@@ -1,6 +1,6 @@
 @import "variables";
 
-.pln { color: #000 }  /* plain text */
+.pln { color: black }  /* plain text */
 
 @media screen {
   .str { color: $primary-dark }     // string
@@ -30,13 +30,13 @@
   .atn { color: #404 }
   .atv { color: #060 }
 }
-
-/* Put a border around prettyprinted code snippets. */
 pre.prettyprint {
   padding: 2px;
   border: 1px solid #888
 }
-
+pre.nolinenum {
+  background: $primary-light;
+}
 ol.linenums {
   margin-top: 0;
   margin-bottom: 0

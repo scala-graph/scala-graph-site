@@ -64,7 +64,7 @@ sideMenuItems: >
 		graph</em>, books and authors are represented by nodes, authorship by
 	edges:
 </p>
-<pre class="prettyprint lang-scala linenums">// node types: Book, Author
+<pre class="prettyprint lang-scala nolinenum">// node types: Book, Author
 sealed trait Library
 case class Book  (val title: String, 
                   val isbn:  String) extends Library
@@ -102,11 +102,11 @@ val library = Graph[Library,HyperEdge](
 </p>
 <p>
 	<a name="RichViewCheckpoint0"></a>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.io.json._
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json._
 val exported = library.toJson(descriptor)
 </pre>
 <p>Alternatively, you can control the export phases one by one:</p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.io.json.exp.Export
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json.exp.Export
 val export = new Export[N,E](library, descriptor)
 import export._
 val (nodesToExport, edgesToExport) = (jsonASTNodes, jsonASTEdges)
@@ -142,7 +142,7 @@ val exported = jsonText(astToExport)
 	serialization. In case of our <em>academic library</em> example you may
 	start with
 </p>
-<pre class="prettyprint lang-scala linenums">val bookDescriptor = new NodeDescriptor[Book](typeId = "Books") {
+<pre class="prettyprint lang-scala nolinenum">val bookDescriptor = new NodeDescriptor[Book](typeId = "Books") {
   def id(node: Any) = node match {
     case Book(_, isbn) => isbn
   }
@@ -225,7 +225,7 @@ val quickJson = new Descriptor[Library](
 	graph (named arguments may be omitted &#8211; we verbose them just for
 	better readability):
 </p>
-<pre class="prettyprint lang-scala linenums">val descriptor = new Descriptor[Library](
+<pre class="prettyprint lang-scala nolinenum">val descriptor = new Descriptor[Library](
   defaultNodeDescriptor = authorDescriptor,
   defaultEdgeDescriptor = DiHyper.descriptor[Library](),
   namedNodeDescriptors  = Seq(bookDescriptor),
@@ -295,7 +295,7 @@ val quickJson = new Descriptor[Library](
 	positional JSON requires a little bit of programming, namely the
 	definition of appropriate Lift-Json custom serializers:
 </p>
-<pre class="prettyprint lang-scala linenums">object PositionedNodeDescriptor {
+<pre class="prettyprint lang-scala nolinenum">object PositionedNodeDescriptor {
   import net.liftweb.json._
   final class AuthorSerializer extends CustomSerializer[Author] ( fmts => ( 
     { case JArray(JString(surName) :: JString(firstName) :: Nil) => 
@@ -336,7 +336,7 @@ val quickJson = new Descriptor[Library](
 		contains predefined serializers for predefined edges we do not need to
 		implement them separately:</em>
 </p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.io.json.serializer.{
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json.serializer.{
          HyperEdgeSerializer, EdgeSerializer}
 val descriptor = new Descriptor[Library](
   defaultNodeDescriptor = PositionedNodeDescriptor.author,
@@ -348,7 +348,7 @@ val descriptor = new Descriptor[Library](
 )
 </pre>
 <p>Armed with the above descriptor we then call</p>
-<pre class="prettyprint lang-scala linenums">val exported = library.toJson(descriptor)
+<pre class="prettyprint lang-scala nolinenum">val exported = library.toJson(descriptor)
 </pre>
 <p>and verify the resulting, "condensed" JSON text:</p>
 <pre class="prettyprint lang-json">{ "nodes":{"Books":[
@@ -376,7 +376,7 @@ val descriptor = new Descriptor[Library](
 	<code>fromJson</code>
 	:
 </p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.io.json._
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json._
 val library = Graph.fromJson[Library,HyperEdge](jsonTextLibrary, descriptor)
 </pre>
 <p>
@@ -397,7 +397,7 @@ val library = Graph.fromJson[Library,HyperEdge](jsonTextLibrary, descriptor)
 	result of this inference will be unsatisfactory so you are strongly
 	advised to explicitly state the correct type arguments.</p>
 <p>Alternatively, you can control import phases one by one:</p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.io.json.imp.Parser._
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json.imp.Parser._
 val parsed = parse(jsonText, descriptor)
 val result = Graph.fromJson[...](parsed)
 </pre>
@@ -414,7 +414,7 @@ val result = Graph.fromJson[...](parsed)
 	keys. For the sake of simplicity we abstract away from the key
 	modifiers Alt, Ctrl and Shift:
 </p>
-<pre class="prettyprint lang-scala linenums">class Transition[N](from: N, to: N, val key: Char)
+<pre class="prettyprint lang-scala nolinenum">class Transition[N](from: N, to: N, val key: Char)
     extends DiEdge  [N](NodeProduct(from, to))
     with ExtendedKey[N]
     with EdgeCopy   [Transition]
@@ -461,12 +461,12 @@ object Transition extends CEdgeCompanion[Transition] {
 	<code>Transition</code>
 	we can instantiate a custom edge descriptor as follows:
 </p>
-<pre class="prettyprint lang-scala linenums">new CEdgeDescriptor[String, Transition, Transition.type, Transition.P](
+<pre class="prettyprint lang-scala nolinenum">new CEdgeDescriptor[String, Transition, Transition.type, Transition.P](
   edgeCompanion    = Transition,
   sampleAttributes = Tuple1('A'))
 </pre>
 <h2 id="Inversion">Note on Inversion</h2>
-<pre class="prettyprint lang-scala linenums">val expLibrary = library.toJson(descriptor)
+<pre class="prettyprint lang-scala nolinenum">val expLibrary = library.toJson(descriptor)
 Graph.fromJson[Library,HyperEdge](
                expLibrary, descriptor) should equal (library)
 </pre>

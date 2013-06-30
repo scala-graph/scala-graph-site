@@ -49,7 +49,7 @@ sideMenuItems: >
 	<code>Graph</code>
 	creation:
 </p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.config.CoreConfig
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.config.CoreConfig
 import scalax.collection.mutable.ArraySet.Hints
 implicit val myConfig = CoreConfig(Hints(64, 0, 64, 75))
 </pre>
@@ -74,7 +74,7 @@ implicit val myConfig = CoreConfig(Hints(64, 0, 64, 75))
 <p> To enrich <code>Graph</code> with one or more methods you might expand
 	the following template:
 </p>
-<pre class="prettyprint lang-scala linenums">final class ExtGraph[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) {
+<pre class="prettyprint lang-scala nolinenum">final class ExtGraph[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) {
   def &lt;yourMethodSignature&gt; &lt;yourMethodBody&gt;
 }
 implicit def gToExtG[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) =
@@ -82,7 +82,7 @@ implicit def gToExtG[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) =
 </pre>
 <p>	To enrich the inner <code>type NodeT</code> is more subtle:
 </p>
-<pre class="prettyprint lang-scala linenums">final class ExtGraphNode[N, E[X] <: EdgeLikeIn[X]](node_ : Graph[N,E]#NodeT) {
+<pre class="prettyprint lang-scala nolinenum">final class ExtGraphNode[N, E[X] <: EdgeLikeIn[X]](node_ : Graph[N,E]#NodeT) {
   type NodeT = graph.NodeT
   val graph = node_.containingGraph
   val node  = node_.asInstanceOf[NodeT]
@@ -103,43 +103,44 @@ implicit def nodeToExtN[N, E[X] <: EdgeLikeIn[X]] (node: Graph[N,E]#NodeT) =
 	For the sake of simplicity we design the <code>Flight</code> edge to have
 	the only attribute <code>flightNo</code>. Given the node class
 </p>
-<pre class="prettyprint lang-scala linenums">case class Airport(val code: String) // node type
+<pre class="prettyprint lang-scala nolinenum">case class Airport(val code: String) // node type
 val (ham, ny) = (Airport("HAM"), Airport("JFK")) // two nodes
 </pre>
 <p>assume we want to be able to write</p>
-<pre class="prettyprint lang-scala linenums">val flight = ham ~> ny ## "007"	// flightNo 007 - doesn't work yet
+<pre class="prettyprint lang-scala nolinenum">val flight = ham ~> ny ## "007"	// flightNo 007 - doesn't work yet
 val g = Graph(flight) // Graph[Airport, Flight] - doesn't work yet
 </pre>
 <p>
 	<a name="RichViewCheckpoint0"></a> Here is how to achieve the above
 	requirements:
 </p>
-<pre class="prettyprint lang-scala linenums">class Flight[N](nodes: Product, val flightNo: String)
-  extends DiEdge[N](nodes)	// a1)
-  with    ExtendedKey[N]	// a2)
-  with    EdgeCopy[Flight]	// a3)
-  with    EdgeIn[N,Flight]	// a4)
+<pre class="prettyprint lang-scala linenums"
+>class Flight[N](nodes: Product, val flightNo: String)
+  extends DiEdge[N](nodes)
+  with    ExtendedKey[N]
+  with    EdgeCopy[Flight]
+  with    EdgeIn[N,Flight]
 {
-  def keyAttributes = Seq(flightNo)	         // a5) ExtendedKey
-  override def copy[NN](newNodes: Product) = // a6) EdgeCopy
+  def keyAttributes = Seq(flightNo)
+  override def copy[NN](newNodes: Product) =
     new Flight[NN](newNodes, flightNo)
 }
 object Flight {
-  def apply(from: Airport, to: Airport, no:String) =        // a7)
+  def apply(from: Airport, to: Airport, no:String) =
     new Flight[Airport](NodeProduct(from, to), no)
   def unapply(e: Flight[Airport]): Option[(Airport,Airport,String)] =
       if (e eq null) None else Some(e.from, e.to, e.flightNo)
 }
-final class FlightAssoc[A <: Airport](val e: DiEdge[A]) {   // b1)
+final class FlightAssoc[A <: Airport](val e: DiEdge[A]) {
   @inline def ## (flightNo: String) =
     new Flight[A](e.nodes, flightNo) with EdgeIn[A,Flight]
 }
-implicit def edge2FlightAssoc[A <: Airport](e: DiEdge[A]) =	// b2)
+implicit def edge2FlightAssoc[A <: Airport](e: DiEdge[A]) =
   new FlightAssoc[A](e)
 </pre>
 <p>As to</p>
 <ol>
-	<li><code>DiEdge</code> should be the base of any directed custom
+	<li value="2"><code>DiEdge</code> should be the base of any directed custom
 		edge. <code>Airport</code> is the node type.</li>
 	<li>If any of the label attributes is part of the key of the edge
 		type, <code>ExtendedKey</code> must be mixed in. An attribute is a key
@@ -151,22 +152,20 @@ implicit def edge2FlightAssoc[A <: Airport](e: DiEdge[A]) =	// b2)
 	</li>
 	<li>All edge implementations must mix in <code>EdgeIn</code>.
 	</li>
-	<li>Key attributes must be added to this <code>Seq</code>.
+	<li value="7">Key attributes must be added to this <code>Seq</code>.
 	</li>
 	<li><code>copy</code> will be called by <code>Graph</code>
 		transparently to create an inner edge. Thus <code>copy</code> plays
 		the role of an inner edge factory. It must return an instance of the
 		edge class.
 	</li>
-	<li>This standard <code>apply</code> makes use of <code>NodeProduct</code>
+	<li value="12">This standard <code>apply</code> makes use of <code>NodeProduct</code>
 		which creates a <code>Product</code> of the arguments.
 	</li>
-</ol>
-<ol>
-	<li>Establishes the <code>Flight</code> edge factory shortcut <code>##</code>
-		which converts a directed edge to <code>Flight</code>.
+	<li value="17">Establishes the <code>Flight</code> edge factory shortcut
+		<code>##</code> which converts a directed edge to <code>Flight</code>.
 	</li>
-	<li>Enables the implicit usage of the <code>##</code> operator.
+	<li value="21">Enables the implicit usage of the <code>##</code> operator.
 	</li>
 </ol>
 <p>

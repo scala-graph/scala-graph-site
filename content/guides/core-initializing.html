@@ -17,11 +17,11 @@ sideMenuItems: >
 	documentation ensure that <code>Graph-core_*.jar</code> is on your class path.
 </p>
 <p>	In most cases you need to import the following:</p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.Graph // or scalax.collection.mutable.Graph
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.Graph // or scalax.collection.mutable.Graph
 import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
 </pre>
 <h2>Type Parameters</h2>
-<pre class="prettyprint lang-scala linenums">trait Graph[N, E[X] <: EdgeLikeIn[X]]
+<pre class="prettyprint lang-scala nolinenum">trait Graph[N, E[X] <: EdgeLikeIn[X]]
 </pre>
 <p> <code>N&nbsp;&nbsp;&nbsp;</code> is the type of the nodes of a graph instance.
 </p>
@@ -366,7 +366,8 @@ import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
 	corresponding shortcuts into scope you need additional <code>import</code>s,
 	for instance
 </p>
-<pre class="prettyprint lang-scala linenums">import scalax.collection.edge.LDiEdge     // labeled directed edge
+<pre class="prettyprint lang-scala nolinenum"
+>import scalax.collection.edge.LDiEdge     // labeled directed edge
 import scalax.collection.edge.Implicits._ // shortcuts
 </pre>
 <p> While simple directed and undirected edge shortcuts may be used without
@@ -395,7 +396,7 @@ import scalax.collection.edge.Implicits._ // shortcuts
 	<code>departure</code>. To cope with this problem you have to override
 	<code>equals</code> and <code>hashCode</code> as follows:
 </p>
-<pre class="prettyprint lang-scala linenums">case class Flight(val flightNo : String,
+<pre class="prettyprint lang-scala nolinenum">case class Flight(val flightNo : String,
                   val departure: DayTime  = DayTime (0,0),
                   val duration : Duration = Duration(0,0))
 { override def equals(other: Any) = other match {
@@ -415,7 +416,7 @@ import scalax.collection.edge.Implicits._ // shortcuts
 	value of the edge to your label type. This conversion is supported by the
 	<code>trait LEdgeImplicits[L]</code>:
 </p>
-<pre class="prettyprint lang-scala linenums">case class MyLabel(val i: Int)
+<pre class="prettyprint lang-scala nolinenum">case class MyLabel(val i: Int)
 val eOuter = LUnDiEdge(1,3)(MyLabel(4))
 val four_1 = eOuter.label.i // label must be dereferenced first
 
@@ -468,7 +469,7 @@ val gs = Graph.fromStream[Int,WLDiEdge,String,WLEdgeCompanion,WLEdgeAdapter](
 		In <code>1~2~3</code> the second <code>~</code> operator creates
 		an undirected hyperedge because the left operand is already an edge.
 	</li>
-	<li>Creates an instance of<code> Graph[Airport,LkDiEdge]</code>
+	<li value="6">Creates an instance of<code> Graph[Airport,LkDiEdge]</code>
 		with a node set containing the airports <code>JFC</code>, <code>FRA</code>
 		and <code>DME</code> derived from the edge ends and an edge set
 		containing two flights. The edges have labels of the type <code>Flight</code>,
@@ -476,7 +477,7 @@ val gs = Graph.fromStream[Int,WLDiEdge,String,WLEdgeCompanion,WLEdgeAdapter](
 		The <code>Flight</code> attributes are flight number, departure time
 		and flight duration. See also <em>2.3 Edge Factories</em>.
 	</li>
-	<li>Creates a <code>Graph</code> from the <code>Iterable</code>
+	<li value="11">Creates a <code>Graph</code> from the <code>Iterable</code>
 		values <code>nodes</code> and <code>edges</code>. This <code>Graph</code>
 		instance&nbsp; <code>g3</code> equals to <code>g1</code>.
 	</li>
@@ -528,7 +529,7 @@ Graph(1~>2) + 2~3              // compiler error
 	of <code>Graph</code>, the Scala type system requires to declaratively
 	maintain type parameter bounds as shown in the following example:
 </p>
-<pre class="prettyprint lang-scala linenums">def myFunction[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E])
+<pre class="prettyprint lang-scala nolinenum">def myFunction[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E])
 </pre>
 <h2>Implementations</h2>
 <p> As common to members of <code>scala.collection</code>, <em id="G4S">Graph for Scala</em>

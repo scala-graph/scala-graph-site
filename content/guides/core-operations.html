@@ -17,10 +17,10 @@ g.edges mkString "-"         // 2~3-3~1
 </pre>
 <p>As to</p>
 <ol>
-	<li>Iterating over a <code>Graph</code> instance you get all nodes 	and all edges.
-		<code>Graph</code> extends <code>Set[GraphParam]</code>. <code>GraphParam</code>
-		is 	an algebraic type for outer nodes, outer 	edges, inner nodes and inner
-		edges.
+	<li value="2">Iterating over a <code>Graph</code> instance you get all nodes
+		and all edges. <code>Graph</code> extends <code>Set[GraphParam]</code>.
+		<code>GraphParam</code> is an algebraic type for outer nodes, outer edges,
+		inner nodes and inner edges.
 	</li>
 	<li><code>nodes</code> returns the node set which in turn is an instance of
 		<code>Set[NodeT]</code>.
@@ -46,7 +46,8 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 </pre>
 <p>As to</p>
 <ol>
-	<li>Searches for and finds the inner node wrapping the outer node 	<code>1</code>.
+	<li value="2">Searches for and finds the inner node wrapping the outer node
+		<code>1</code>.
 	</li>
 	<li>Searches for the inner node wrapping the outer node 3 but cannot find it.
 	</li>
@@ -86,7 +87,7 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 </pre>
 <p>As to</p>
 <ol>
-	<li>The inner node <code>1 </code>equals to the outer node <code>1</code>.
+	<li value="2">The inner node <code>1 </code>equals to the outer node <code>1</code>.
 	</li>
 	<li>The inner edge <code>1~2 </code>equals to the outer edge <code>2~1</code>.
 		This example also demonstrates, that in case of undirected edges the
@@ -125,8 +126,8 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 </pre>
 <p>As to</p>
 <ol>
-	<li>Node <code>1</code> is not added because it is already 	contained,
-		so the same instance is returned.
+	<li value="2">Node <code>1</code> is not added because it is already
+		contained, so the same instance is returned.
 	</li>
 	<li>Node 0 is added to a new <code>Graph</code> instance.
 	</li>
@@ -140,7 +141,7 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 	<li>All edges or nodes contained in the right hand operand are
 		added to a new <code>Graph</code> instance.
 	</li>
-	<li>Node <code>0</code> is not removed because it is not
+	<li value="9">Node <code>0</code> is not removed because it is not
 		contained, so the same instance is returned.
 	</li>
 	<li>Node <code>1</code> is removed from a new <code>Graph</code>
@@ -164,7 +165,7 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 	<li>All edges or nodes contained in the right hand operand are
 		removed from a new <code>Graph</code> instance.
 	</li>
-	<li>Node 0 is added to the same mutable <code>Graph</code>
+	<li value="19">Node 0 is added to the same mutable <code>Graph</code>
 		instance.
 	</li>
 	<li>All addition and subtraction operations valid for immutable
@@ -218,7 +219,7 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 	see <em>4.5</em>.
 </p>
 <h2>Computing Union, Difference and Intersection</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
+<pre class="prettyprint lang-scala nolinenums">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
 val h = Graph(3~4, 3~5, 4~6, 5~6)
 g union h      // Graph(1~2, 2~3, 2~4, 3~5, 4~5, 3~4, 4~6, 5~6) 
 g diff h       // Graph(1~2)
@@ -232,7 +233,8 @@ g &= h         // Graph(3~5, 4), same instance
 	for the mutable variants.
 </p>
 <h2>Inspecting Endpoints</h2>
-<pre class="prettyprint lang-scala linenums">val uE = 3~4	// UnDiEdge[Int] = 3~4
+<pre class="prettyprint lang-scala linenums"
+>val uE = 3~4            // UnDiEdge[Int] = 3~4
 uE._1 * uE._2           // Int = 12
 uE product              // Int = 12
 val dE = 1~>2           // DiEdge[Int] = 1~>2
@@ -244,19 +246,19 @@ hE sum                  // Int = 26
 </pre>
 <p>As to</p>
 <ol>
-	<li><code>_1</code> and <code>_2</code> provide access to the first and
+	<li value="2"><code>_1</code> and <code>_2</code> provide access to the first and
 		second node of an edge.
 	</li>
-	<li>Edges are <code>Iterable</code>, too.
+	<li>Edges are also <code>Iterable</code>.
 	</li>
-	<li>The first node of a directed edge may be accessed by <code>_1</code>,
+	<li value="5">The first node of a directed edge may be accessed by <code>_1</code>,
 		<code>from</code> or <code>source</code>, the second by <code>_2</code>,
 		<code>to</code> or <code>target</code>.
 	</li>
 	<li>Both <code>uE</code> and <code>dE</code> have an <code>arity</code>
 		of 2.
 	</li>
-	<li><code>_n</code> also enables direct access. Here we access the
+	<li value="8"><code>_n</code> also enables direct access. Here we access the
 		last node of <code>hE</code>.
 	</li>
 	<li>Once again, all edges including hyperedges are <code>Iterable</code>.
@@ -274,7 +276,7 @@ n3 ~>? n2                // Option[g.EdgeT] = Some(3~>2)
 </pre>
 <p>As to</p>
 <ol>
-	<li>Node <code>n0</code> is independent so the set of direct
+	<li value="3">Node <code>n0</code> is independent so the set of direct
 		successor nodes is empty.
 	</li>
 	<li>Node <code>n2</code> is reachable but has no direct successor
@@ -352,7 +354,7 @@ g count  g.having(node = _ >= 3, edge = _.directed) // Int = 3
 </pre>
 As to
 </p>
-<ol><li>Filters the node set by <code>(NodeT) =&gt; _ &gt; 2</code>.
+<ol><li value="2">Filters the node set by <code>(NodeT) =&gt; _ &gt; 2</code>.
 	</li>
 	<li>Filters nodes with a <code>degree &gt; 1</code>.
 	</li>
@@ -396,13 +398,13 @@ val p = n(3) shortestPathTo n(1) get	     // Path(3, 3~4 % 1, 4, ..., 1)
 p nodes                            // List[g.NodeT] = List(3, 4, 5, 1)
 p weight                           // Long = 4
 val oP = n(4) pathTo (n(2), nodeFilter = _ < 4)
-if (oP.isDefined) oP.get.nodes     // Some(List(4, 3, 2))
+oP.map.(_.nodes)                   // Some(List(4, 3, 2))
 val oP = n(4) pathTo (n(2), edgeFilter = _.weight != 2)
-if (oP.isDefined) oP.get.nodes     // Some(List(4, 5, 1, 2))
+oP.map.(_.nodes)                   // Some(List(4, 5, 1, 2))
 </pre>
 <p>As to</p>
 <ol>
-	<li>Searches for any (direct or indirect) successor of node <code>1</code>
+	<li value="4">Searches for any (direct or indirect) successor of node <code>1</code>
 		having <code>outDegree &gt; 3</code> and finds <code>None</code>.
 	</li>
 	<li>Searches for any successor of node <code>1</code> having <code>outDegree
@@ -438,7 +440,7 @@ if (oP.isDefined) oP.get.nodes     // Some(List(4, 5, 1, 2))
 		<code>4</code>. The inner case class <code>g.Nav</code> enables
 		functional navigation.
 	</li>
-	<li>Finds a path from node <code>4</code> to node <code>2</code> under the
+	<li value="15">Finds a path from node <code>4</code> to node <code>2</code> under the
 		constraint that no edge on the path may have a weight of <code>2</code>.
 	</li>
 </ol>
@@ -448,7 +450,7 @@ if (oP.isDefined) oP.get.nodes     // Some(List(4, 5, 1, 2))
 <p> Let <code>g</code> be the mixed graph defined in chapter <em>4.9 Finding Paths</em>.
 	Then
 </p>
-<pre class="prettyprint lang-scala linenums">def n(outer: Int) = g get outer	// looks up inner node equaling outer
+<pre class="prettyprint lang-scala nolinenum">def n(outer: Int) = g get outer	// looks up inner node equaling outer
 import scalax.collection.GraphTraversal.VisitorReturn._
 var sum = 0                  // for node visitor side-effects
 var weights = 0L             // for edge visitor side-effects
@@ -463,7 +465,8 @@ object Visitors {            // needed in REPL
 }
 import Visitors._
 </pre>
-<pre class="prettyprint lang-scala linenums">sum = 0 
+<pre class="prettyprint lang-scala linenums"
+>sum = 0 
 n(4).traverseNodes() { add }
 sum                // Int = 15
 sum = 0 
@@ -478,51 +481,54 @@ weights            // Long = 30
 weights = 0
 n(4).traverseEdges(maxDepth = 1) { add }
 weights            // Long = 2
-sum = 0; weights = 0
+</pre>
+<p>As to</p>
+<ol><li value="3">Sums up the values of all nodes in <code>g</code> because the
+		traversal is unrestricted and <code>g</code> is connected.
+	</li>
+	<li value="6">With <code>maxDepth = 1</code> the traversal is restricted to
+		one layer so the root node and the nodes <code>3</code> and <code>5</code>
+		will be visited.
+	</li>
+	<li value="9">Filtering nodes by <code>_ &lt;= 4 </code>results in the
+		exclusion of node <code>5</code> from the traversal.
+	</li>
+	<li value="12">As in <em>a)</em> this is a full traversal but with an edge
+		visitor. The value of <code>weights</code> after this traversal is
+		greater than the sum of weights over all edges because undirected
+		edges can be visited from both ends.
+	</li>
+	<li value="15">This traversal has the same restriction as that in <em>b)</em>.
+		The signature of <code>traverseEdge</code> ensures that the edge
+		visitor will be called. The resulting <code>weights</code> if the sum
+		of <code>0</code>, <code>1</code> and <code>1</code> including the
+		hook at <code>4</code>.
+	</li>
+</ol>
+<p>	<code>traverse</code> has a generic signature which allows both a node and
+	an edge visitor argument:
+</p>
+<pre class="prettyprint lang-scala nolinenum"
+>sum = 0; weights = 0
 n(4).traverse(nodeFilter = _ <= 4,
               edgeFilter = _.weight < 4)(
               nodeVisitor = add,
               edgeVisitor = add)
 sum                // Int = 9
 weights            // Long = 9  
-val traversal = g.newTraversal(nodeFilter  = _ <= 4,
+</pre>
+<p>	Whenever subsequent traversals share filters and visitors, it
+	is advantageous to explicitly create a <code>Traversal</code> instance
+	and use it for starting traversals at different roots:
+</p>
+<pre class="prettyprint lang-scala nolinenum"
+>val traversal = g.newTraversal(nodeFilter  = _ <= 4,
                                nodeVisitor = add)
 sum = 0
 traversal (n(4), maxDepth = 1)
 traversal (n(2), breadthFirst = false)
 sum               // Int = 17
 </pre>
-<p>As to</p>
-<ol>
-	<li>Sums up the values of all nodes in <code>g</code> because the
-		traversal is unrestricted and <code>g</code> is connected.
-	</li>
-	<li>With <code>maxDepth = 1</code> the traversal is restricted to
-		one layer so the root node and the nodes <code>3</code> and <code>5</code>
-		will be visited.
-	</li>
-	<li>Filtering nodes by <code>_ &lt;= 4 </code>results in the
-		exclusion of node <code>5</code> from the traversal.
-	</li>
-	<li>As in <em>a)</em> this is a full traversal but with an edge
-		visitor. The value of <code>weights</code> after this traversal is
-		greater than the sum of weights over all edges because undirected
-		edges can be visited from both ends.
-	</li>
-	<li>This traversal has the same restriction as that in <em>b)</em>.
-		The signature of <code>traverseEdge</code> ensures that the edge
-		visitor will be called. The resulting <code>weights</code> if the sum
-		of <code>0</code>, <code>1</code> and <code>1</code> including the
-		hook at <code>4</code>.
-	</li>
-	<li><code>traverse</code> has a generic signature which allows
-		both a node and an edge visitor argument.
-	</li>
-	<li>Whenever subsequent traversals share filters and visitors, it
-		is advantageous to explicitly create a <code>Traversal</code> instance
-		and use it for starting traversals at different roots.
-	</li>
-</ol>
 <p>	Inspecting the neighbors of a node could also be regarded as a one-step
 	traversal (covered in <em>4.7</em>). But a traversal in the real sense
 	of the word allows unlimited steps beginning at a specific <em>root node</em>
@@ -547,7 +553,7 @@ sum               // Int = 17
 	nodes. For this purpose, you obviously need an additional visitor that
 	we call <em>node-up visitor</em>:
 </p>
-<pre class="prettyprint lang-scala linenums">val root = "A"
+<pre class="prettyprint lang-scala nolinenum">val root = "A"
 val g = Graph(root~>"B1", root~>"B2")
 val result = ListBuffer.empty[String]
 (g get root).traverseDownUp()(
@@ -567,7 +573,7 @@ val result = ListBuffer.empty[String]
 	the processing of adjacent nodes in a specific order promises to reach
 	the goal node faster or b) for printed reports like in the following
 	breadth first search:</p>
-<pre class="prettyprint lang-scala linenums">import edge.WDiEdge
+<pre class="prettyprint lang-scala nolinenum">import edge.WDiEdge
 val root = 1
 val g = Graph(root~>4 % 2, root~>2 % 5, root~>3 % 4,
                  3~>6 % 4,    3~>5 % 5,    3~>7 % 2)
@@ -620,7 +626,8 @@ g.degreeNodesMap(degreeFilter = _ > 3)  // Map(4 -> Set(3,4))
 	out-degrees and filtering degrees.
 </p>
 <h2>Classifying Graphs</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(1, 2~>3) 
+<pre class="prettyprint lang-scala linenums"
+>val g = Graph(1, 2~>3) 
 g.isConnected                   // false 
 (g + 2~>1).isConnected          // true
 (g get 2).findConnected(_ == 3) // Some(3)
@@ -631,7 +638,7 @@ g.isComplete                    // false
 </pre>
 <p>As to</p>
 <ol>
-	<li>Besides determining whether <code>g</code> is connected it is
+	<li value="4">Besides determining whether <code>g</code> is connected it is
 		also possible to call <code>findConnected</code> at a specific node.
 	</li>
 	<li>See also <code>findCycle</code> on the graph instance or
@@ -647,7 +654,7 @@ val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
 </pre>
 <p>As to</p>
 <ol>
-	<li>Finds an arbitrary cycle in <code>g</code>, if any.
+	<li value="2">Finds an arbitrary cycle in <code>g</code>, if any.
 	</li>
 	<li>Finds an arbitrary cycle reachable from node <code>4</code>,
 		if any.
@@ -667,7 +674,8 @@ val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
 	the Constrained module.
 </p>
 <h2>Chaining Method Calls</h2>
-<pre class="prettyprint lang-scala linenums">g.nodes find (_.inDegree > g.order / 5) orElse Some(g.nodes.head)
+<pre class="prettyprint lang-scala nolinenum"
+>g.nodes find (_.inDegree > g.order / 5) orElse Some(g.nodes.head)
 </pre>
 <p>Graph is designed for functional style programming enabling to
 	chain method calls as you feel inclined.</p>
