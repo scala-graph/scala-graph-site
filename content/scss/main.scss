@@ -132,7 +132,6 @@ header {
     &:hover { text-decoration: underline; }
   }
   ul {
-    // padding-top: 37px;
     padding-left: 17px;
     list-style-position: outside; 
     list-style-image: url(/img/arrow-right.png);
@@ -161,10 +160,9 @@ header {
     padding: 1px 2px;
   }
   pre {
-    // Code blocks
     font-size: 0.9em;
     line-height: 1.4;
-    background-color: $primary-light;
+    background-color: white;
     margin-bottom: 15px;
     padding: 10px 15px !important;
     code {
@@ -246,6 +244,6 @@ footer {
 
 // Table Specialties
 // --------------------------
-.predefEdges {
+.rightAligned {
   td { text-align: right; }
 }

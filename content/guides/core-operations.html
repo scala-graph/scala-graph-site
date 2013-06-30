@@ -10,7 +10,7 @@ sideMenuItems: >
 ---
 <h1>Core User Guide: Graph Operations</h1>
 <h2>Iterating</h2>
-<pre class="prettyprint lang-scala">val g = Graph(2~3, 3~1)
+<pre class="prettyprint lang-scala linenums">val g = Graph(2~3, 3~1)
 g mkString "-"	             // 1-2-3-2~3-3~1
 g.nodes mkString "-"         // 1-2-3
 g.edges mkString "-"         // 2~3-3~1
@@ -35,7 +35,7 @@ g.edges mkString "-"         // 2~3-3~1
 	on these such as <code>filter</code>, <code>foreach</code> etc.
 </p>
 <h2>Looking up Nodes and Edges</h2>
-<pre class="prettyprint lang-scala">val g = Graph(1~2)
+<pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
 g find 1                          // Option[g.NodeT] = Some(1)
 g find 3                          // Option[g.NodeT] = None
 g get 1                           // g.NodeT = 1
@@ -78,7 +78,7 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 	for look-ups.
 </p>
 <h2>Equality of Inner and Outer Objects</h2>
-<pre class="prettyprint lang-scala">val g = Graph(1~2)
+<pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
 (g get 1) == 1	        // true
 (g get 1~2) == 2~1	    // true
 (g get 1~2) eq 2~1	    // false
@@ -98,7 +98,7 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 	</li>
 </ol>
 <h2>Adding and Subtracting</h2>
-<pre class="prettyprint lang-scala">val g = Graph(1, 2~3)  // immutable or mutable
+<pre class="prettyprint lang-scala linenums">val g = Graph(1, 2~3)  // immutable or mutable
 g + 1                  // == g
 g + 0                  // Graph(0, 1, 2, 3, 2~3)
 g + 1.2                // error: overloaded method...
@@ -218,7 +218,7 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 	see <em>4.5</em>.
 </p>
 <h2>Computing Union, Difference and Intersection</h2>
-<pre class="prettyprint lang-scala">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
+<pre class="prettyprint lang-scala linenums">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
 val h = Graph(3~4, 3~5, 4~6, 5~6)
 g union h      // Graph(1~2, 2~3, 2~4, 3~5, 4~5, 3~4, 4~6, 5~6) 
 g diff h       // Graph(1~2)
@@ -232,7 +232,7 @@ g &= h         // Graph(3~5, 4), same instance
 	for the mutable variants.
 </p>
 <h2>Inspecting Endpoints</h2>
-<pre class="prettyprint lang-scala">val uE = 3~4	// UnDiEdge[Int] = 3~4
+<pre class="prettyprint lang-scala linenums">val uE = 3~4	// UnDiEdge[Int] = 3~4
 uE._1 * uE._2           // Int = 12
 uE product              // Int = 12
 val dE = 1~>2           // DiEdge[Int] = 1~>2
@@ -263,7 +263,7 @@ hE sum                  // Int = 26
 	</li>
 </ol>
 <h2>Inspecting Neighbors and Incident Edges</h2>
-<pre class="prettyprint lang-scala">val g = Graph(0, 1~3, 3~>2)
+<pre class="prettyprint lang-scala linenums">val g = Graph(0, 1~3, 3~>2)
 val (n0, n2, n3) = (g get 0, g get 2, g get 3)
 n0 diSuccessors          // Set[g.NodeT] = Set()
 n2.diSuccessors.isEmpty  // Boolean = true
@@ -341,7 +341,7 @@ n3 ~>? n2                // Option[g.EdgeT] = Some(3~>2)
 	<code>object scalax.collection.Graph#InnerNodeLike</code>.
 </p>
 <h2>Querying by Function</h2>
-<pre class="prettyprint lang-scala">val g = Graph(2~>3, 3~1, 5)
+<pre class="prettyprint lang-scala linenums">val g = Graph(2~>3, 3~1, 5)
 g.nodes filter (_ > 2)                  // Set[g.NodeT] = Set(5,3)
 g.nodes filter (_.degree > 1)           // Set[g.NodeT] = Set(3)
 g.edges filter (_.diSuccessors.isEmpty) // Set[g.EdgeT] = Set()
@@ -383,7 +383,7 @@ As to
 	<img alt="Finding Paths" src="/img/guides/core/MixedGraph.jpg">
 	<figcaption>A mixed graph example.</figcaption>
 </figure>
-<pre class="prettyprint lang-scala">val g = Graph(	1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
+<pre class="prettyprint lang-scala linenums">val g = Graph(	1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
     3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
 def n(outer: Int) = g get outer            // look-up helper for known nodes
 n(1) findSuccessor (_.outDegree >  3)      // Option[g.NodeT] = None 
@@ -448,7 +448,7 @@ if (oP.isDefined) oP.get.nodes     // Some(List(4, 5, 1, 2))
 <p> Let <code>g</code> be the mixed graph defined in chapter <em>4.9 Finding Paths</em>.
 	Then
 </p>
-<pre class="prettyprint lang-scala">def n(outer: Int) = g get outer	// looks up inner node equaling outer
+<pre class="prettyprint lang-scala linenums">def n(outer: Int) = g get outer	// looks up inner node equaling outer
 import scalax.collection.GraphTraversal.VisitorReturn._
 var sum = 0                  // for node visitor side-effects
 var weights = 0L             // for edge visitor side-effects
@@ -463,7 +463,7 @@ object Visitors {            // needed in REPL
 }
 import Visitors._
 </pre>
-<pre class="prettyprint lang-scala">sum = 0 
+<pre class="prettyprint lang-scala linenums">sum = 0 
 n(4).traverseNodes() { add }
 sum                // Int = 15
 sum = 0 
@@ -547,7 +547,7 @@ sum               // Int = 17
 	nodes. For this purpose, you obviously need an additional visitor that
 	we call <em>node-up visitor</em>:
 </p>
-<pre class="prettyprint lang-scala">val root = "A"
+<pre class="prettyprint lang-scala linenums">val root = "A"
 val g = Graph(root~>"B1", root~>"B2")
 val result = ListBuffer.empty[String]
 (g get root).traverseDownUp()(
@@ -567,7 +567,7 @@ val result = ListBuffer.empty[String]
 	the processing of adjacent nodes in a specific order promises to reach
 	the goal node faster or b) for printed reports like in the following
 	breadth first search:</p>
-<pre class="prettyprint lang-scala">import edge.WDiEdge
+<pre class="prettyprint lang-scala linenums">import edge.WDiEdge
 val root = 1
 val g = Graph(root~>4 % 2, root~>2 % 5, root~>3 % 4,
                  3~>6 % 4,    3~>5 % 5,    3~>7 % 2)
@@ -586,7 +586,7 @@ results	// Array(1,2,3,4,5,6,7)
 <p> Assume <code>g</code> being the mixed graph in chapter <em>Finding Paths</em>.
 	Then
 </p>
-<pre class="prettyprint lang-scala">g.order	// Int = 5 
+<pre class="prettyprint lang-scala linenums">g.order	// Int = 5 
 g.graphSize                 // Int = 8
 g.size                      // Int = 13
 g.totalDegree               // Int = 16 
@@ -620,7 +620,7 @@ g.degreeNodesMap(degreeFilter = _ > 3)  // Map(4 -> Set(3,4))
 	out-degrees and filtering degrees.
 </p>
 <h2>Classifying Graphs</h2>
-<pre class="prettyprint lang-scala">val g = Graph(1, 2~>3) 
+<pre class="prettyprint lang-scala linenums">val g = Graph(1, 2~>3) 
 g.isConnected                   // false 
 (g + 2~>1).isConnected          // true
 (g get 2).findConnected(_ == 3) // Some(3)
@@ -639,7 +639,7 @@ g.isComplete                    // false
 	</li>
 </ol>
 <h2>Detecting Cycles</h2>
-<pre class="prettyprint lang-scala">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
+<pre class="prettyprint lang-scala linenums">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
 val fc1 = g.findCycle         // Some(Cycle(3, 3~>4, 4, 4~>2, 2, 2~>3, 3))
 val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
 (for (c1 <- fc1; c2 <- fc2) yield c1 == c2) get     // false
@@ -667,7 +667,7 @@ val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
 	the Constrained module.
 </p>
 <h2>Chaining Method Calls</h2>
-<pre class="prettyprint lang-scala">g.nodes find (_.inDegree > g.order / 5) orElse Some(g.nodes.head)
+<pre class="prettyprint lang-scala linenums">g.nodes find (_.inDegree > g.order / 5) orElse Some(g.nodes.head)
 </pre>
 <p>Graph is designed for functional style programming enabling to
 	chain method calls as you feel inclined.</p>

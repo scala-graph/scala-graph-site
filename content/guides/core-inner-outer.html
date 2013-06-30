@@ -9,13 +9,14 @@ sideMenuItems: >
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Inner and Outer Objects</h1>
-<pre class="prettyprint lang-scala">val g = Graph(1~2)	// Graph[Int,UnDiEdge](1, 2, 1~2)
-val n1 = g.nodes.head	// g.NodeT = 1 or 2
-val e1 = g.edges.head	// g.EdgeT = 1~2
-e1._1	// g.NodeT = 1
-n1.diSuccessors	// Set[g.NodeT] = Set(2) or Set(1) if n1 == 2
-n1 % 2	// Int = 1
-e1.toEdgeIn	// UnDiEdge[Int] = 1~2
+<pre class="prettyprint lang-scala linenums"
+>val g = Graph(1~2)     // Graph[Int,UnDiEdge](1, 2, 1~2)
+val n1 = g.nodes.head  // g.NodeT = 1 or 2
+val e1 = g.edges.head  // g.EdgeT = 1~2
+e1._1                  // g.NodeT = 1
+n1.diSuccessors        // Set[g.NodeT] = Set(2) or Set(1) if n1 == 2
+n1 % 2                 // Int = 1
+e1.toEdgeIn            // UnDiEdge[Int] = 1~2
 </pre>
 <p>As to</p>
 <ol>
@@ -23,8 +24,8 @@ e1.toEdgeIn	// UnDiEdge[Int] = 1~2
 <li>Querying the first node of the node set is a means to show that the type of the inner node is <code>g.NodeT (head</code> does not guarantee a specific order). See <em>4.2</em> for how to look up nodes.</li>
 <li>Similarly, the inner edge <code>e1</code> is of the type <code>g.EdgeT</code>.</li>
 <li>Remarkably, the first incident node with <code>e1</code> is an inner node of the type <code>g.NodeT</code>.</li>
-<li>On <code>n1</code> you can call both graph (<code>NodeT)</code> methods like <code>diSuccessors</code>�</li>
-<li>�and any method of the outer node type, here <code>%</code> of <code>Int</code>.</li>
+<li>On <code>n1</code> you can call both graph (<code>NodeT)</code> methods like <code>diSuccessors</code>...</li>
+<li>...and any method of the outer node type, here <code>%</code> of <code>Int</code>.</li>
 <li>Reconstructs the outer edge <code>1~2</code>; <code>g.edges.toEdgeInSet</code>&nbsp; would reconstruct all outer edges.</li>
 </ol>
 <p>A basic understanding of inner and outer objects (nodes and edges) is essential for working with <code>Graph </code>efficiently. From the perspective of <code>Graph</code> we distinguish between</p>
@@ -34,4 +35,8 @@ e1.toEdgeIn	// UnDiEdge[Int] = 1~2
 <li><em>Inner Nodes</em><br>Inner nodes are instances of an inner class of the type <code>NodeT</code> implementing the <code>InnerNodeLike</code> interface. They actually wrap outer nodes providing a wealth of graph functionality such as <code>diSuccessors</code> or <code>pathTo</code>. At the same time you can interact with an inner node as if it was your original object.</li>
 <li><em>Inner Edges</em><br>Similarly, inner edges are instances of an inner class of the type <code>EdgeT</code> implementing the <code>InnerEdgeLike</code> interface. They actually wrap outer edges providing a wealth of graph functionality. At the same time you can interact with an inner edge and its incident nodes as if they were your original objects.</li>
 </ul>
-<p>See also: &nbsp; &nbsp; &nbsp; &nbsp;<code>object scalax.collection.Graph#InnerNodeLike</code><br><code>object scalax.collection.Graph#InnerEdgeLike</code></p>
+<p>See also:
+</p>
+<p>	<code>object scalax.collection.Graph#InnerNodeLike</code><br>
+	<code>object scalax.collection.Graph#InnerEdgeLike</code>
+</p>

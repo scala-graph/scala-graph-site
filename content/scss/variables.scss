@@ -11,15 +11,17 @@ $pale-green:    #9AFF9A;
 $darksee-green: #D8FFD8;
 $seegreen4:     #2E8B57;
 
-$gray87: #DEDEDE;
+$dimgray:    #696969;
+$text-light: $dimgray;
+$gray87:     #DEDEDE;
 
-$orchid:    #8B4789;
+$orchid:     #8B4789;
 
 $primary-light: lighten($darksee-green,2);
 $primary-dark:  $seegreen4;
 $primary-dark-darkened: darken($primary-dark,5);
 
 $secondary-light: $gray87;
-$secondary-dark:  x;
 
 $contrast:      $orchid;
+$contrast-dark: darken($contrast,10);

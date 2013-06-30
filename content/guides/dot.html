@@ -36,7 +36,7 @@ sideMenuItems: >
 	<code>toDOT</code>
 	:
 </p>
-<pre class="prettyprint lang-scala">import scalax.collection.io.dot._
+<pre class="prettyprint lang-scala linenums">import scalax.collection.io.dot._
 val dot = g.toDot(dotRoot, edgeTransformer)
 </pre>
 <p>
@@ -55,13 +55,13 @@ val dot = g.toDot(dotRoot, edgeTransformer)
 	<code>dotRoot</code>
 </h3>
 <div class="method">
-	<pre class="prettyprint lang-scala">dotRoot: DotRootGraph
+	<pre class="prettyprint lang-scala linenums">dotRoot: DotRootGraph
 </pre>
 </div>
 <p>This parameter serves to define the DOT graph header and an
 	arbitrary list of root level attributes but no edges or nodes.
 	Supposed, we supply</p>
-<pre class="prettyprint lang-scala">DotRootGraph (directed = true,
+<pre class="prettyprint lang-scala linenums">DotRootGraph (directed = true,
               id       = None,
               kvList   = Seq(DotAttr("attr_1", """"one""""),
                              DotAttr("attr_2", "&lt;two&gt;")))
@@ -77,7 +77,7 @@ val dot = g.toDot(dotRoot, edgeTransformer)
 </pre>
 <p>For completeness, a REPLable version of the above example looks
 	like</p>
-<pre class="prettyprint lang-scala">import scalax.collection.Graph,
+<pre class="prettyprint lang-scala linenums">import scalax.collection.Graph,
        scalax.collection.GraphEdge._, scalax.collection.GraphPredef._
 import scalax.collection.io.dot._
 val root = DotRootGraph (
@@ -92,7 +92,7 @@ Graph.empty[Int,DiEdge].toDot(root, _ =&gt; None)
 	<code>edgeTransformer</code>
 </h3>
 <div class="method">
-	<pre class="prettyprint lang-scala">edgeTransformer: Graph[N,E]#EdgeT =&gt; Option[(DotGraph, DotEdgeStmt)]
+	<pre class="prettyprint lang-scala linenums">edgeTransformer: Graph[N,E]#EdgeT =&gt; Option[(DotGraph, DotEdgeStmt)]
 </pre>
 </div>
 <p>
@@ -140,7 +140,7 @@ Graph.empty[Int,DiEdge].toDot(root, _ =&gt; None)
 	Given the following edge transformer function
 	<code>edgeTransformer</code>
 </p>
-<pre class="prettyprint lang-scala">import scalax.collection.edge.LDiEdge,
+<pre class="prettyprint lang-scala linenums">import scalax.collection.edge.LDiEdge,
        scalax.collection.edge.Implicits._
 val g = Graph[String, LDiEdge](("A1"~+&gt;"A2")("f"))
 val root = DotRootGraph(directed = true,
@@ -168,7 +168,7 @@ g.toDot(root, edgeTransformer)
 	<code>cNodeTransformer</code>
 </h3>
 <div class="method">
-	<pre class="prettyprint lang-scala">cNodeTransformer:
+	<pre class="prettyprint lang-scala linenums">cNodeTransformer:
   Option[ (Graph[N,E]#NodeT) =&gt; Option[(DotGraph, DotNodeStmt)]] = None
 </pre>
 </div>
@@ -181,7 +181,7 @@ g.toDot(root, edgeTransformer)
 	This transformer may be used, for example, to assign a list of nodes to
 	a DOT subgraph like
 </p>
-<pre class="prettyprint lang-scala">val sub = DotSubGraph(ancestor   = root, 
+<pre class="prettyprint lang-scala linenums">val sub = DotSubGraph(ancestor   = root, 
                       subgraphId = "S1",
                       kvList     = Seq(DotAttr("rank", "same")))
 def nodeTransformer(innerNode: Graph[String,LDiEdge]#NodeT):
@@ -213,7 +213,7 @@ g.toDot(root, edgeTransformer, Some(nodeTransformer))
 	<code>iNodeTransformer</code>
 </h3>
 <div class="method">
-	<pre class="prettyprint lang-scala">iNodeTransformer:
+	<pre class="prettyprint lang-scala linenums">iNodeTransformer:
   Option[Graph[N,E]#NodeT =&gt; Option[(DotGraph, DotNodeStmt)]] = None
 </pre>
 </div>
@@ -234,7 +234,7 @@ g.toDot(root, edgeTransformer, Some(nodeTransformer))
 	<code>spacing</code>
 </h3>
 <div class="method">
-	<pre class="prettyprint lang-scala">spacing: Spacing = DefaultSpacing
+	<pre class="prettyprint lang-scala linenums">spacing: Spacing = DefaultSpacing
 </pre>
 </div>
 <p>

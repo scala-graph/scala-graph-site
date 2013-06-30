@@ -1,0 +1,48 @@
+@import "variables";
+
+.pln { color: #000 }  /* plain text */
+
+@media screen {
+  .str { color: $primary-dark }     // string
+  .kwd { color: $contrast; font-weight: bold } // keyword
+  .com { color: $text-light }       // comment
+  .typ { color: black }             // name
+  .lit { color: $primary-dark }     // literal
+  .pun, .opn, .clo { color: black } // punctuation, lisp open bracket, lisp close bracket
+
+  .tag { color: #008 }       // markup tag name
+  .atn { color: #606 }       // markup attribute name
+  .atv { color: #080 }       // markup attribute value
+  .dec, .var { color: #606 } // declaration; variable name
+  .fun { color: red }        // function name
+}
+
+/* Use higher contrast and text-weight for printable form. */
+@media print, projection {
+  .str { color: $primary-dark-darkened }
+  .kwd { color: $contrast-dark; font-weight: bold }
+  .com { color: black; font-style: italic }
+  .typ { color: black; font-weight: bold }
+  .lit { color: $primary-dark-darkened }
+  .pun, .opn, .clo { color: black }
+
+  .tag { color: #006; font-weight: bold }
+  .atn { color: #404 }
+  .atv { color: #060 }
+}
+
+/* Put a border around prettyprinted code snippets. */
+pre.prettyprint {
+  padding: 2px;
+  border: 1px solid #888
+}
+
+ol.linenums {
+  margin-top: 0;
+  margin-bottom: 0
+}
+li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9 {
+  list-style-type: decimal;
+  color: $text-light;
+  background: $primary-light;
+}

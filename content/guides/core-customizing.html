@@ -49,7 +49,7 @@ sideMenuItems: >
 	<code>Graph</code>
 	creation:
 </p>
-<pre class="prettyprint lang-scala">import scalax.collection.config.CoreConfig
+<pre class="prettyprint lang-scala linenums">import scalax.collection.config.CoreConfig
 import scalax.collection.mutable.ArraySet.Hints
 implicit val myConfig = CoreConfig(Hints(64, 0, 64, 75))
 </pre>
@@ -74,7 +74,7 @@ implicit val myConfig = CoreConfig(Hints(64, 0, 64, 75))
 <p> To enrich <code>Graph</code> with one or more methods you might expand
 	the following template:
 </p>
-<pre class="prettyprint lang-scala">final class ExtGraph[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) {
+<pre class="prettyprint lang-scala linenums">final class ExtGraph[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) {
   def &lt;yourMethodSignature&gt; &lt;yourMethodBody&gt;
 }
 implicit def gToExtG[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) =
@@ -82,7 +82,7 @@ implicit def gToExtG[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) =
 </pre>
 <p>	To enrich the inner <code>type NodeT</code> is more subtle:
 </p>
-<pre class="prettyprint lang-scala">final class ExtGraphNode[N, E[X] <: EdgeLikeIn[X]](node_ : Graph[N,E]#NodeT) {
+<pre class="prettyprint lang-scala linenums">final class ExtGraphNode[N, E[X] <: EdgeLikeIn[X]](node_ : Graph[N,E]#NodeT) {
   type NodeT = graph.NodeT
   val graph = node_.containingGraph
   val node  = node_.asInstanceOf[NodeT]
@@ -103,18 +103,18 @@ implicit def nodeToExtN[N, E[X] <: EdgeLikeIn[X]] (node: Graph[N,E]#NodeT) =
 	For the sake of simplicity we design the <code>Flight</code> edge to have
 	the only attribute <code>flightNo</code>. Given the node class
 </p>
-<pre class="prettyprint lang-scala">case class Airport(val code: String) // node type
+<pre class="prettyprint lang-scala linenums">case class Airport(val code: String) // node type
 val (ham, ny) = (Airport("HAM"), Airport("JFK")) // two nodes
 </pre>
 <p>assume we want to be able to write</p>
-<pre class="prettyprint lang-scala">val flight = ham ~> ny ## "007"	// flightNo 007 - doesn't work yet
+<pre class="prettyprint lang-scala linenums">val flight = ham ~> ny ## "007"	// flightNo 007 - doesn't work yet
 val g = Graph(flight) // Graph[Airport, Flight] - doesn't work yet
 </pre>
 <p>
 	<a name="RichViewCheckpoint0"></a> Here is how to achieve the above
 	requirements:
 </p>
-<pre class="prettyprint lang-scala">class Flight[N](nodes: Product, val flightNo: String)
+<pre class="prettyprint lang-scala linenums">class Flight[N](nodes: Product, val flightNo: String)
   extends DiEdge[N](nodes)	// a1)
   with    ExtendedKey[N]	// a2)
   with    EdgeCopy[Flight]	// a3)
