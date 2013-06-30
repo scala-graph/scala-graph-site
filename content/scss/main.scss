@@ -12,7 +12,19 @@ body {
   font-size: 15px;
   text-rendering: optimizeLegibility;
 }
-body > .container { margin: 25px auto 0;
+html, body {
+  height: 100%;
+}
+.sticky {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -3.2em;
+}
+.footer, .push {
+  height: 4em;
+}
+body > .container, .sticky > .container { margin: 25px auto 0;
 }
 @include mobile {
   body .container { padding: 0 5px; }
@@ -29,6 +41,9 @@ h1 {
   text-align: center;
   color: $primary-dark-darkened;
   margin-bottom: 0px;
+}
+h1 + p {
+  padding-top: 15px;
 }
 h2 {
   font-size: 1.3em;
