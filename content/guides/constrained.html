@@ -61,12 +61,14 @@ val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
 <ol><li>You have to ensure that some constraints which cannot be achieved by type constructors
         are valid at any time for your <code>Graph</code> instances. Typical examples are acyclic graphs
         or tree structures.</li>
-    <li>a) is valid and additionally, you must cope with the population or modification of <code>Graph</code>
-        instances in an uncontrolled way such as</li>
+    <li>In addition to 1., you must cope with the population or modification of <code>Graph</code>
+        instances in an uncontrolled way such as
     <ul><li>user input that is not fully validatable with respect to the <code>Graph</code> or</li>
         <li>import of invalidated data from an external source.</li>
+    </ul></li>
     <li>You want to log or monitor any kind of <code>Graph</code> creation/modification &#8211;
-        proper or improper.</li></ul>
+        proper or improper.
+    </li>
 </ol>
 <h2 id="Lifecycle">The Constraint Lifecycle</h2>
 <p> For the purpose of a comparison, let's first illustrate the "lifecycle" of an operation such as
@@ -129,9 +131,9 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
 <p> Constraint implementations involve the following steps:
 </p>
 <ol>
-    <li>Constraint Class</li>
+    <li>Constraint Class
     <ul><li>Create your constraint class extending the <code>Constrained</code> trait.</li>
-        <li>Decide on each call-back method, whether abstract or concrete, whether and how to override it:</li>
+        <li>Decide on each call-back method, whether abstract or concrete, whether and how to override it:
         <ul><li><code>preCreate</code>'s default implementation calls <code>preAdd</code> for each node and edge.
                 This will be insufficient for all cases where the set of these elements must be considered in its total.
                 For instance, cycles cannot be detected by examining nodes and edges separately.<br>If it is maintained
@@ -149,15 +151,16 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
             <li>Decide on whether to override any of the error handlers <code>onAdditionRefused</code> or
                 <code>onSubtractionRefused</code>. They return <code>true</code> by default meaning that
                 operations that abort or roll back will be left without a notice.</li>
-       </ul>
+       </ul></li>
     </ul>
-    <li>Constraint Companion Object</li>
+    </li>
+    <li>Constraint Companion Object
     <ul><li>Create your constraint companion object by extending the <code>ConstrainedCompanion</code> trait.
             Ensure that the type constructor argument for <code>ConstrainedCompanion</code> is your custom
             constraint class.</li>
         <li>Override <code>apply</code> in your constraint companion object to return an instance of your
             constraint class.</li>
-    </ul>
+    </ul></li>
     <li>Constraint Test</li>
 </ol>
 <p> Although call-backs are designed to be passed all necessary arguments to decide on how to deal
