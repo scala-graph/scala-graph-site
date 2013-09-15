@@ -9,7 +9,7 @@ sideMenuItems: >
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Graph Operations</h1>
-<h2>Iterating</h2>
+<h2 id="Iterating">Iterating</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(2~3, 3~1)
 g mkString "-"	             // 1-2-3-2~3-3~1
 g.nodes mkString "-"         // 1-2-3
@@ -34,7 +34,7 @@ g.edges mkString "-"         // 2~3-3~1
 	Thus, you can call the gamut of well-known <code>TraversableLike</code> methods
 	on these such as <code>filter</code>, <code>foreach</code> etc.
 </p>
-<h2>Looking up Nodes and Edges</h2>
+<h2 id="LookingUp">Looking up Nodes and Edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
 g find 1                          // Option[g.NodeT] = Some(1)
 g find 3                          // Option[g.NodeT] = None
@@ -78,7 +78,7 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 	"value" is the inner node or edge. The default implementation uses <code>hashCode</code>
 	for look-ups.
 </p>
-<h2>Equality of Inner and Outer Objects</h2>
+<h2 id="Equality">Equality of Inner and Outer Objects</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
 (g get 1) == 1	        // true
 (g get 1~2) == 2~1	    // true
@@ -98,7 +98,7 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 	<li>Obviously, <code>1~2 </code>does not equal to <code>2~2</code>.
 	</li>
 </ol>
-<h2>Adding and Subtracting</h2>
+<h2 id="Adding">Adding and Subtracting</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1, 2~3)  // immutable or mutable
 g + 1                  // == g
 g + 0                  // Graph(0, 1, 2, 3, 2~3)
@@ -218,7 +218,7 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 <p> For adding or subtracting elements of another <code>Graph</code> instance in bulk
 	see <em>4.5</em>.
 </p>
-<h2>Computing Union, Difference and Intersection</h2>
+<h2 id="Union">Computing Union, Difference and Intersection</h2>
 <pre class="prettyprint lang-scala nolinenums">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
 val h = Graph(3~4, 3~5, 4~6, 5~6)
 g union h      // Graph(1~2, 2~3, 2~4, 3~5, 4~5, 3~4, 4~6, 5~6) 
@@ -232,14 +232,20 @@ g &= h         // Graph(3~5, 4), same instance
 	graph theory. Use any of the previous operators followed by <code>=</code>
 	for the mutable variants.
 </p>
-<h2>Inspecting Endpoints</h2>
+<h2 id="Endpoints">Inspecting Endpoints</h2>
 <pre class="prettyprint lang-scala linenums"
 >val uE = 3~4            // UnDiEdge[Int] = 3~4
 uE._1 * uE._2           // Int = 12
 uE product              // Int = 12
+uE match {
+  case n ~ m => n * m
+}                       // Int = 12
 val dE = 1~>2           // DiEdge[Int] = 1~>2
-dE.from - dE.to         // Int = -1
+dE.source - dE.target   // Int = -1
 uE.arity == dE.arity    // Boolean = true
+dE match {
+  case s ~> t => s - t
+}                       // Int = -1
 val hE = 1~2~11~12      // HyperEdge[Int] = 1~2~11~12
 hE._n(hE.arity - 1)     // Int = 12
 hE sum                  // Int = 26
@@ -251,20 +257,53 @@ hE sum                  // Int = 26
 	</li>
 	<li>Edges are also <code>Iterable</code>.
 	</li>
-	<li value="5">The first node of a directed edge may be accessed by <code>_1</code>,
-		<code>from</code> or <code>source</code>, the second by <code>_2</code>,
-		<code>to</code> or <code>target</code>.
+	<li>The endpoints of edges may also be extracted by means of pattern matching.
+	</li>
+	<li value="8">The first node of a directed edge may be accessed by <code>_1</code>
+		or <code>source</code>, the second by <code>_2</code> or <code>target</code>.
 	</li>
 	<li>Both <code>uE</code> and <code>dE</code> have an <code>arity</code>
 		of 2.
 	</li>
-	<li value="8"><code>_n</code> also enables direct access. Here we access the
+	<li value="14"><code>_n</code> also enables direct access. Here we access the
 		last node of <code>hE</code>.
 	</li>
-	<li>Once again, all edges including hyperedges are <code>Iterable</code>.
+	<li>Again, all edges including hyperedges are <code>Iterable</code>s.
 	</li>
 </ol>
-<h2>Inspecting Neighbors and Incident Edges</h2>
+<h2 id="Patterns">More Edge Patterns</h2>
+<pre class="prettyprint lang-scala linenums"
+>import scalax.collection.edge.Implicits._
+val g = Graph((1 ~+> 2)("A"), (1 ~+> 1)("AB"))
+
+import scalax.collection.edge.LBase._
+object StringLabel extends LEdgeImplicits[String]
+import StringLabel._
+
+(0 /: g.edges)((sum, e) => e.edge match {
+  case s :~> t + (l: String) if l contains 'A' =>
+       sum + s.outDegree + t.outDegree
+}) // Int = 6
+</pre>
+<p>	Edge patterns are especially handy when extracting the attributes
+    of weighted and/or labeled edges. The above <code>fold</code> calculates the
+    sum of the out-degrees of edge endpoints restricted to edges with a label
+    containing <code>'A'</code> by applying an infix operator pattern to each edge
+    of the graph.
+</p>
+<p>	The constructor pattern <code>LDiEdge(s, t, l)</code>  would be an alternative
+    to <code>s :~> t + l</code>. Operator names have been selected in compliance
+    with edge constructor shortcuts: <code>:~</code> matches undirected, <code>:~></code>
+    directed edges. <code>%</code>, <code>+</code> and <code>%+</code> match weighted,
+    labeled and weighted-labeled edges, respectively.
+</p>
+<p>	Note that you need to dereference inner edges of type <code>EdgeT</code> by
+    calling the accessor method <code>edge</code> to facilitate the predefined edge
+    extractors. You'll find more edge pattern matching examples in <a href=
+    "https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TEdge.scala">
+	TEdge.scala</a>.
+</p>
+<h2 id="Neighbors">Inspecting Neighbors and Incident Edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(0, 1~3, 3~>2)
 val (n0, n2, n3) = (g get 0, g get 2, g get 3)
 n0 diSuccessors          // Set[g.NodeT] = Set()
@@ -342,7 +381,7 @@ n3 ~>? n2                // Option[g.EdgeT] = Some(3~>2)
 <p> See also:
 	<code>object scalax.collection.Graph#InnerNodeLike</code>.
 </p>
-<h2>Querying by Function</h2>
+<h2 id="Querying">Querying by Function</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(2~>3, 3~1, 5)
 g.nodes filter (_ > 2)                  // Set[g.NodeT] = Set(5,3)
 g.nodes filter (_.degree > 1)           // Set[g.NodeT] = Set(3)
@@ -380,7 +419,7 @@ As to
 	Filtering a graph results in a subgraph obtained by node and/or edge
 	predicates.
 </p>
-<h2>Finding Paths</h2>
+<h2 id="Paths">Finding Paths</h2>
 <figure>
 	<img alt="Finding Paths" src="/img/guides/core/MixedGraph.jpg">
 	<figcaption>A mixed graph example.</figcaption>
@@ -446,7 +485,7 @@ oP.map.(_.nodes)                   // Some(List(4, 5, 1, 2))
 </ol>
 <p> All methods relying on recursion are tail recursive.
 </p>
-<h2>Traversing</h2>
+<h2 id="Traversing">Traversing</h2>
 <p> Let <code>g</code> be the mixed graph defined in chapter <em>4.9 Finding Paths</em>.
 	Then
 </p>
@@ -588,7 +627,7 @@ var idx = 0
 }
 results	// Array(1,2,3,4,5,6,7)
 </pre>
-<h2>Measuring Graphs and Grouping Nodes by Degree</h2>
+<h2 id="Measuring">Measuring Graphs and Grouping Nodes by Degree</h2>
 <p> Assume <code>g</code> being the mixed graph in chapter <em>Finding Paths</em>.
 	Then
 </p>
@@ -625,7 +664,7 @@ g.degreeNodesMap(degreeFilter = _ > 3)  // Map(4 -> Set(3,4))
 <p>All degree methods have implicit parameters to query in- or
 	out-degrees and filtering degrees.
 </p>
-<h2>Classifying Graphs</h2>
+<h2 id="Classifying">Classifying Graphs</h2>
 <pre class="prettyprint lang-scala linenums"
 >val g = Graph(1, 2~>3) 
 g.isConnected                   // false 
@@ -645,7 +684,7 @@ g.isComplete                    // false
 		starting at a specific node.
 	</li>
 </ol>
-<h2>Detecting Cycles</h2>
+<h2 id="Cycles">Detecting Cycles</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
 val fc1 = g.findCycle         // Some(Cycle(3, 3~>4, 4, 4~>2, 2, 2~>3, 3))
 val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
@@ -673,7 +712,7 @@ val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
 	any operation consider utilizing the <code>Acyclic</code> constraint in
 	the Constrained module.
 </p>
-<h2>Chaining Method Calls</h2>
+<h2 id="Chaining">Chaining Method Calls</h2>
 <pre class="prettyprint lang-scala nolinenum"
 >g.nodes find (_.inDegree > g.order / 5) orElse Some(g.nodes.head)
 </pre>
