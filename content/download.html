@@ -6,7 +6,7 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.7.0</code></td>
+        <td><code>1.7.2</code></td>
     </tr>
     <tr class = "split">
         <td>Optional Modules</td>
@@ -14,9 +14,9 @@ title: Download
     </tr>
 </table>
 
-<p>To download the latest release 1.7.0 of the core module, SBT users should add:</p>
+<p>To download the latest release of the core module, SBT users should add:</p>
 
-<pre>libraryDependencies += "com.assembla.scala-incubator" % "graph-core_2.10" % "1.7.0"</pre>
+<pre>libraryDependencies += "com.assembla.scala-incubator" % "graph-core_2.10" % "1.7.2"</pre>
 
 <p>to the SBT build file.
 As a Maven user, please set the following ids:</p>
@@ -31,7 +31,7 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.7.0</code></td>
+    <td><code>1.7.2</code></td>
   </tr>
 </table>
 
@@ -46,7 +46,7 @@ As a Maven user, please set the following ids:</p>
     <td><code>1.7.0</code></td>
   </tr>
   <tr class="split">
-    <td><code>graph-json_2.9.2</code></td>
+    <td><code>graph-json_2.10</code></td>
     <td><code>1.7.0</code></td>
   </tr>
 </table>
@@ -54,14 +54,29 @@ As a Maven user, please set the following ids:</p>
 You may also manually download the Jars and Scaladoc from
 <a href = "https://oss.sonatype.org/content/repositories/releases/com/assembla/scala-incubator/">Sonatype</a>.
 
-<h2 id="1.7.0">1.7.0 Release Notes</h2>
+<h2 id="1.7">1.7 Release Notes</h2>
+<h3 id="1.7.2">1.7.2</h3>
 <ul>
-	<li>Edge extractors have been added/modified.
+	<li>new: method <code>upsert</code> for mutable graphs.</li>
+	<li>fix: due to a regression introduced in 1.7.1 <code>findOutgoingTo</code> and
+		<code>findIncomingFrom</code> didn't work correctly.
+	</li>
+</ul>
+<h3 id="1.7.1">1.7.1</h3>
+<ul>
+	<li>mod: Several node-level methods and <code>equals/hashCode</code> for edges have been optimized.
+	</li>
+	<li>fix: <code>shortestPathTo</code> GitHub issue #12.</li>
+	<li>fix: method <code>draw</code>.</li>
+	<li>fix: builder pattern imposed by <code>GraphCanBuildFrom</code>.</li>
+</ul>
+<h3 id="1.7.0">1.7.0</h3>
+<ul>
+	<li>new: Edge extractors have been added/modified.
 		Latter may require user-site source code changes in edge patterns. See
 		<a href="/guides/core-operations.html#Endpoints">Inspecting Endpoints</a> and
 		<a href="/guides/core-operations.html#Patterns">More Edge Patterns</a>. 
 	</li>
-	<li>SBT upgraded to 0.13.0. 
+	<li>mod: SBT upgraded to 0.13.0. 
 	</li>
 </ul>
-
