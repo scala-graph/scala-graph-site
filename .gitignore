@@ -9,6 +9,8 @@
 *.vi
 *~
 *.sass-cache
+*.class
+*.log
 
 # OS or Editor folders
 .DS_Store
@@ -40,3 +42,19 @@ log/*.log
 tmp/
 .sass-cache/
 /output
+
+# SBT
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Eclipse, Scala IDE
+.project
+.classpath
+.settings/
+.scala_dependencies
+
+
