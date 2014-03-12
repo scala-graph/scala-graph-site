@@ -1,0 +1,374 @@
+---
+title: Core User Guide
+sideMenuItems: >
+  <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
+  <li><a href="/guides/core-inner-outer.html">Inner and Outer Objects</a></li>
+  <li><a href="/guides/core-operations.html">Graph Operations</a></li>
+  <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
+  <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
+  <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
+---
+<h1>Core User Guide: Traversing Graphs</h1>
+<p>	Graph traversals are explicitly or implicitly invoked by means of a
+	<a href="/api/core/api/#scalax.collection.GraphTraversal$Traverser"> Treverser</a>
+	that extends <code>scala.collection.Traversable</code> in turn. You determine the
+	type parameter of <code>Traversable</code> by selecting a <code>Traverser</code> factory
+	method such as <code>innerNodeTraverser</code>.
+</p>
+<p> Needless to say, all methods relying on recursion are tail recursive.
+</p>
+
+<h2 id="Result">Traversing for a Result</h2>
+<p>	Often you're solely interested in the result of a graph traversal such as a specific node,
+	path, cycle or subgraph. Chances are good that you'll find a method that directly
+	meets your requirement and that a <code>Traverser</code> will be provided transparently.
+</p>
+<figure>
+	<img alt="Finding Paths" src="/img/guides/core/MixedGraph.jpg">
+	<figcaption>A mixed graph example.</figcaption>
+</figure>
+<pre class="prettyprint lang-scala linenums">import scalax.collection.edge.WDiEdge
+import scalax.collection.edge.Implicits._
+
+val g = Graph(1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
+              3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
+def n(outer: Int): g.NodeT = g get outer   // look up a node known to be contained
+
+n(1) findSuccessor (_.outDegree >  3) // Option[g.NodeT] = None 
+n(1) findSuccessor (_.outDegree >= 3) // Option[g.NodeT] = Some(3)
+n(4) findSuccessor (_.edges forall (_.undirected)) // Some(2)
+n(4) isPredecessorOf n(1)             // true 
+n(1) pathTo n(4)                      // Some(Path(1, 1~>3 %5, 3, 3~4 %1, 4))
+n(1) pathUntil (_.outDegree >= 3)     // Some(Path(1, 1~>3 %5, 3))
+
+val spO = n(3) shortestPathTo n(1) // Path(3, 3~4 %1, 4, 4~>5 %0, 5, 1~5 %3, 1)
+val sp = spO.get                   // here we know sp exists
+sp.nodes                           // List[g.NodeT] = Nodes(3, 4, 5, 1)
+sp.weight                          // Long = 4
+
+val pO1 = n(4).withSubgraph(nodes = _ < 4) pathTo n(2) // Some(Path(4, 3~4 %1, 3, 2~3 %2, 2))
+pO1.map(_.nodes)                                       // Some(Nodes(4, 3, 2))
+
+val pO2 = n(4).withSubgraph(edges = _.weight != 2) pathTo n(2)
+                                   // Some(Path(4, 4~>5 %0, 5, 1~5 %3, 1, 1~2 %4, 2))
+pO2.map(_.nodes)                   // Some(Nodes(4, 5, 1, 2))
+</pre>
+<p>As to</p>
+<ol>
+	<li value="8">Searches for any (direct or indirect) successor of node <code>1</code>
+		having <code>outDegree &gt; 3</code> and finds <code>None</code>.
+	</li>
+	<li>Searches for any successor of node <code>1</code> having <code>outDegree
+		&gt;= 3</code> and finds node <code>3</code>. This also means that there
+		exists a path from node <code>1</code> to node <code>3</code>. To get the full
+		path call <code>findPath</code>.
+	</li>
+	<li>Searches for any successor of node <code>4</code> having only
+		undirected edges and finds node <code>2</code>.
+	</li>
+	<li>Successfully tests for node <code>4</code> being a predecessor
+		of node <code>1</code>.
+	</li>
+	<li>Finds an arbitrary path from node <code>1</code> to node <code>4</code>.
+	</li>
+	<li>Finds a path from node <code>1</code> to an arbitrary node 	having
+		<code>outDegree &gt;= 3</code>.
+	</li>
+	<li value="15">Determines the shortest path from node <code>3</code> to node
+		<code>1</code> and <code>get</code>s the result from <code>Option</code>.
+		Calling <code>get</code> is okay in this example because we know that
+		there must exist a path.
+	</li>
+	<li value="17">Reduces path <code>p</code> to the List of nodes on the path.
+		The returned path is an instance of the inner class <code>Path</code>
+		facilitating further functionality...
+	</li>
+	<li>...so, among others, it provides <code>weight</code> to 	calculate the
+		total of the edge weights on this path.
+	</li>
+	<li value="20">Finds a path from node <code>4</code> to node <code>2</code>
+		restricting the traversal to a subgraph containing only nodes with value
+		less than <code>4</code>.
+	</li>
+	<li value="23">Finds a path from node <code>4</code> to node <code>2</code>
+		restricting the traversal to a subgraph containing only edges with weight
+		of <code>2</code>.
+	</li>
+</ol>
+<pre class="prettyprint lang-scala linenums">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
+val fc1 = g.findCycle         // Some(Cycle(3, 3~>4, 4, 4~>2, 2, 2~>3, 3))
+val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
+for (c1 <- fc1; c2 <- fc2) yield c1 == c2     // false
+for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
+</pre>
+<p>As to</p>
+<ol>
+	<li value="2">Finds an arbitrary cycle in <code>g</code>, if any.
+	</li>
+	<li>Finds an arbitrary cycle reachable from node <code>4</code>,
+		if any.
+	</li>
+	<li><code>c1</code> and <code>c2</code> are not equal because they
+		start at different nodes.
+	</li>
+	<li>Irrespective of starting at different nodes, <code>c1</code> and <code>c2</code>
+		depict the same cycle in a semantic sense.
+	</li>
+</ol>
+<p> Cycle detecting works for directed, undirected and mixed graphs, alike.
+	If you have to ensure that your <code>Graph</code> instance is acyclic on
+	any operation consider utilizing the <code>Acyclic</code> constraint in
+	the Constrained module.
+</p>
+<h2 id="Properties">Refining Traversals by Properties</h2>
+<p> Except for <code>withSubgraph</code>, we didn't care about properties in the above
+	examples but we just accepted default values for them. You may refine
+	<code>Traverser</code> by means of the following properties:
+</p>
+<table>
+	<caption>Table: Traversal properties.</caption>
+	<tr><td><strong>Property</strong></td>
+		<td><strong>Factory method</strong></td>
+		<td><strong>Described at</strong></td>
+	</tr>
+	<tr><td><code>kind: Kind</code></td>
+		<td><code>withKind</code></td>
+		<td>members of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
+		</td>
+	</tr>
+	<tr><td><code>direction: Direction</code></td>
+		<td><code>withDirection</code></td>
+		<td>members of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
+		</td>
+	</tr>
+	<tr><td><code>maxDepth: Int</code></td>
+		<td><code>withMaxDepth</code></td>
+		<td>members of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
+		</td>
+	</tr>
+	<tr><td><code>nodes: (NodeT) =&gt; Boolean,<br />
+				  edges: (GraphTraversal.EdgeT) =&gt; Boolean</code></td>
+		<td><code>withSubgraph</code></td>
+		<td>members of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$FluentProperties">FluentProperties</a></code>
+			and<br />subclasses of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$Properties">Properties</a></code>
+		</td>
+	</tr>
+	<tr><td><code>ordering: GraphTraversal.ElemOrdering</code></td>
+		<td><code>withOrdering</code></td>
+		<td>members of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$$FluentProperties">FluentProperties</a></code>
+			and<br />subclasses of <code><a href=
+			"/api/core/api/scalax.collection.GraphBase$ElemOrdering">ElemOrdering</a></code>
+		</td>
+	</tr>
+</table>
+<p>	For instance, to exclude specific nodes from the traversal in a lazy manner
+	you'd call <code>withSubgraph</code> like
+</p>
+<pre class="prettyprint lang-scala nolinenum">(g get 1).withSubgraph(nodes = _ != 2) pathTo (g get 4)
+</pre>
+<p> For more examples on how to make use of properties search for the above factory methods in <a href= 
+	"https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TTraversal.scala">
+	TTraversal.scala</a>
+</p>
+<h3>Ordering</h3>
+<p>	As a special case, assume you want to control the order of edges to be traversed.
+	You can do so by setting the <code>ordering</code> property.
+	Since ordering has been tricky in general let's look at an example ensuring that
+	edges are traversed in reverse order of their weights:
+</p>
+<pre class="prettyprint lang-scala nolinenum">import edge.WDiEdge
+
+val root = 1
+val g = Graph(root~>4 % 2, root~>2 % 5, root~>3 % 4,
+                 3~>6 % 4,    3~>5 % 5,    3~>7 % 2)
+
+def edgeOrdering = g.EdgeOrdering(g.Edge.WeightOrdering.reverse.compare)
+val traverser = (g get root).outerNodeTraverser.withOrdering(edgeOrdering)
+ 
+traverser.toList  // List(1,2,3,4,5,6,7)
+</pre>
+<p>	Note that node and edge ordering are limited compared with a priority queue.
+</p>
+
+<h2 id="Elements">Traversing for Graph Elements</h2>
+<p><code>Traverser</code>s also enable to inspect graph elements (nodes and/or edges)
+	during the traversal. By doing so they ensure that the passed visitor method is called
+	once for each visited element. As a side note, <code>DownUpTraverser</code>s are
+	different in that they call the visitor twice.    
+</p>
+<p>	Depending on what graph elements you're interested in, select one of the following
+	<code>Traverser</code> factory methods:
+</p>
+<table>
+	<caption>Table: Traverser factory methods.</caption>
+	<tr><td><strong>Factory Method</strong></td>
+		<td><strong>Type of Visitor</strong></td>
+	</tr>
+	<tr><td><code>innerNodeTraverser</code></td>
+		<td>path dependent <code>NodeT</code></td>
+	</tr>
+	<tr><td><code>outerNodeTraverser</code></td>
+		<td><code>N</code> type parameter of the graph</td>
+	</tr>
+	<tr><td><code>innerEdgeTraverser</code></td>
+		<td>path dependent <code>EdgeT</code></td>
+	</tr>
+	<tr><td><code>outerEdgeTraverser</code></td>
+		<td><code>E[N]</code> based on the type parameters of the graph</td>
+	</tr>
+	<tr><td><code>innerElemTraverser</code></td>
+		<td><code>InnerElem</code>, the common base of <code>NodeT</code> and <code>EdgeT</code></td>
+	</tr>
+	<tr><td><code>outerElemTraverser</code></td>
+		<td><code>OuterElem[N,E]</code>, the common base of <code>N</code> and <code>E[N]</code></td>
+	</tr>
+	<tr><td><code>innerNodeDownUpTraverser</code></td>
+		<td><code>(Boolean, NodeT)</code></td>
+	</tr>
+	<tr><td><code>outerNodeDownUpTraverser</code></td>
+		<td><code>(Boolean, N)</code></td>
+	</tr>
+</table>
+<p>	While inner elements provide graph functionality at your fingertips, outer elements
+	feel more natural since they're exactly what you passed to the graph.
+</p>
+<p>	The above factory methods are available both at node and graph level. At node level
+	<code>root</code>, the node to start the traversal at, is set to the specific node
+	you are invoking the method on; at graph level <code>root</code> must be passed explicitly.
+	In addition you may pass any traverser property to override the default values: 
+</p>
+<pre class="prettyprint lang-scala linenums">import scalax.collection.edge.WDiEdge
+import scalax.collection.edge.Implicits._
+
+val g = Graph(1~>2 % 1, 1~>3 % 2, 2~>3 % 3, 3~>4 % 1)
+val n1 = g get 1
+
+n1.outerNodeTraverser.sum                 // 10
+g.outerNodeTraverser(n1).sum              // 10
+n1.outerNodeTraverser.withMaxDepth(1).sum //  6
+
+n1.innerEdgeTraverser.map(_.weight).sum   //  7
+
+n1.innerElemTraverser.filter(_ match {
+  case g.InnerNode(n) => n.degree &gt; 1
+  case g.InnerEdge(e) => e.weight &gt; 1
+})                                        // Traversable(1, 2, 3, 1~>3 % 2, 2~>3 % 3)
+</pre>
+<p>As to</p>
+<ol>
+	<li value="7">Starts a default traversal at <code>n1</code> to sum up the node values.
+		<code>sum</code> is provided by <code>scala.colllection.Traversable</code>. 
+	</li>
+	<li>The same traversal as before invoked at graph level.
+	</li>
+	<li>The same traversal as before but restricted up to a depth of 1.
+	</li>
+	<li value="11">Calculates the sum of weights over all edges. Here we could
+		employ <code>outerEdgeTraverser</code> as well.
+	</li>
+	<li value="13">Traverses <code>g</code> for all its elements reachable from
+		<code>n1</code> to return a set of <code>InnerElem</code> containing nodes
+		with a degree greater than <code>2</code> and edges with a weight greater
+		than <code>1</code>.
+	</li>
+</ol>
+<h3>Down-up Visitors</h3>
+<p> Assume you'd like to traverse a graph, especially a tree, in a
+	stack-like manner i.e. you need to carry out one action when touching
+	a node the first time and another, related action when touching the
+	same node the second time in course of traversing up in the imaginary tree.
+	For this purpose you may utilize <code>innerNodeDownUpTraverser</code>:
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scala.collection.mutable.ArrayBuffer
+
+val root = "A"
+val g = Graph(root~>"B1", root~>"B2")
+val innerRoot = g get root
+val result = (ArrayBuffer.empty[String] /: innerRoot.innerNodeDownUpTraverser) {
+    (buf, param) => param match {
+      case (down, node) => 
+        if (down) buf += (if (node eq innerRoot) "(" else "[") += node.toString
+        else      buf += (if (node eq innerRoot) ")" else "]")
+    }
+}
+("" /: result)(_+_) // "(A[B1][B2])"
+</pre>
+<h3>Extended Visitors</h3>
+<p> In case you need to process the internal state of a traversal including the
+	count of visited nodes, the current search depth, the internal stack etc. you
+	may switch to extended visitors. Beware that these are implementation specific:
+</p>
+<pre class="prettyprint lang-scala nolinenum">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
+
+import g.ExtendedNodeVisitor
+import scalax.collection.GraphTraversal._
+import scalax.collection.GraphTraversalImpl._
+
+var info = List.empty[String]
+(g get 1).innerNodeTraverser.withKind(DepthFirst).foreach {
+  ExtendedNodeVisitor((node, count, depth, informer) => {
+    info :+= s"$node at $depth"
+    VisitorReturn.Continue
+  })
+}
+info should be (List("1 at 0", "2 at 1", "3 at 1", "4 at 2"))    
+</pre>
+<p> (The signature of <code>ExtendedNodeVisitor</code> will be altered in order
+	to no more rely on side effects.)
+</p>
+
+<h2 id="Combined">Combined Traversals</h2>
+<p> Further, when traversing for a result, it is also possible to append a visitor
+	for additional side effects like: 
+</p>
+<pre class="prettyprint lang-scala nolinenum">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
+var center: Option[g.NodeT] = None
+
+(g get 4).findCycle( n =>
+  center = center match {
+    case s @ Some(c) => if (n.degree > c.degree) Some(n) else s
+    case None        => Some(n)
+  }
+)
+</pre>
+<p> The above expression evaluates to an <code>Option[Path]</code>.
+	In course of the traversal the appended visitor also calculates the node
+	with the maximum degree among those visited. The resulting <code>center</code>
+	need not be part of the cycle.
+</p>
+
+<h2 id="Components">Working with Graph Components</h2>
+<p> <a href="/api/core/api/#scalax.collection.GraphTraversal$ComponentTraverser">ComponentTraverser</a>
+	comes into play whenever you are working with subgraphs or disconnected graphs:   
+</p>
+<pre class="prettyprint lang-scala linenums">def someEdges(i: Int) =
+  List( (i)~>(i + 1), (i)~>(i + 2), (i + 1)~>(i + 2))
+ 
+val disconnected = Graph.from(edges = someEdges(1) ++ someEdges(5))
+val sums =
+  for (c <- disconnected.componentTraverser())
+    yield c.nodes.head.outerNodeTraverser.sum  // Traversable(6, 18)
+</pre>
+<p>As to</p>
+<ol>
+	<li value="4">Creates a disconnected graph consisting of two components.
+	</li>
+	<li>The elements of <code>sums</code> correspond to the sum of the node values
+		of each graph component.
+	</li>
+</ol>
+
+<h2 id="Canceling">Canceling Traversals</h2>
+<p> To cancel a traversal prefer calling one of <code>scala.collection.Traversable</code>'s
+	methods that finish the traversal as soon as the specified condition holds true such as
+	<code>exists</code> or <code>collectFirst</code>.
+	Otherwise you are free to invoke <code>break()</code> as provided by
+	<code>scala.util.control.Breaks</code> at any point.  
+</p>

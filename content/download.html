@@ -6,17 +6,17 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.7.2</code></td>
+        <td><code>1.8.0</code></td>
     </tr>
     <tr class = "split">
         <td>Optional Modules</td>
-        <td><code>1.7.0</code></td>
+        <td><code>1.8.0</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add:</p>
 
-<pre>libraryDependencies += "com.assembla.scala-incubator" % "graph-core_2.10" % "1.7.2"</pre>
+<pre>libraryDependencies += "com.assembla.scala-incubator" % "graph-core_2.10" % "1.8.0"</pre>
 
 <p>to the SBT build file.
 As a Maven user, please set the following ids:</p>
@@ -31,30 +31,87 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.7.2</code></td>
+    <td><code>1.8.0</code></td>
   </tr>
 </table>
-
 <p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained_2.10</code></td>
-    <td><code>1.7.0</code></td>
+    <td><code>1.8.0</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-dot_2.10</code></td>
-    <td><code>1.7.0</code></td>
+    <td><code>1.8.0</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-json_2.10</code></td>
-    <td><code>1.7.0</code></td>
+    <td><code>1.8.0</code></td>
   </tr>
 </table>
 
 You may also manually download the Jars and Scaladoc from
-<a href = "https://oss.sonatype.org/content/repositories/releases/com/assembla/scala-incubator/">Sonatype</a>.
+<a href = "http://search.maven.org/#browse%7C960089992" target="_blank">Maven Central</a>.
+
+<h2 id="1.8">1.8 Release Notes</h2>
+<h3 id="1.8.0">1.8.0</h3>
+<ul>
+	<li>new: <strong><a href="/guides/core-traversing.html">Traversing API</a>
+		taken to the next level.</strong>
+	</li>
+	<li>mod: Some conversion methods and rarely used classes have been renamed
+		for clarity and uniformity. 
+	</li>
+</ul>
+<h3>Migration notes:</h3> 
+<ul>
+	<li>Please replace deprecated method calls in a timely manner since	deprecated
+		methods will be removed from the library probably as soon as in April 2014.
+		Besides reading the updated User Guide it should be worthwhile to inspect
+		<code>TTraversal.scala</code> near to the bottom of 
+		<a href="https://github.com/scala-graph/scala-graph/commit/7082893711c98491d029d0bc4962c006be8c5dd8"
+		target="_blank">test migration changes</a> providing a handful of migration examples.  
+	</li>
+	<li><p>Please update your code base with the following renamed methods and classes:
+		</p> 
+		<table>
+			<tr><td>up to 1.7</td>
+		  		<td>as of 1.8 renamed to</td>
+			</tr>
+			<tr><td><code>toEdgeIn, toNodeInSet, toEdgeInSet</code></td>
+		  		<td><code>toOuter</code></td>
+			</tr>
+			<tr><td><code>NodeIn, EdgeIn</code></td>
+		  		<td><code>OuterNode, OuterEdge</code></td>
+			</tr>
+			<tr><td><code>NodeOut, EdgeOut</code></td>
+		  		<td><code>InnerNodeParam, InnerEdgeParam</code></td>
+			</tr>
+			<tr><td><code>InnerNodeLike, InnerEdgeLike</code></td>
+		  		<td><code>InnerNode, InnerEdge</code><br />
+		  			with the common base <code>InnerElem</code></td>
+			</tr>
+			<tr><td><code>GraphParam*</code></td>
+		  		<td><code>*Param</code></td>
+			</tr>
+		</table>
+	</li>
+</ul>
 
 <h2 id="1.7">1.7 Release Notes</h2>
+<h3 id="1.7.3">1.7.3</h3>
+<ul>
+	<li>mod: faster processing of direct successors, 	O(1) access for
+		<code>findOutgoingTo</code>.</li>
+	<li>mod: <code>Manifest</code> migrated to <code>TypeTag</code>.
+		<code>Manifest</code> maintained in <code>Graph_json</code> because of
+		<code>lift.json</code>.
+	</li>
+	<li>mod: Compiler dependency updated to <code>2.10.3</code>.
+	</li>
+	<li>fix: method <code>upsert</code> didn't work properly in case of insertions.
+	</li>
+</ul>
 <h3 id="1.7.2">1.7.2</h3>
 <ul>
 	<li>new: method <code>upsert</code> for mutable graphs.</li>
