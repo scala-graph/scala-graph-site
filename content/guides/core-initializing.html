@@ -445,8 +445,6 @@ val nodes = List(5)
 val edges = List(3~1)
 val g3 = Graph.from(nodes, edges)
 var n, m = 0; val f = Graph.fill(100)( {n = m; m += 1; n~m} ) 
-val gs = Graph.fromStream[Int,WLDiEdge,String,WLEdgeCompanion,WLEdgeAdapter](
-    edgeStreams = Seq(new WLDiEdgeStream(WLDiEdge))) // Graph[Int,WLDiEdge](...)
 </pre>
 <p>As to</p>
 <ol>
@@ -483,17 +481,6 @@ val gs = Graph.fromStream[Int,WLDiEdge,String,WLEdgeCompanion,WLEdgeAdapter](
 		instance&nbsp; <code>g3</code> equals to <code>g1</code>.
 	</li>
 	<li>Creates a <code>Graph</code> instance with 100 edges {0~1, 1~2, ..., 99~100}.
-	</li>
-	<li>Creates a <code>Graph</code> instance reading from the edge input stream
-		<code>WLDiEdgeStream</code> which has the edge factory <code>WLDiEdge</code>.
-		The <code>fromStream</code> factory method is invoked with the type
-		arguments <code>Int </code>for the node type,<code> WLDiEdge </code>for
-		the edge type,<code> String </code>for the label type,
-		<code>WLEdgeCompanion</code> for the edge factory and <code>WLEdgeAdapter</code>
-		for the adapter type. <code>WLDiEdgeStream</code> must be implemented by the user.
-		Input streams enable to instantiate graphs without prior creation of outer nodes
-		and edges. Implementation examples for node/edge input streams are given in
-		<code>TStream.scala</code>.
 	</li>
 </ol>
 <h2>Type Parameter Inference</h2>

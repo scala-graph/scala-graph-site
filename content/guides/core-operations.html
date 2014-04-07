@@ -187,16 +187,16 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 	node or edge at the right hand side.
 	<em id="G4S">Graph for Scala</em> guarantees a consistent state of the node and
 	edge sets after any operation including duplicate node/edge prevention
-	as demonstrated in <em>e)</em>.
+	as demonstrated on line <em>5</em>.
 </p>
 <p> Both <em>ripple</em> and <em>gentle</em> removal schemas are supported.
 	Using the standard operators <code>-</code> and <code>-=</code>, removals comply
 	with the definition of node and edge removal in graph theory:
-	<em>ripple</em> removal of nodes as in <em>i)</em> and
-	<em>gentle</em> removal of edges as in <em>k)</em>.
+	<em>ripple</em> removal of nodes as on the lines <em>9</em> to <em>11</em> and
+	<em>gentle</em> removal of edges as on line <em>13</em>.
 	In addition, <em>gentle</em> removal of nodes by <code>-?</code> and
-	<code>-?=</code> as in <em>j)</em> as well as <em>ripple</em> removal of edges by
-	<code>-!</code> and <code>-!=</code> as in <em>l)</em> are also supported.
+	<code>-?=</code> as on line <em>12</em> as well as <em>ripple</em> removal of edges by
+	<code>-!</code> and <code>-!=</code> as on line <em>13</em> are also supported.
 </p>
 <p>	It is also possible to add elements to or subtract elements from node and edge
 	sets. However, these operations have less practical relevance as the result
@@ -421,11 +421,11 @@ As to
 	predicates.
 </p>
 <h2 id="Measuring">Measuring Graphs and Grouping Nodes by Degree</h2>
-<p> Assume <code>g</code> being the mixed graph in chapter <em>Finding Paths</em>.
-	Then
+<p> Assume <code>g</code> being the mixed graph in chapter
+	<a href="/guides/core-traversing.html">Traversing Graphs</a>. Then
 </p>
 <pre class="prettyprint lang-scala linenums"
->g.order	                 // Int = 5 
+>g.order                     // Int = 5 
 g.graphSize                 // Int = 8
 g.size                      // Int = 13
 g.totalDegree               // Int = 16 
@@ -452,7 +452,7 @@ g.degreeNodesMap(degreeFilter = _ > 3)  // Map(4 -> Set(3,4))
 	<li>A map of degrees over all nodes in <code>g</code> with nodes
 		having the degree of key.
 	</li>
-	<li>The same map as in g) restricted to degrees greater than <code>3</code>.
+	<li>The same map as on line <em>7</em> restricted to degrees greater than <code>3</code>.
 	</li>
 </ol>
 <p>All degree methods have implicit parameters to query in- or
