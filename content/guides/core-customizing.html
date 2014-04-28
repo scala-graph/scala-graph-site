@@ -10,61 +10,45 @@ sideMenuItems: >
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Customizing Graphs</h1>
-<p>
-	You can start to utilize <code>Graph</code> out of the box but often you want
+<p>	You can start to utilize <code>Graph</code> out of the box but often you want
 	to achieve a certain degree of customization. Basically, the following kinds
 	of customization are eligible:
 </p>
+
 <h2>Altering Configuration Options</h2>
-<p>
-	In the default implementation, adjacency lists are represented by
+<p>	In the default implementation, adjacency lists are represented by
 	<code>ArraySet</code>s, a specific collection type included in Graph-core.
 	<code>ArraySet</code>s bank on JVM native arrays to provide higher performance.
 </p>
-<p>
-	Mostly you can go with the default
-	<code>ArraySet</code>
+<p>	Mostly you can go with the default <code>ArraySet</code>
 	settings which were chosen by careful measurements. In production
 	however, it may be desirable to tune them. Based on the node density
 	and density distribution of your graphs you can determine up to which
-	number of neighbors the underlying
-	<code>ArraySet</code>
-	s should use arrays. Once this limit is reached,
-	<code>ArraySet</code>
-	will transparently switch from the array to hash set representation.
+	number of neighbors the underlying <code>ArraySet</code>s
+	should use arrays.
+	Once this limit is reached, <code>ArraySet</code> will transparently
+	switch from the array to hash set representation.
 </p>
-<p>
-	Let
-	<code>g</code>
-	be your
-	<code>Graph</code>
-	instance. Then
+<p>	Let <code>g</code> be your <code>Graph</code> instance. Then
 </p>
-<p>
-	<code>g.config</code>
+<p>	<code>g.config</code>
 </p>
-<p>
-	returns the immutable configuration for
-	<code>g</code>
-	. To override these settings, define your own implicit value prior to
-	<code>Graph</code>
-	creation:
+<p>	returns the immutable configuration for <code>g</code>.
+	To override these settings, define your own implicit value prior to
+	<code>Graph</code> creation:
 </p>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.config.CoreConfig
 import scalax.collection.mutable.ArraySet.Hints
-implicit val myConfig = CoreConfig(Hints(64, 0, 64, 75))
+implicit val myConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
 </pre>
-<p>
-	In the above example, both the initial array capacity and the hash set
-	limit are set to
-	<code>64</code>
-	. These values would be preferable for
-	<code>Graph</code>
-	s with an average node degree of roughly 30 to 55 for the majority of
-	the nodes. For more details please refer to the Scaladoc of
-	<code>ArraySet.Hints</code>
-	or request for service.
+<p>	The first argument will be used for preallocations depending on the
+	expected order of the graph. The second argument ensures that both
+	the initial array capacity and the hash set limit are set to <code>64</code>.
+	These values would be preferable for <code>Graph</code>s with an average
+	node degree of roughly 30 to 55 for the majority of nodes.
+	For more details please refer to the Scaladoc of <code>ArraySet.Hints</code>.
 </p>
+
 <h2>Enriching Graph</h2>
 <p> You may want to add new methods to the library implementation of
 	<code>Graph</code> or its inner traits <code>InnerNodeLike</code>,
@@ -72,56 +56,56 @@ implicit val myConfig = CoreConfig(Hints(64, 0, 64, 75))
 	Adding new methods to Graph may be achieved by the standard <em>enrich
 	my library</em> pattern using <code>implicit</code> functions.
 </p>
-<p> To enrich <code>Graph</code> with one or more methods you might expand
-	the following template:
+<p> To enrich <code>Graph</code> with your own methods simply use the
+	enrich-me pattern like:
 </p>
-<pre class="prettyprint lang-scala nolinenum">final class ExtGraph[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) {
-  def &lt;yourMethodSignature&gt; &lt;yourMethodBody&gt;
+<pre class="prettyprint lang-scala nolinenum">implicit class ExtGraph[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) {
+  def foo = "bar"
 }
-implicit def gToExtG[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) =
-  new ExtGraph[N,E](g)
+Graph(1~2).foo
 </pre>
-<p>	To enrich the inner <code>type NodeT</code> is more subtle:
+<p>	To enrich the inner type <code>NodeT</code> is more subtle:
 </p>
-<pre class="prettyprint lang-scala nolinenum">final class ExtGraphNode[N, E[X] <: EdgeLikeIn[X]](node_ : Graph[N,E]#NodeT) {
-  type NodeT = graph.NodeT
-  val graph = node_.containingGraph
-  val node  = node_.asInstanceOf[NodeT]
-  def ... // your method
-}
-implicit def nodeToExtN[N, E[X] <: EdgeLikeIn[X]] (node: Graph[N,E]#NodeT) =
-  new ExtGraphNode[N,E](node)
+<pre class="prettyprint lang-scala nolinenum">implicit class ExtGraphNode[N, E[X] <: EdgeLikeIn[X]](node_ : Graph[N,E]#NodeT) {
+    type NodeT = graph.NodeT
+    val graph = node_.containingGraph
+    val node  = node_.asInstanceOf[NodeT]
+    def foo = this.toString + "bar"
+  }
+  Graph(1~2).nodes.headOption map (_.foo)
 </pre>
-<p> See also the test and demostration
+<p> For more sophisticated enrichment alternatives see
 	<a href="https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/custom/TExtByImplicit.scala">TExtByImplicit.scala</a>.
 </p>
+
 <h2>Defining Custom Edges</h2>
-<p>You may decide to bypass the predefined edge classes and design your
+<p>	You may decide to bypass the predefined edge classes and design your
 	own edge type. Recapping the <code>Flight</code> label example,
 	it is also possible to define a custom edge type <code>Flight</code>.
-	With such a custom edge type you can create <code>Graph</code> instances
-	of the type <code>Graph[Airport, Flight]</code>.
+	Armed with such a custom edge type you can create <code>Graph</code>
+	instances of the type <code>Graph[Airport, Flight]</code>.
 	For the sake of simplicity we design the <code>Flight</code> edge to have
-	the only attribute <code>flightNo</code>. Given the node class
+	the single attribute <code>flightNo</code>. Given the node class
 </p>
-<pre class="prettyprint lang-scala nolinenum">case class Airport(val code: String) // node type
+<pre class="prettyprint lang-scala nolinenum">case class Airport(val code: String) {
+  override def toString = code // without Airport-prefix
+}
 val (ham, ny) = (Airport("HAM"), Airport("JFK")) // two nodes
 </pre>
 <p>assume we want to be able to write</p>
 <pre class="prettyprint lang-scala nolinenum">val flight = ham ~> ny ## "007"	// flightNo 007 - doesn't work yet
 val g = Graph(flight) // Graph[Airport, Flight] - doesn't work yet
 </pre>
-<p>
-	<a name="RichViewCheckpoint0"></a> Here is how to achieve the above
+<p>	<a name="RichViewCheckpoint0"></a> Here is how to achieve the above
 	requirements:
 </p>
 <pre class="prettyprint lang-scala linenums"
 >class Flight[N](nodes: Product, val flightNo: String)
-  extends DiEdge[N](nodes)
-  with    ExtendedKey[N]
-  with    EdgeCopy[Flight]
-  with    EdgeIn[N,Flight]
-{
+    extends DiEdge[N](nodes)
+    with    ExtendedKey[N]
+    with    EdgeCopy[Flight]
+    with    OuterEdge[N,Flight] {
+
   def keyAttributes = Seq(flightNo)
   override def copy[NN](newNodes: Product) =
     new Flight[NN](newNodes, flightNo)
@@ -132,12 +116,10 @@ object Flight {
   def unapply(e: Flight[Airport]): Option[(Airport,Airport,String)] =
       if (e eq null) None else Some(e.from, e.to, e.flightNo)
 }
-final class FlightAssoc[A <: Airport](val e: DiEdge[A]) {
+implicit class FlightAssoc[A <: Airport](val e: DiEdge[A]) {
   @inline def ## (flightNo: String) =
-    new Flight[A](e.nodes, flightNo) with EdgeIn[A,Flight]
+    new Flight[A](e.nodes, flightNo) with OuterEdge[A,Flight]
 }
-implicit def edge2FlightAssoc[A <: Airport](e: DiEdge[A]) =
-  new FlightAssoc[A](e)
 </pre>
 <p>As to</p>
 <ol>
@@ -145,13 +127,13 @@ implicit def edge2FlightAssoc[A <: Airport](e: DiEdge[A]) =
 		edge. <code>Airport</code> is the node type.</li>
 	<li>If any of the label attributes is part of the key of the edge
 		type, <code>ExtendedKey</code> must be mixed in. An attribute is a key
-		if it must be considered by <code>eauals</code>. <code>flightNo</code>
+		if it must be considered by <code>equals</code>. <code>flightNo</code>
 		is such a key attribute because there may exist several flights from
 		and to the same airport so we distinguished them by <code>flightNo</code>.
 	</li>
 	<li>All edge implementations must mix in <code>EdgeCopy</code>.
 	</li>
-	<li>All edge implementations must mix in <code>EdgeIn</code>.
+	<li>All edge implementations must mix in <code>OuterEdge</code>.
 	</li>
 	<li value="7">Key attributes must be added to this <code>Seq</code>.
 	</li>
@@ -165,8 +147,6 @@ implicit def edge2FlightAssoc[A <: Airport](e: DiEdge[A]) =
 	</li>
 	<li value="17">Establishes the <code>Flight</code> edge factory shortcut
 		<code>##</code> which converts a directed edge to <code>Flight</code>.
-	</li>
-	<li value="21">Enables the implicit usage of the <code>##</code> operator.
 	</li>
 </ol>
 <p>
