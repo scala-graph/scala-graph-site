@@ -6,7 +6,7 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.8.0</code></td>
+        <td><code>1.8.1</code></td>
     </tr>
     <tr class = "split">
         <td>Optional Modules</td>
@@ -31,7 +31,7 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.8.0</code></td>
+    <td><code>1.8.1</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
@@ -48,12 +48,33 @@ As a Maven user, please set the following ids:</p>
     <td><code>graph-json_2.10</code></td>
     <td><code>1.8.0</code></td>
   </tr>
+  <tr class="split">
+    <td><code>graph-test_2.10</code></td>
+    <td><code>1.8.1</code></td>
+  </tr>
 </table>
 
 You may also manually download the Jars and Scaladoc from
 <a href = "http://search.maven.org/#browse%7C960089992" target="_blank">Maven Central</a>.
 
 <h2 id="1.8">1.8 Release Notes</h2>
+<h3 id="1.8.1">1.8.1</h3>
+<ul>
+	<li>new: Scala <strong>2.11</strong> releases.
+	</li>
+	<li>new: module <strong><a href="/guides/test.html">Test</a></strong>
+		to facilitate 	random graph generation.
+	</li>
+	<li>new: Parameter <code>weight</code> added to overloaded version of
+		<code>shortestPathTo</code> to enable flexible weight definitions.
+	</li>
+	<li>new: Parameter <code>orderHint</code> added to <code>GraphConfig</code>.
+	</li>
+	<li>mod: Factory method <code>fromStream</code> removed. 
+	</li>
+	<li>some fixes. 
+	</li>
+</ul>
 <h3 id="1.8.0">1.8.0</h3>
 <ul>
 	<li>new: <strong><a href="/guides/core-traversing.html">Traversing API</a>

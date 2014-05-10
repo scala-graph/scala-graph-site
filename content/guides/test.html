@@ -1,0 +1,264 @@
+---
+title: Test User Guide
+sideMenuItems: >
+  <li><a href="#Introduction">Introduction</a></li>
+  <li><a href="#RandomGraphs">Creating Random Graphs</a></li>
+  <li><a href="#ScalaCheck">Integrating with <code>ScalaCheck</code></a></li>
+---
+<h1>Test Utilities</h1>
+
+<h2 id="Introduction">Introduction</h2>
+<p>	Thorough testing is inevitable to assure high quality when implementing your own
+	use-case-specific or generic algorithms on top of <em id="G4S">Graph for Scala</em>.
+	This module aims at helping you to achieve this goal by providing facilities for
+	user-friendly random graph generation.
+</p>
+<p>	Besides accepting a node generator, <em id="G4S">Graph for Scala Test</em>
+	allows you to control the metrics of random graphs including their order,
+	density and density distribution.
+	Further, you determine which edge types should connect nodes and may also supply your own
+	weight and label generators.
+</p>
+<p>	The companion objects also provide some simple predefined generators such as
+	<a href="http://www.scala-graph.org/api/test/api/index.html#scalax.collection.generator.GraphGen$"
+	>smallConnectedIntDi</a>.
+</p>
+<p>	To avoid bundling your distribution with <em id="G4S">Graph for Scala Test</em>
+	limit your dependency scope to testing by appending <code>"test"</code>:</p>
+
+<pre>"com.assembla.scala-incubator" %% "graph-test" % "1.9.0" % "test"</pre>
+
+<h2 id="RandomGraphs">Creating Random Graphs</h2>
+<p>	Think of <code>RandomGraph</code> as the native implementation to generate
+	any kind of <code>Graph</code> with random nodes and edges satisfying user-defined
+	graph metrics.
+</p>
+
+<h3>Obtaining Generators for Graphs with Predefined Metrics</h3>
+<p>	The simplest way to obtain a random graph is to use a predefined generator like
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.generator._
+
+val predefined = RandomGraph.tinyConnectedIntDi(Graph)
+val tinyGraph = predefined.draw // Graph[Int,DiEdge]
+</pre>
+
+<h3>Setting individual graph metrics</h3>
+<p>	You are certainly not stick with the metrics applied to predefined generators
+	but you can adjust them individually:
+</p>
+<pre class="prettyprint lang-scala linenums">object sparse_1000_Int extends RandomGraph.IntFactory {
+  val order = 1000
+  val nodeDegrees = NodeDegreeRange(1,10)
+  override def connected = false
+}
+val randomSparse = RandomGraph[Int,UnDiEdge,Graph](
+    Graph, sparse_1000_Int, Set(UnDiEdge))
+val sparseGraph = randomSparse.draw // Graph[Int,UnDiEdge]
+</pre>
+<p>As to</p>
+<ol>
+	<li>Defines the metrics for graphs of <code>Int</code> nodes.
+	</li>
+	<li>The generated graph will have an order of <code>1000</code>.
+	</li>
+	<li>Node degrees will range between <code>1</code> and <code>10</code>.
+	</li>
+	<li>Allows the generated graph to be disconnected.
+	</li>
+	<li value="6">A <code>RandomGraph</code> generator is instantiated to generate
+		graphs with the above metrics and the edge type <code>UnDiEdge</code>.  
+	</li>
+	<li value="8">Draws a concrete random graph from the generator.
+	</li>
+</ol>
+	
+<h3>Obtaining Generators for Individual Graph Types</h3>
+<p>	As you have noticed the previous generator was restricted to the
+	node type of <code>Int</code>. But to cover your use case you usually
+	need to obtain random graphs with a specific node type. Let's define a
+	class <code>Person(name: String, yearOfBirth: Int)</code> for this purpose.
+	Also, let's create <code>PersonData</code> containing meaningful data
+	to <code>Person</code>s:   
+</p>
+<pre class="prettyprint lang-scala nolinenum">object PersonData {
+  val firstNames = Set(
+      "Alen", "Alice", "Bob", "Jack", "Jim",
+      "Joe", "Kate", "Leo", "Tim", "Tom").to[Vector]
+  val firstNamesSize = firstNames.size
+   
+  val surnames = Set(
+      "Bell", "Brown", "Clark", "Cox", "King",
+      "Lee", "Moore", "Ross", "Smith", "Wong").to[Vector]
+  val surnamesSize = surnames.size
+    
+  def order = firstNamesSize * surnamesSize / 10
+  def degrees = new NodeDegreeRange(2, order - 2)
+  val maxYearOfBirth = 2010
+}
+</pre>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.edge.LDiEdge
+  
+case class Person(name: String, yearOfBirth: Int)
+object Person {
+  import PersonData._
+  private val r = new scala.util.Random
+      
+  def drawFirstName: String = firstNames(r.nextInt(firstNamesSize))  
+  def drawSurame: String = surnames(r.nextInt(surnamesSize))
+
+  def drawName: String = s"$drawFirstName, $drawSurame"
+      
+  def drawYearOfBirth = maxYearOfBirth - r.nextInt(100)
+}
+ 
+val randomMixedGraph =
+  RandomGraph[Person,UnDiEdge,Graph](
+    Graph, new RandomGraph.Metrics[Person] {
+      val order = PersonData.order
+      val nodeDegrees = PersonData.degrees
+      def nodeGen: Person = Person(Person.drawName, Person.drawYearOfBirth)
+    },
+    Set(UnDiEdge, LDiEdge)
+)
+val mixedGraph = randomMixedGraph.draw
+</pre>
+<p>	<code>mixedGraph</code> will now have undirected and labeled directed
+	edges looking like
+</p>
+<pre class="prettyprint lang-scala nolinenum">Graph(
+  Person(Alice, Smith,1967),
+  Person(Kate, Ross,1921),
+  Person(Leo, Bell,2008),
+  Person(Leo, Smith,1983),
+  ...,
+  Person(Alice, Smith,1967)~&gt;Person(Kate, Ross,1921) 'C,
+  Person(Leo, Bell,2008)~Person(Leo, Smith,1983),
+  ...
+)
+</pre>
+<p>	You can even supply your own label and weight generators.
+</p>
+
+<h3>Keeping Metrics Constraints in Mind</h3>
+<p>	You may wonder why we divided the number of all possible combinations of
+	first names and surnames by 10. The reason is that <code>RandomGraph</code>
+	must be able to draw distinct nodes. Ok, they become most probably distinct
+	due to the presence of <code>yearOfBirth</code>. But had we just
+	<code>Person(name: String)</code> and
+	<code>def order = firstNamesSize * surnamesSize</code>, we'd get
+	more and more duplicate names when drawing them.
+	Therefore <code>RandomGraph</code> is implemented to cope with duplicates
+	up to a certain limit. Above that limit the generator assumes that
+	the supplied node generator behaves ill and rejects to generate the graph
+	by throwing an exception. Otherwise it would take the risk of an infinite loop.       
+</p>
+<p>	In conclusion, always plan your node generator with respect to the graph order
+	carefully. By rule of thumb, allow your node generator to have about ten-fold
+	capacity over the graph order.
+</p>
+<p>	Node degrees are another important design aspect. Generating graphs
+	with a high density may fail.
+</p>
+
+<h2 id="ScalaCheck">Integrating with <em>ScalaCheck</em></h2>
+<p>	<code>GraphGen</code>, a thin wrapper around <code>RandomGraph</code>, is
+	provided for out-of-the-box <code>ScalaCheck</code> integration.
+	Below you'll find the <code>ScalaCheck</code> equivalent of the
+	previous examples. We assume some knowledge of <code>ScalaCheck</code>. 
+</p>
+
+<h3>Obtaining <code>Arbitrary</code> Instances for Graphs with Predefined Metrics</h3>
+<pre class="prettyprint lang-scala nolinenum">type IntDiGraph = Graph[Int,DiEdge]
+implicit val arbitraryTinyGraph = GraphGen.tinyConnectedIntDi[Graph](Graph)
+  
+val properTiny = forAll(arbitrary[IntDiGraph]) { g: IntDiGraph =&gt;
+    g.order == GraphGen.TinyInt.order
+}
+properTiny.check
+</pre>
+     
+<h3>Setting Individual Graph Metrics for <code>Arbitrary</code> Instances</h3>
+<pre class="prettyprint lang-scala nolinenum">object Sparse_1000_Int extends GraphGen.Metrics[Int] {
+  val order = 1000
+  val nodeDegrees = NodeDegreeRange(1,10)
+  def nodeGen: Gen[Int] = Gen.choose(0, 10 * order)
+  override def connected = false
+}
+  
+type IntUnDiGraph = Graph[Int,UnDiEdge]
+implicit val arbitrarySparseGraph = Arbitrary {
+  GraphGen[Int,UnDiEdge,Graph](Graph, Sparse_1000_Int, Set(UnDiEdge)).apply
+}
+    
+val properSparse = forAll(arbitrary[IntUnDiGraph]) { g: IntUnDiGraph =&gt;
+  g.order == Sparse_1000_Int.order
+}
+properSparse.check
+</pre>
+    
+<h3>Obtaining <code>Arbitrary</code> Instances to Generate Individual Graph Types</h3>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.edge.LDiEdge
+  
+case class Person(name: String, yearOfBirth: Int)
+object Person {
+  import PersonData._
+      
+  def firstNameGen : Gen[String] = Gen.oneOf(firstNames)  
+  def surameGen: Gen[String] = Gen.oneOf(surnames)
+
+  def nameGen: Gen[String] = Gen.resultOf( (firstName: String, surname: String) =&gt;
+    s"$firstName, $surname")(
+    Arbitrary(firstNameGen), Arbitrary(surameGen))
+
+  def yearOfBirthGen: Gen[Int] = Gen.choose(maxYearOfBirth - 100, maxYearOfBirth)
+}
+  
+object MixedMetrics extends GraphGen.Metrics[Person] {
+  val order = PersonData.order
+  val nodeDegrees = PersonData.degrees
+  def nodeGen: Gen[Person] = Gen.resultOf( (name: String, year: Int) =&gt;  
+    Person(name, year))(
+    Arbitrary(Person.nameGen), Arbitrary(Person.yearOfBirthGen))
+}
+
+type Mixed = Graph[Person,UnDiEdge]
+implicit val arbitraryMixedGraph = Arbitrary {
+  GraphGen[Person,UnDiEdge,Graph](
+      Graph, MixedMetrics, Set(UnDiEdge, LDiEdge)).apply
+}
+
+val properMixedGraph = forAll(arbitrary[Mixed]) { g: Mixed =&gt;
+  g.order == MixedMetrics.order
+}
+properMixedGraph.check
+</pre>
+  
+<h3>Limiting the Minimum Number of Successful Test</h3>
+<p>	As you know, by default <code>ScalaCheck</code> executes 100 tests
+	before it takes your property proved. You may desire to limit the number
+	of tests because, for instance, you are dealing with bigger graphs.
+	Here is an example for how you can achieve this in the context of
+	<code>ScalaTest</code>: 
+</p>
+ <pre class="prettyprint lang-scala nolinenum">import org.scalatest.{Matchers, Spec}
+import org.scalatest.prop.PropertyChecks
+    
+class TGraphGenTest
+    extends Spec with Matchers with PropertyChecks {
+      
+  implicit val config =
+    PropertyCheckConfig(minSuccessful = 5, maxDiscarded = 5)
+      
+  object `generated Tiny graph` { 
+    implicit val arbitraryTinyGraph =
+      GraphGen.tinyConnectedIntDi[Graph](Graph)
+          
+    def `should conform to tiny metrics` {
+      forAll(arbitrary[IntDiGraph]) { g: IntDiGraph =&gt;
+        g.order should equal (GraphGen.TinyInt.order)
+      }
+    }
+  }
+}
+</pre>

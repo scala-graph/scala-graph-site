@@ -19,10 +19,11 @@ sideMenuItems: >
 <p> Needless to say, all methods relying on recursion are tail recursive.
 </p>
 
-<h2 id="Result">Traversing for a Result</h2>
-<p>	Often you're solely interested in the result of a graph traversal such as a specific node,
-	path, cycle or subgraph. Chances are good that you'll find a method that directly
-	meets your requirement and that a <code>Traverser</code> will be provided transparently.
+<h2 id="Result">Traversing for a Specific Node, a Path or Cycle</h2>
+<p>	Often you are solely interested in the result of a graph traversal such as
+	a specific node, a path, cycle or subgraph rather than tracking the visited elements.
+	Chances are good that you'll find a method that directly  your requirement
+	and that a <code>Traverser</code> will be provided transparently for you.
 </p>
 <figure>
 	<img alt="Finding Paths" src="/img/guides/core/MixedGraph.jpg">
@@ -43,9 +44,15 @@ n(1) pathTo n(4)                      // Some(Path(1, 1~>3 %5, 3, 3~4 %1, 4))
 n(1) pathUntil (_.outDegree >= 3)     // Some(Path(1, 1~>3 %5, 3))
 
 val spO = n(3) shortestPathTo n(1) // Path(3, 3~4 %1, 4, 4~>5 %0, 5, 1~5 %3, 1)
-val sp = spO.get                   // here we know sp exists
+val sp = spO.get                   // here we know spO is defined
 sp.nodes                           // List[g.NodeT] = Nodes(3, 4, 5, 1)
 sp.weight                          // Long = 4
+
+def negWeight(e: g.EdgeT): Float = 5.5f - e.weight
+val spNO =
+    n(3) shortestPathTo (n(1), negWeight) // Path(3, 2~3 %2, 2, 1~>2 %4, 1)
+val spN = spNO.get                        // here we know spNO is defined
+spN.weight                                // Long = 6
 
 val pO1 = n(4).withSubgraph(nodes = _ < 4) pathTo n(2) // Some(Path(4, 3~4 %1, 3, 2~3 %2, 2))
 pO1.map(_.nodes)                                       // Some(Nodes(4, 3, 2))
@@ -87,11 +94,23 @@ pO2.map(_.nodes)                   // Some(Nodes(4, 5, 1, 2))
 	<li>...so, among others, it provides <code>weight</code> to 	calculate the
 		total of the edge weights on this path.
 	</li>
-	<li value="20">Finds a path from node <code>4</code> to node <code>2</code>
+	<li value="20">Defines a custom weight method to override static edge weights.
+		We are using <code>float</code> to demonstrate that the weight method
+		may be of any numeric type.
+	</li>
+	<li value="22">Calls <code>shortestPathTo</code> with the custom weight method
+		<code>negWeight</code>. The returned path is the longest one in terms of
+		static edge weights as <code>5.5f</code> exceeds the maximum static weight.
+	</li>
+	<li value="24">Note that the weight of the returned path does not reflect
+		the custom weights used to calculate the shortest path
+		but just the static weights of the edges on the path.
+	</li>
+	<li value="26">Finds a path from node <code>4</code> to node <code>2</code>
 		restricting the traversal to a subgraph containing only nodes with value
 		less than <code>4</code>.
 	</li>
-	<li value="23">Finds a path from node <code>4</code> to node <code>2</code>
+	<li value="29">Finds a path from node <code>4</code> to node <code>2</code>
 		restricting the traversal to a subgraph containing only edges with weight
 		of <code>2</code>.
 	</li>
@@ -121,9 +140,9 @@ for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
 	any operation consider utilizing the <code>Acyclic</code> constraint in
 	the Constrained module.
 </p>
-<h2 id="Properties">Refining Traversals by Properties</h2>
+<h2 id="Properties">Refining Traversers by Overriding Properties</h2>
 <p> Except for <code>withSubgraph</code>, we didn't care about properties in the above
-	examples but we just accepted default values for them. You may refine
+	examples but we just accepted default values for them. You may refine a
 	<code>Traverser</code> by means of the following properties:
 </p>
 <table>

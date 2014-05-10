@@ -1,78 +1,80 @@
 <!DOCTYPE HTML>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>Graph for Scala | <%= @item[:title] %></title>
-  <link rel="stylesheet" type="text/css" href="/css/cheeky.css" media="screen">
-  <link rel="stylesheet" type="text/css" href="/css/main.css" media="screen">
+    <title>Graph for Scala | <%= @item[:title] %></title>
+    <link rel="stylesheet" type="text/css" href="/css/cheeky.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" media="screen">
   <link rel="stylesheet" type="text/css" href="/css/prettify.css" media="screen" />
-</head>
-<body>
-  <header>
-    <div class="container">
-      <div class="row">
-        <div class="span-16">
-          <span id="logo"><a href="/">Graph for Scala</a></span>
-          <nav>
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/download">Download</a></li>
-              <li><a href="#" class="dropdown-toggle">User Guides</a>
-                <div class="dropdown-container">
-                  <ul>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="row">
+          <div class="span-16">
+            <span id="logo"><a href="/">Graph for Scala</a></span>
+            <nav>
+              <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/download">Download</a></li>
+                <li><a href="#" class="dropdown-toggle">User Guides</a>
+                  <div class="dropdown-container">
+                    <ul>
                     <li><a href="/guides/core-introduction.html">Core</a></li>
-                    <li><a href="/guides/constrained.html">Constrained</a></li>
-                    <li><a href="/guides/dot.html">Dot</a></li>
-                    <li><a href="/guides/json.html">JSON</a></li>
-                  </ul>
-                </div>
-              </li>
-              <li><a href="#" class="dropdown-toggle">Scaladoc</a>
-                <div class="dropdown-container">
-                  <ul>
-                    <li><a href="http://www.scala-graph.org/api/core/api/#scalax.collection.package" target="_blank">Core</a></li>
+                      <li><a href="/guides/constrained.html">Constrained</a></li>
+                      <li><a href="/guides/dot.html">Dot</a></li>
+                      <li><a href="/guides/json.html">JSON</a></li>
+                      <li><a href="/guides/test.html">Test</a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li><a href="#" class="dropdown-toggle">Scaladoc</a>
+                  <div class="dropdown-container">
+                    <ul>
+                    <li><a href="http://www.scala-graph.org/api/core/api/" target="_blank">Core</a></li>
                     <li><a href="http://www.scala-graph.org/api/constrained/api/#scalax.collection.constrained.package" target="_blank">Constrained</a></li>
                     <li><a href="http://www.scala-graph.org/api/dot/api/#scalax.collection.io.dot.package" target="_blank">Dot</a></li>
                     <li><a href="http://www.scala-graph.org/api/json/api/#scalax.collection.io.json.package" target="_blank">JSON</a></li>
-                  </ul>
-                </div>
-              </li>
-              <li><a href="https://github.com/scala-graph/scala-graph" target="_blank">GitHub</a></li>
-              <li><a href="https://groups.google.com/forum/?fromgroups#!forum/scala-graph" target="_blank">Mailing List</a></li>
-            </ul>
-          </nav>
+                    <li><a href="http://www.scala-graph.org/api/test/api/" target="_blank">Test</a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li><a href="https://github.com/scala-graph/scala-graph" target="_blank">GitHub</a></li>
+                <li><a href="https://groups.google.com/forum/?fromgroups#!forum/scala-graph" target="_blank">Mailing List</a></li>
+              </ul>
+            </nav>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <div class="container">
-    <div class="row">
+    <div class="container">
+      <div class="row">
       <div class="span-13 content">
         <%= yield %>
       </div>
-      <div class="span-3 sidebar">
-        <ul>
+        <div class="span-3 sidebar">
+          <ul>
           <%= @item[:sideMenuItems] %>
-        </ul>
-      </div>
-    </div>
-  </div>
-  
-  <footer>
-    <div class="container">
-      <div class="row">
-        <div class="span-16">
-          <p>&copy; The Graph for Scala team. Site powered by <a href="http://andrewberls.com">Andrew Berls</a>' <code>Cheeky.css</code>.</p>
+          </ul>
         </div>
       </div>
     </div>
-  </footer>
-  
-  <script src="/js/lib/jquery-1.9.1.min.js"></script>
-  <script src="/js/dropdown.js"></script>
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="span-16">
+            <p>&copy; The Graph for Scala team. Site powered by <a href="http://andrewberls.com">Andrew Berls</a>' <code>Cheeky.css</code>.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/js/lib/jquery-1.9.1.min.js"></script>
+    <script src="/js/dropdown.js"></script>
   <script src="/js/lib/run_prettify.js"></script>
   <script src="/js/lib/lang-scala.js"></script>
-</body>
+  </body>
 </html>
