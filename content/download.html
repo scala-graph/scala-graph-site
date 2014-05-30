@@ -2,23 +2,20 @@
 title: Download
 ---
 <h1>Download</h1>
-<p>The latest stable releases are:</p>
+<p>The latest stable release is</p>
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.8.1</code></td>
-    </tr>
-    <tr class = "split">
-        <td>Optional Modules</td>
-        <td><code>1.8.0</code></td>
+        <td><code>1.9.0</code></td>
     </tr>
 </table>
 
-<p>To download the latest release of the core module, SBT users should add:</p>
+<p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>libraryDependencies += "com.assembla.scala-incubator" % "graph-core_2.10" % "1.8.0"</pre>
+<pre>scalaVersion := "2.10.3" // or "2.11.1"
+libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.9.0"</pre>
 
-<p>to the SBT build file.
+<p>to their settings.
 As a Maven user, please set the following ids:</p>
 <table>
   <tr class="split">
@@ -27,43 +24,64 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>artifact id</code></td>
-    <td><code>graph-core_2.10</code></td>
+    <td><code>graph-core_2.11</code> (or graph-core_2.10)</td>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.8.1</code></td>
+    <td><code>1.9.0</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
-    <td><code>graph-constrained_2.10</code></td>
-    <td><code>1.8.0</code></td>
+    <td><code>graph-constrained</code></td>
+    <td><code>1.9.0</code> (Scala 2.11 only)</td>
   </tr>
   <tr class="split">
-    <td><code>graph-dot_2.10</code></td>
-    <td><code>1.8.0</code></td>
+    <td><code>graph-dot</code></td>
+    <td><code>1.9.0</code></td>
   </tr>
   <tr class="split">
-    <td><code>graph-json_2.10</code></td>
-    <td><code>1.8.0</code></td>
+    <td><code>graph-json</code></td>
+    <td><code>1.9.0</code> (Scala 2.10 only)</td>
   </tr>
   <tr class="split">
-    <td><code>graph-test_2.10</code></td>
-    <td><code>1.8.1</code></td>
+    <td><code>graph-test</code></td>
+    <td><code>1.9.0</code></td>
   </tr>
 </table>
 
 You may also manually download the Jars and Scaladoc from
 <a href = "http://search.maven.org/#browse%7C960089992" target="_blank">Maven Central</a>.
 
+<h2 id="1.9">1.9 Release Notes</h2>
+<h3 id="1.9.0">1.9.0</h3>
+<ul>
+	<li>new: <a href="/guides/core-traversing.html#Building"><code>WalkBuilder</code> and
+		<code>PathBuilder</code></a> support creating walks and paths in terms
+		of the underlying graph.
+	</li>
+	<li>new: DOT-Export allows to <a href="/guides/dot.html#hyper">map hyperedges</a>
+		to a sequence of DOT edge statements. 
+	</li>
+	<li>mod: Members marked deprecated in 1.8.0 have been removed. Visitors no more
+		return <code>Continue</code> or <code>Cancel</code>.  
+	</li>
+	<li>mod: Traversing has been optimized for speed and refactored for better modularity.  
+	</li>
+	<li>mod: Scala 2.11 jars are now compiled with Scala 2.11.1 following the
+		<a href="https://groups.google.com/forum/#!topic/scala-user/qQYsF_QJGu8" target="_blank">
+		recommendation</a> of the Scala core team. 
+	</li>
+</ul>
+
 <h2 id="1.8">1.8 Release Notes</h2>
 <h3 id="1.8.1">1.8.1</h3>
 <ul>
-	<li>new: Scala <strong>2.11</strong> releases.
+	<li>new: Scala <strong>2.11</strong> releases excluding graph-json.
 	</li>
 	<li>new: module <strong><a href="/guides/test.html">Test</a></strong>
-		to facilitate 	random graph generation.
+		to facilitate random graph generation.
 	</li>
 	<li>new: Parameter <code>weight</code> added to overloaded version of
 		<code>shortestPathTo</code> to enable flexible weight definitions.
@@ -72,7 +90,7 @@ You may also manually download the Jars and Scaladoc from
 	</li>
 	<li>mod: Factory method <code>fromStream</code> removed. 
 	</li>
-	<li>some fixes. 
+	<li>And some fixes. 
 	</li>
 </ul>
 <h3 id="1.8.0">1.8.0</h3>

@@ -6,59 +6,53 @@ sideMenuItems: >
   <li><a href="#Structuring">Structuring and Enriching the DOT Graph</a></li>
 ---
 <h1>DOT Export</h1>
+
 <h2 id="Introduction">Introduction</h2>
-<p>
-	This document inducts the user of <em id="G4S">Graph for Scala</em>,
+<p>	This document inducts the user of <em id="G4S">Graph for Scala</em>,
 	who is interested in visualizing graphs, into how to translate Graph
 	instances to the <a href="http://www.graphviz.org/doc/info/lang.html" target="_blank">
 	DOT Language</a>. Thus it may be viewed as a supplement of the Core User Guide.
 </p>
-<p>At present DOT-Import is not yet supported.</p>
-<p>
-	<em id="G4S">Graph for Scala DOT</em> is supplied as an extra module
+<p>At present DOT-Import is not yet supported.
+</p>
+<p>	<em id="G4S">Graph for Scala DOT</em> is supplied as an extra module
 	(jar). Except for minor versions, <code>Graph-dot_XXX.jar</code> depends on
 	<code>Graph-core_XXX</code>.
 </p>
-<p>
-	The following examples are based on a labeled graph shown on <em>wikipedia</em>,
-	more specifically at <a
-	href="http://en.wikipedia.org/wiki/File:Commutative_diagram_fixed.svg">
+<p>	The following examples are based on a labeled graph shown on <em>wikipedia</em>,
+	more specifically at
+	<a href="http://en.wikipedia.org/wiki/File:Commutative_diagram_fixed.svg">
 	commutative diagram</a>.
 </p>
-<p>
-	For the complete example please refer to
+<p>	For the complete example please refer to
 	<code>scalax/collection/io/dot/TExport.scala</code>
 	in the source code repository.
 </p>
+
 <h2 id="Exporting">Exporting Graphs</h2>
 <p>
-	To export a graph instance to a DOT graph simply call
-	<code>toDOT</code>
-	:
+	To export a graph instance to a DOT graph simply call <code>toDOT</code>:
 </p>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.dot._
 val dot = g.toDot(dotRoot, edgeTransformer)
 </pre>
-<p>
-	Clearly, <code>dot</code> of type String will contain the resulting DOT graph,
+<p>	Clearly, <code>dot</code> of type String will contain the resulting DOT graph,
 	but what about the <code>dotRoot</code> and <code>edgeTransformer </code>
 	arguments?
 </p>
+
 <h2 id="Structuring">Structuring and Enriching the DOT Graph</h2>
-<p>
-	Fine-grained control over the resulting DOT graph is achieved by means
+<p>	Fine-grained control over the resulting DOT graph is achieved by means
 	of translators. Let&#8217;s examine the parameters of the <code>toDot </code>
 	method of the class <code>scalax.collection.io.dot.Export</code> in detail:
 </p>
-<h3>
-	Parameter
-	<code>dotRoot</code>
-</h3>
+
+<h3>Parameter <code>dotRoot</code></h3>
 <div class="method">
 	<pre class="prettyprint lang-scala nolinenum">dotRoot: DotRootGraph
-</pre>
+	</pre>
 </div>
-<p>This parameter serves to define the DOT graph header and an
+<p>	This parameter serves to define the DOT graph header and an
 	arbitrary list of root level attributes but no edges or nodes.
 	Supposed, we supply</p>
 <pre class="prettyprint lang-scala nolinenum">DotRootGraph (directed = true,
@@ -66,10 +60,7 @@ val dot = g.toDot(dotRoot, edgeTransformer)
               kvList   = Seq(DotAttr("attr_1", """"one""""),
                              DotAttr("attr_2", "&lt;two&gt;")))
 </pre>
-<p>
-	for
-	<code>dotRoot</code>
-	. Then the DOT graph will start with
+<p>	for <code>dotRoot</code>. Then the DOT graph will start with
 </p>
 <pre class="prettyprint lang-json">digraph {
   attr_1 = "one"
@@ -87,33 +78,19 @@ val root = DotRootGraph (
                    DotAttr("attr_2", "&lt;two&gt;")))
 Graph.empty[Int,DiEdge].toDot(root, _ =&gt; None)
 </pre>
-<h3>
-	Parameter
-	<code>edgeTransformer</code>
-</h3>
+
+<h3>Parameter <code>edgeTransformer</code></h3>
 <div class="method">
 	<pre class="prettyprint lang-scala nolinenum">edgeTransformer: Graph[N,E]#EdgeT =&gt; Option[(DotGraph, DotEdgeStmt)]
-</pre>
+	</pre>
 </div>
-<p>
-	<code>edgeTransformer</code>
-	, as the only obligatory transformer, will be called for each edge of
-	the graph. The caller,
-	<code>toDot</code>
-	, passes an inner edge to it and
-	<code>edgeTransformer </code>
-	returns either
-	<code>Some</code>
-	tuple of
-	<code>(DotGraph, DotEdgeStmt)</code>
-	or
-	<code>None</code>
-	.
+<p>	<code>edgeTransformer</code>, as the only obligatory transformer, will be called
+	for each edge of the graph except for working with <code>hEdgeTransformer</code>.
+	The caller, <code>toDot</code>, passes an inner edge to it and
+	<code>edgeTransformer</code> returns either <code>Some</code> tuple of
+	<code>(DotGraph, DotEdgeStmt)</code> or <code>None</code>.
 </p>
-<p>
-	The first member of the tuple of type
-	<code>DotGraph</code>
-	, must be be either
+<p>	The first member of the tuple of type <code>DotGraph</code>, must be be either
 </p>
 <ul>
 	<li>the <code>DotRootGraph</code> instance passed as the <code>dotRoot</code>
@@ -125,20 +102,15 @@ Graph.empty[Int,DiEdge].toDot(root, _ =&gt; None)
 		free to define any tree structure of DOT subgraphs.
 	</li>
 </ul>
-<p>
-	The edge attributes to be included in the DOT graph are determined by
+<p>	The edge attributes to be included in the DOT graph are determined by
 	means of the second member of the tuple of type
 	<code>DotEdgeStmt</code>
 	.
 </p>
-<p>
-	It is also possible to return
-	<code>None</code>
-	for specific edges in order to exclude them from the DOT graph.
+<p>	It is also possible to return <code>None</code> for specific edges
+	in order to exclude them from the DOT graph.
 </p>
-<p>
-	Given the following edge transformer function
-	<code>edgeTransformer</code>
+<p>	Given the following edge transformer function <code>edgeTransformer</code>
 </p>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.edge.LDiEdge,
        scalax.collection.edge.Implicits._
@@ -157,27 +129,34 @@ def edgeTransformer(innerEdge: Graph[String,LDiEdge]#EdgeT):
 }
 g.toDot(root, edgeTransformer)
 </pre>
-<p>
-	the single edge <code>("A1"~+&gt;"A2")("f")</code> will be transformed by
+<p>	the single edge <code>("A1"~+&gt;"A2")("f")</code> will be transformed by
 	<code>toDot</code> to
 </p>
 <pre class="prettyprint lang-json">  A1 -&gt; A2 [label = f]
 </pre>
-<h3>
-	Parameter
-	<code>cNodeTransformer</code>
-</h3>
+
+<h3 id="hyper">Parameter <code>hEdgeTransformer</code></h3>
+<div class="method">
+	<pre class="prettyprint lang-scala nolinenum">hEdgeTransformer: Graph[N,E]#EdgeT =&gt; Traversable[(DotGraph, DotEdgeStmt)]
+	</pre>
+</div>
+<p>	<code>hEdgeTransformer</code> comes in handy when transforming a hypergraph to the
+	DOT language. <code>hEdgeTransformer</code> allows to break down each hyperedge to
+	a sequence of DOT edge statements and thus to overcome the lack of support for hyperedges
+	in the DOT language. See the <code>diHyper</code> test in
+	<a href="https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala"
+	target="_blank">TExport.scala</a> for a simple example.
+</p>
+
+<h3>Parameter <code>cNodeTransformer</code></h3>
 <div class="method">
 	<pre class="prettyprint lang-scala nolinenum">cNodeTransformer:
   Option[ (Graph[N,E]#NodeT) =&gt; Option[(DotGraph, DotNodeStmt)]] = None
-</pre>
+	</pre>
 </div>
-<p>
-	The optional transformer argument
-	<code>cNodeTransformer</code>
-	, with its prefix &#8216;
-	<code>c</code>
-	&#8217; denoting <em>connected</em>, is called for connected nodes.
+<p>	The optional transformer argument <code>cNodeTransformer</code>,
+	with its prefix &#8216;<code>c</code>&#8217;
+	denoting <em>connected</em>, is called for connected nodes.
 	This transformer may be used, for example, to assign a list of nodes to
 	a DOT subgraph like
 </p>
@@ -201,52 +180,35 @@ g.toDot(root, edgeTransformer, Some(nodeTransformer))
   A1
 }
 </pre>
-<p>
-	Of course, a DOT subgraph that contains all nodes would be meaningless
+<p>	Of course, a DOT subgraph that contains all nodes would be meaningless
 	in real life, so we&#8217;ll have to append some program logic to group
-	nodes in the desired subgraphs &#8211; as done in
-	<code>TExport.scala</code>
-	.
+	nodes in the desired subgraphs &#8211; as done in <code>TExport.scala</code>.
 </p>
-<h3>
-	Parameter
-	<code>iNodeTransformer</code>
-</h3>
+
+<h3>Parameter <code>iNodeTransformer</code></h3>
 <div class="method">
 	<pre class="prettyprint lang-scala nolinenum">iNodeTransformer:
   Option[Graph[N,E]#NodeT =&gt; Option[(DotGraph, DotNodeStmt)]] = None
-</pre>
+	</pre>
 </div>
-<p>
-	The prefix &#8216;
-	<code>i</code>
-	&#8217; of this second optional transformer argument denotes <em>isolated</em>.
-	If supplied,
-	<code>iNodeTransformer</code>
+<p>	The prefix &#8216;<code>i</code>&#8217; of this second optional transformer
+	argument denotes <em>isolated</em>. If supplied, <code>iNodeTransformer</code>
 	is called for each isolated node. Unless your graph is guaranteed to be
 	connected or you want isolated nodes to be discarded in the DOT graph,
 	it is necessary to provide this transformer in addition to
-	<code>edgeTransformer</code>
-	.
+	<code>edgeTransformer</code>.
 </p>
-<h3>
-	Parameter
-	<code>spacing</code>
-</h3>
+
+<h3>Parameter <code>spacing</code></h3>
 <div class="method">
 	<pre class="prettyprint lang-scala nolinenum">spacing: Spacing = DefaultSpacing
-</pre>
+	</pre>
 </div>
-<p>
-	Finally, the
-	<code>spacing</code>
-	argument allows you to determine the layout of the resulting DOT graph
-	including indentation, separators and line breaks.
+<p>	Finally, the <code>spacing</code> argument allows you to determine the layout
+	of the resulting DOT graph including indentation, separators and line breaks.
 </p>
-<p>
-	While testing the above code examples in REPL you might have noticed
+<p>	While testing the above code examples in REPL you might have noticed
 	that <code>toDot</code>'s resulting lines were indented by TABs.
 	The reason for this is that we did not supply an argument different from
-	<code>DefaultSpacing</code>
-	. For more details see the API Scaladoc.
+	<code>DefaultSpacing</code>. For more details see the API Scaladoc.
 </p>

@@ -34,7 +34,7 @@ import scalax.collection.edge.Implicits._
 
 val g = Graph(1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
               3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
-def n(outer: Int): g.NodeT = g get outer   // look up a node known to be contained
+def n(outer: Int): g.NodeT = g get outer  // look up a node known to be contained
 
 n(1) findSuccessor (_.outDegree >  3) // Option[g.NodeT] = None 
 n(1) findSuccessor (_.outDegree >= 3) // Option[g.NodeT] = Some(3)
@@ -261,7 +261,7 @@ traverser.toList  // List(1,2,3,4,5,6,7)
 <p>	The above factory methods are available both at node and graph level. At node level
 	<code>root</code>, the node to start the traversal at, is set to the specific node
 	you are invoking the method on; at graph level <code>root</code> must be passed explicitly.
-	In addition you may pass any traverser property to override the default values: 
+	In addition you may pass any traverser property to override the default values:
 </p>
 <pre class="prettyprint lang-scala linenums">import scalax.collection.edge.WDiEdge
 import scalax.collection.edge.Implicits._
@@ -283,7 +283,7 @@ n1.innerElemTraverser.filter(_ match {
 <p>As to</p>
 <ol>
 	<li value="7">Starts a default traversal at <code>n1</code> to sum up the node values.
-		<code>sum</code> is provided by <code>scala.colllection.Traversable</code>. 
+		<code>sum</code> is provided by <code>scala.colllection.Traversable</code>.
 	</li>
 	<li>The same traversal as before invoked at graph level.
 	</li>
@@ -330,18 +330,17 @@ import g.ExtendedNodeVisitor
 import scalax.collection.GraphTraversal._
 import scalax.collection.GraphTraversalImpl._
 
-var info = List.empty[String]
+type ValDepth = (Int,Int)
+var info = List.empty[ValDepth]
 (g get 1).innerNodeTraverser.withKind(DepthFirst).foreach {
   ExtendedNodeVisitor((node, count, depth, informer) => {
-    info :+= s"$node at $depth"
-    VisitorReturn.Continue
+    info :+= (node.value, depth)
   })
 }
-info should be (List("1 at 0", "2 at 1", "3 at 1", "4 at 2"))    
+info.sortWith((a: ValDepth, b: ValDepth) =>
+  a._1  < b._1 || a._1 == b._1 && a._2 < b._2)
+// info = List((1,0), (2,1), (3,1), (4,2))
 </pre>
-<p> (The signature of <code>ExtendedNodeVisitor</code> will be altered in order
-	to no more rely on side effects.)
-</p>
 
 <h2 id="Combined">Combined Traversals</h2>
 <p> Further, when traversing for a result, it is also possible to append a visitor
@@ -365,7 +364,7 @@ var center: Option[g.NodeT] = None
 
 <h2 id="Components">Working with Graph Components</h2>
 <p> <a href="/api/core/api/#scalax.collection.GraphTraversal$ComponentTraverser">ComponentTraverser</a>
-	comes into play whenever you are working with subgraphs or disconnected graphs:   
+	comes into play whenever you are working with subgraphs or disconnected graphs:
 </p>
 <pre class="prettyprint lang-scala linenums">def someEdges(i: Int) =
   List( (i)~>(i + 1), (i)~>(i + 2), (i + 1)~>(i + 2))
@@ -389,5 +388,50 @@ val sums =
 	methods that finish the traversal as soon as the specified condition holds true such as
 	<code>exists</code> or <code>collectFirst</code>.
 	Otherwise you are free to invoke <code>break()</code> as provided by
-	<code>scala.util.control.Breaks</code> at any point.  
+	<code>scala.util.control.Breaks</code> at any point.
+</p>
+
+<h2 id="Building">Building Walks and Paths</h2>
+<p> <a href="/api/core/api/#scalax.collection.GraphTraversal$WalkBuilder">WalkBuilder</a> and
+	<a href="/api/core/api/#scalax.collection.GraphTraversal$PathBuilder">PathBuilder</a>
+	allow to build a
+	<a href="/api/core/api/#scalax.collection.GraphTraversal$Walk">Walk</a> respectively
+	<a href="/api/core/api/#scalax.collection.GraphTraversal$Path">Path</a>
+	in terms of the underlying graph.
+	This proves usefull whenever you have some results computed outside the library and
+	would like to represent them by <em>Graph for Scala</em> path-dependent types.
+	Since <code>WalkBuilder</code> and <code>PathBuilder</code> enforce proper walk/path
+	semantics they are also well suited for testing user-computed paths.
+</p>
+<p>	Let's look at how to create a path in the <a href="Result">sample graph</a> <code>g</code>
+	by means of a <code>PathBuilder</code>:
+</p>
+<pre class="prettyprint lang-scala linenums">val builder = g.newPathBuilder(n(1))
+builder += n(3) += n(4)
+builder.result          // Path(1, 1~>3 %5, 3, 3~4 %1, 4)
+   
+builder.clear
+builder += n(4) += n(3)
+builder.result          // Path(1, 1~>3 %5, 3)
+    
+builder.clear
+builder add n(4)        // false
+</pre>
+<p>As to</p>
+<ol>
+	<li>Instantiates a <code>PathBuilder</code> with the start node <code>1</code>.
+	</li>
+	<li>Adds the nodes <code>3</code> and <code>4</code> consecutively.
+	</li>
+	<li value="6">Tries to add the nodes <code>4</code> and <code>3</code> consecutively...
+	</li>
+	<li>...but adding <code>4</code> has been refused since it is not a direct successor
+		of <code>1</code>.
+	</li>
+	<li value="10">It is recommended to check for whether additions have taken place
+		as expected by calling <code>add</code> instead of <code>+=</code>.
+	</li>
+</ol>
+<p>	Note that it is also possible to create walk and paths by adding edges and,
+	for multi-graphs, to define an edge selector.
 </p>
