@@ -43,7 +43,7 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>graph-json</code></td>
-    <td><code>1.9.0</code> for Scala 2.10, <code>1.9.1</code> for Scala 2.11</td>
+    <td><code>1.9.2</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-test</code></td>
@@ -55,10 +55,16 @@ You may also manually download the Jars and Scaladoc from
 <a href = "http://search.maven.org/#browse%7C960089992" target="_blank">Maven Central</a>.
 
 <h2 id="1.9">1.9 Release Notes</h2>
+<h3 id="1.9.2">1.9.2</h3>
+<ul>
+	<li>mod: JSON export creates now single node/edge sections subsuming all class types.  
+	</li>
+</ul>
+
 <h3 id="1.9.0">1.9.0</h3>
 <ul>
 	<li>new: <a href="/guides/core-traversing.html#Building"><code>WalkBuilder</code> and
-		<code>PathBuilder</code></a> support creating walks and paths in terms
+		<code>PathBuilder</code></a> allow to create walks and paths in terms
 		of the underlying graph.
 	</li>
 	<li>new: DOT-Export allows to <a href="/guides/dot.html#hyper">map hyperedges</a>
@@ -107,7 +113,7 @@ You may also manually download the Jars and Scaladoc from
 	<li>Please replace deprecated method calls in a timely manner since	deprecated
 		methods will be removed from the library probably as soon as in April 2014.
 		Besides reading the updated User Guide it should be worthwhile to inspect
-		<code>TTraversal.scala</code> near to the bottom of 
+		<code>TTraversal.scala</code> near the bottom of 
 		<a href="https://github.com/scala-graph/scala-graph/commit/7082893711c98491d029d0bc4962c006be8c5dd8"
 		target="_blank">test migration changes</a> providing a handful of migration examples.  
 	</li>

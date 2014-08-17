@@ -215,6 +215,14 @@ table {
 ol { list-style: decimal; padding-bottom: 10px; }
 ul { list-style: disc; }
 li { margin-left: 30px; }
+.grammar {
+    font-size: 0.9em;
+    font-family: $codeFontFamily;
+}
+.grammar td {
+    border-style: none;
+    outline: none;
+}
 
 // Footer
 // --------------------------
