@@ -4,6 +4,7 @@ sideMenuItems: >
   <li><a href="#Introduction">Introduction</a></li>
   <li><a href="#Exporting">Exporting Graphs</a></li>
   <li><a href="#Structuring">Structuring and Enriching the DOT Graph</a></li>
+  <li><a href="#RecordShapes">Working with DOT record shapes</a></li>
 ---
 <h1>DOT Export</h1>
 
@@ -13,20 +14,22 @@ sideMenuItems: >
 	instances to the <a href="http://www.graphviz.org/doc/info/lang.html" target="_blank">
 	DOT Language</a>. Thus it may be viewed as a supplement of the Core User Guide.
 </p>
-<p>At present DOT-Import is not yet supported.
+<p>At present DOT import is not supported.
 </p>
 <p>	<em id="G4S">Graph for Scala DOT</em> is supplied as an extra module
-	(jar). Except for minor versions, <code>Graph-dot_XXX.jar</code> depends on
-	<code>Graph-core_XXX</code>.
+	(jar). As a rule of thumb, <code>Graph-dot_majorX.minorX.patchX</code> depends on
+	<code>Graph-core_majorY.minorY.patchY</code> with equaling major and minor versions.
+	In absence of versions being equal in this sense please refer the actual releases
+	listed on <a href="/download.html">Download</a>.
 </p>
 <p>	The following examples are based on a labeled graph shown on <em>wikipedia</em>,
 	more specifically at
 	<a href="http://en.wikipedia.org/wiki/File:Commutative_diagram_fixed.svg">
 	commutative diagram</a>.
 </p>
-<p>	For the complete example please refer to
-	<code>scalax/collection/io/dot/TExport.scala</code>
-	in the source code repository.
+<p>	For the complete example please refer to <a href =
+	"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala" 
+	target="_blank">TExport.scala</a>.
 </p>
 
 <h2 id="Exporting">Exporting Graphs</h2>
@@ -43,8 +46,8 @@ val dot = g.toDot(dotRoot, edgeTransformer)
 
 <h2 id="Structuring">Structuring and Enriching the DOT Graph</h2>
 <p>	Fine-grained control over the resulting DOT graph is achieved by means
-	of translators. Let&#8217;s examine the parameters of the <code>toDot </code>
-	method of the class <code>scalax.collection.io.dot.Export</code> in detail:
+	of translators. Let&#8217;s examine the parameters of the <code>toDot</code>
+	method of <a href = "http://www.scala-graph.org/api/dot/api/#scalax.collection.io.dot.Export">class Export</a> in detail:
 </p>
 
 <h3>Parameter <code>dotRoot</code></h3>
@@ -52,30 +55,34 @@ val dot = g.toDot(dotRoot, edgeTransformer)
 	<pre class="prettyprint lang-scala nolinenum">dotRoot: DotRootGraph
 	</pre>
 </div>
-<p>	This parameter serves to define the DOT graph header and an
-	arbitrary list of root level attributes but no edges or nodes.
-	Supposed, we supply</p>
-<pre class="prettyprint lang-scala nolinenum">DotRootGraph (directed = true,
-              id       = None,
-              kvList   = Seq(DotAttr("attr_1", """"one""""),
-                             DotAttr("attr_2", "&lt;two&gt;")))
+<p>	This parameter serves to define the DOT graph header and an arbitrary list
+	of root level attributes but no edges or nodes. Let's supply</p>
+<pre class="prettyprint lang-scala nolinenum">DotRootGraph(directed  = true,
+             id        = Some("MyDot"),
+             attrStmts = List(DotAttrStmt(Elem.node, List(DotAttr("shape", "record")))),
+             attrList  = List(DotAttr("attr_1", """"one""""),
+                              DotAttr("attr_2", "&lt;two&gt;")))
 </pre>
 <p>	for <code>dotRoot</code>. Then the DOT graph will start with
 </p>
-<pre class="prettyprint lang-json">digraph {
+<pre class="prettyprint lang-json">digraph MyDot {
+  node [shape = record]
   attr_1 = "one"
   attr_2 = &lt;two&gt;
 </pre>
-<p>For completeness, a REPLable version of the above example looks
-	like</p>
+<p>For completeness, a REPLable version of the above example looks like
+</p>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.Graph,
-       scalax.collection.GraphEdge._, scalax.collection.GraphPredef._
+       scalax.collection.GraphEdge._
 import scalax.collection.io.dot._
+import implicits._
+
 val root = DotRootGraph (
     directed = true,
-    id       = None,
-    kvList   = Seq(DotAttr("attr_1", """"one""""),
-                   DotAttr("attr_2", "&lt;two&gt;")))
+    id        = Some("MyDot"),
+    attrStmts = List(DotAttrStmt(Elem.node, List(DotAttr("shape", "record")))),
+    attrList  = List(DotAttr("attr_1", """"one""""),
+                     DotAttr("attr_2", "&lt;two&gt;")))
 Graph.empty[Int,DiEdge].toDot(root, _ =&gt; None)
 </pre>
 
@@ -103,30 +110,31 @@ Graph.empty[Int,DiEdge].toDot(root, _ =&gt; None)
 	</li>
 </ul>
 <p>	The edge attributes to be included in the DOT graph are determined by
-	means of the second member of the tuple of type
-	<code>DotEdgeStmt</code>
-	.
+	means of the second member of the tuple of type <code>DotEdgeStmt</code>.
 </p>
 <p>	It is also possible to return <code>None</code> for specific edges
 	in order to exclude them from the DOT graph.
 </p>
 <p>	Given the following edge transformer function <code>edgeTransformer</code>
 </p>
-<pre class="prettyprint lang-scala nolinenum">import scalax.collection.edge.LDiEdge,
-       scalax.collection.edge.Implicits._
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.Graph
+import scalax.collection.edge.LDiEdge, scalax.collection.edge.Implicits._
+import scalax.collection.io.dot._
+import implicits._
+
 val g = Graph[String, LDiEdge](("A1"~+&gt;"A2")("f"))
 val root = DotRootGraph(directed = true,
                         id       = Some("Wikipedia_Example"))
 def edgeTransformer(innerEdge: Graph[String,LDiEdge]#EdgeT):
-    Option[(DotGraph,DotEdgeStmt)] = {
-  val edge = innerEdge.edge
-  val label = edge.label.asInstanceOf[String]
-  Some(root,
-       DotEdgeStmt(edge.from.toString,
-                   edge.to.toString,
-                   if (label.nonEmpty) List(DotAttr("label", label))
-                   else                Nil))
-}
+    Option[(DotGraph,DotEdgeStmt)] = innerEdge.edge match {
+  case LDiEdge(source, target, label) => label match {
+    case label: String =>
+      Some((root,
+            DotEdgeStmt(source.toString,
+                        target.toString,
+                        if (label.nonEmpty) List(DotAttr("label", label.toString))
+                        else                Nil)))
+}}
 g.toDot(root, edgeTransformer)
 </pre>
 <p>	the single edge <code>("A1"~+&gt;"A2")("f")</code> will be transformed by
@@ -162,10 +170,10 @@ g.toDot(root, edgeTransformer)
 </p>
 <pre class="prettyprint lang-scala nolinenum">val sub = DotSubGraph(ancestor   = root, 
                       subgraphId = "S1",
-                      kvList     = Seq(DotAttr("rank", "same")))
+                      attrList     = Seq(DotAttr("rank", "same")))
 def nodeTransformer(innerNode: Graph[String,LDiEdge]#NodeT):
     Option[(DotGraph,DotNodeStmt)] =
-  Some(sub, DotNodeStmt(innerNode.toString, Seq.empty[DotAttr]))
+  Some(sub, DotNodeStmt(innerNode.toString, Nil))
 g.toDot(root, edgeTransformer, Some(nodeTransformer))
 </pre>
 <p>
@@ -211,4 +219,13 @@ g.toDot(root, edgeTransformer, Some(nodeTransformer))
 	that <code>toDot</code>'s resulting lines were indented by TABs.
 	The reason for this is that we did not supply an argument different from
 	<code>DefaultSpacing</code>. For more details see the API Scaladoc.
+</p>
+
+<h2 id="RecordShapes">Working with DOT record shapes</h2>
+<p>	When working with DOT records you may bank on the <a href =
+	"http://www.scala-graph.org/api/dot/api/#scalax.collection.io.dot.Record$">Record</a>
+	object. For the usage of this little grammar see <code>def `Colons (':') in node_id's are handled
+	correctly`</code> in <a href =
+	"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala" 
+	target="_blank">TExport.scala</a>.
 </p>

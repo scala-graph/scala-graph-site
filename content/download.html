@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.9.0</code></td>
+        <td><code>1.9.1</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.10.3" // or "2.11.1"
-libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.9.0"</pre>
+<pre>scalaVersion := "2.11.4"
+libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.9.1"</pre>
 
 <p>to their settings.
 As a Maven user, please set the following ids:</p>
@@ -24,22 +24,22 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>artifact id</code></td>
-    <td><code>graph-core_2.11</code> (or graph-core_2.10)</td>
+    <td><code>graph-core_2.11</code></td>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.9.0</code></td>
+    <td><code>1.9.1</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
-    <td><code>1.9.0</code> (Scala 2.11 only)</td>
+    <td><code>1.9.0</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-dot</code></td>
-    <td><code>1.9.0</code></td>
+    <td><code>1.10.0</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-json</code></td>
@@ -54,10 +54,44 @@ As a Maven user, please set the following ids:</p>
 You may also manually download the Jars and Scaladoc from
 <a href = "http://search.maven.org/#browse%7C960089992" target="_blank">Maven Central</a>.
 
+<h2 id="1.10">1.10 Release Notes</h2>
+<h3 id="1.10.0">1.10.0</h3>
+<ul>
+	<li>mod: Type safe support for DOT ID and DOT node_id that were covered by <code>String</code>
+		previously.
+	</li>
+	<li>new: DOT record shape support - see also <code>def `Colons (':') in node_id's are
+		handled correctly`</code> in <a href =
+		"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala" 
+		target="_blank">TExport.scala</a>. 
+	</li>  
+</ul>
+<h3>Migration notes:</h3> 
+<ul>
+	<li>Signatures for the DOT export has been changed slightly:
+		Since the previous representation of <em>DOT ID</em> and <em>DOT node_id</em> by
+		<code>String</code> has been replaced by the case classes <code>Id</code> respectively
+		<code>NodeId</code> user code needs to be updated. For this purpose you
+		either invoke these constructors explicitly or you
+		<code>import scalax.collection.io.dot.implicits._</code> to utilize implicit conversions.      
+	</li>
+	<li>Also, <code>DotRootGraph</code> and <code>DotSubGraph</code> have an additional parameter
+		<code>attrStmts</code> while <code>kvList</code> has been renamed to <code>attrList</code>.      
+	</li>
+</ul>
+
 <h2 id="1.9">1.9 Release Notes</h2>
 <h3 id="1.9.2">1.9.2</h3>
 <ul>
 	<li>mod: JSON export creates now single node/edge sections subsuming all class types.  
+	</li>
+</ul>
+
+<h3 id="1.9.1">1.9.1</h3>
+<ul>
+	<li>fix: equality of non-basic directed hyperedges did no more work correctly since 1.7.1.
+	</li>
+	<li>fix: equality of hyperedges with one or more hooks did not work correctly.  
 	</li>
 </ul>
 
