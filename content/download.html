@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.9.1</code></td>
+        <td><code>1.9.2</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
 <pre>scalaVersion := "2.11.4"
-libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.9.1"</pre>
+libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.9.2"</pre>
 
 <p>to their settings.
 As a Maven user, please set the following ids:</p>
@@ -28,7 +28,7 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.9.1</code></td>
+    <td><code>1.9.2</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
@@ -57,10 +57,10 @@ You may also manually download the Jars and Scaladoc from
 <h2 id="1.10">1.10 Release Notes</h2>
 <h3 id="1.10.0">1.10.0</h3>
 <ul>
-	<li>mod: Type safe support for DOT ID and DOT node_id that were covered by <code>String</code>
+	<li>mod: Added type-safe support for DOT ID and DOT node_id that were covered by <code>String</code>
 		previously.
 	</li>
-	<li>new: DOT record shape support - see also <code>def `Colons (':') in node_id's are
+	<li>new: Added DOT record shape support - see also <code>def `Colons (':') in node_id's are
 		handled correctly`</code> in <a href =
 		"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala" 
 		target="_blank">TExport.scala</a>. 
@@ -68,7 +68,7 @@ You may also manually download the Jars and Scaladoc from
 </ul>
 <h3>Migration notes:</h3> 
 <ul>
-	<li>Signatures for the DOT export has been changed slightly:
+	<li>Signatures for the DOT export have changed slightly:
 		Since the previous representation of <em>DOT ID</em> and <em>DOT node_id</em> by
 		<code>String</code> has been replaced by the case classes <code>Id</code> respectively
 		<code>NodeId</code> user code needs to be updated. For this purpose you
@@ -84,6 +84,8 @@ You may also manually download the Jars and Scaladoc from
 <h3 id="1.9.2">1.9.2</h3>
 <ul>
 	<li>mod: JSON export creates now single node/edge sections subsuming all class types.  
+	</li>
+	<li>fix: issue with node neighbors in mixed graphs.  
 	</li>
 </ul>
 
