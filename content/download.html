@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.9.2</code></td>
+        <td><code>1.10.0</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.11.4"
-libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.9.2"</pre>
+<pre>scalaVersion := "2.11.7"
+libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.10.0"</pre>
 
 <p>to their settings.
 As a Maven user, please set the following ids:</p>
@@ -28,26 +28,22 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.9.2</code></td>
+    <td><code>1.10.0</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
-    <td><code>1.9.0</code></td>
-  </tr>
-  <tr class="split">
-    <td><code>graph-dot</code></td>
     <td><code>1.10.0</code></td>
   </tr>
   <tr class="split">
-    <td><code>graph-json</code></td>
-    <td><code>1.9.2</code></td>
+    <td><code>graph-dot</code></td>
+    <td><code>1.10.1</code></td>
   </tr>
   <tr class="split">
-    <td><code>graph-test</code></td>
-    <td><code>1.9.0</code></td>
+    <td><code>graph-json</code></td>
+    <td><code>1.10.0</code></td>
   </tr>
 </table>
 
@@ -57,11 +53,32 @@ You may also manually download the Jars and Scaladoc from
 <h2 id="1.10">1.10 Release Notes</h2>
 <h3 id="1.10.0">1.10.0</h3>
 <ul>
-	<li>mod: Added type-safe support for DOT ID and DOT node_id that were covered by <code>String</code>
-		previously.
+	<li>new: Added several flavors of <a href="/guides/core-traversing.html#TopoSort">topological sorting</a>.
+		<code>topologicalSort</code> is now integrated in the <code>Traverser</code> framework
+		allowing for fluent properties.
+		Among others, <code>TopologicalOrder</code>, the result of a topological sort,
+		may be viewed and ordered layer by layer.  
 	</li>
-	<li>new: Added DOT record shape support - see also <code>def `Colons (':') in node_id's are
-		handled correctly`</code> in <a href =
+	<li>new: Directed or undirected hyperedge endpoints may now be of either
+		<code>Bag</code> or <code>Sequence</code> collection kind.
+	</li>
+	<li>mod: Dependency on <code>scala-reflect</code> has been dropped.  
+	</li>
+	<li>mod: Module <code>Graph-test</code> is now integrated in <code>Graph-core</code>.  
+	</li>
+	<li>fix #34: No more racing condition occurs when running traversals under stress such as 100000 in parallel.  
+	</li>
+	<li>fix #38: Under a rare condition, JSON output was invalid.  
+	</li>
+	<li>fix #47: <code>DiHyperEdge</code>'s target nodes now allow for duplicate nodes by default.  
+	</li>
+	<li>fix #51: Constructing <code>EqHashSetIterator</code> is now O(1).
+	</li>
+	<li>mod: Added type-safe support for DOT <code>ID</code> and DOT <code>node_id</code>
+		that were covered by <code>String</code> 	previously.
+	</li>
+	<li>new: Added DOT record shape support - see also the test method
+		<code>def `Colons (':') in node_id's are handled correctly`</code> in <a href =
 		"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala" 
 		target="_blank">TExport.scala</a>. 
 	</li>  
@@ -81,6 +98,18 @@ You may also manually download the Jars and Scaladoc from
 </ul>
 
 <h2 id="1.9">1.9 Release Notes</h2>
+<h3 id="1.9.4">1.9.4</h3>
+<ul>
+	<li>fix: Java serialization fix in 1.9.3 was not correct.  
+	</li>
+</ul>
+
+<h3 id="1.9.3">1.9.3</h3>
+<ul>
+	<li>fix: issues #24, #36, #39 including Java serialization.  
+	</li>
+</ul>
+
 <h3 id="1.9.2">1.9.2</h3>
 <ul>
 	<li>mod: JSON export creates now single node/edge sections subsuming all class types.  

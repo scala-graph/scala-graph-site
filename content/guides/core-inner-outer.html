@@ -21,20 +21,65 @@ e1.toOuter             // UnDiEdge[Int] = 1~2
 </pre>
 <p>As to</p>
 <ol>
-<li><code>Int</code> and <code>UnDiEdge</code> are the types of <em>outer nodes </em>and <em>outer edges</em> of <code>g</code> respectively.</li>
-<li>Querying the first node of the node set is a means to show that the type of the inner node is <code>g.NodeT (head</code> does not guarantee a specific order). See <em>4.2</em> for how to look up nodes.</li>
-<li>Similarly, the inner edge <code>e1</code> is of the type <code>g.EdgeT</code>.</li>
-<li>Remarkably, the first incident node with <code>e1</code> is an inner node of the type <code>g.NodeT</code>.</li>
-<li>On <code>n1</code> you can call both graph (<code>NodeT)</code> methods like <code>diSuccessors</code>...</li>
-<li>...and any method of the outer node type, here <code>%</code> of <code>Int</code>.</li>
-<li>Reconstructs the outer edge <code>1~2</code>; <code>g.edges.toEdgeInSet</code>&nbsp; would reconstruct all outer edges.</li>
+<li><code>Int</code> and <code>UnDiEdge</code> are the concrete types for the node and edge type parameters.
+	Here they are inferred from the passed <em>outer edge</em>.
+</li>
+<li>The node set contains inner nodes of the path dependent type <code>g.NodeT</code>.
+	The node set does not guarantee any specific order of the contained nodes.
+	See <em>4.2</em> for how to look up specific nodes.
+</li>
+<li>Similarly, elements of the edge set of the type <code>g.EdgeT</code> are so called inner edges.
+</li>
+<li>Remarkably, the incident nodes of inner edges are inner nodes.
+</li>
+<li>Inner nodes like <code>n1</code> allow for calling both graph (<code>NodeT)</code> methods
+	like <code>diSuccessors</code>...</li>
+<li>...and any method of the outer node type, here <code>%</code> of <code>Int</code>.
+</li>
+<li><code>toOuter</code> reconstructs the outer edge <code>1~2</code>;
+	<code>g.edges.toEdgeInSet</code>&nbsp; would reconstruct all outer edges.
+</li>
 </ol>
 <p>A basic understanding of inner and outer objects (nodes and edges) is essential for working with <code>Graph </code>efficiently. From the perspective of <code>Graph</code> we distinguish between</p>
 <ul>
-<li><em>Outer Nodes</em><br>An outer node is roughly speaking an object satisfying the node upper type bound of a given graph. It may be contained in the node set or may not. When such an object is passed to a graph method, it will implicitly be converted to a node wrapper of the type <code>NodeIn</code>. Further, when adding to the node set of a graph, outer nodes are transparently converted to inner nodes.</li>
-<li><em>Outer Edges</em><br>Similarly, an outer edge is an object satisfying the edge upper type bound of a given graph. Outer edges must inherit from <code>EdgeLike</code>. An outer edge is not coupled with any graph instance: It my be contained in the edge set of a graph or may not. Edge factories are responsible for correct typing. On adding to the edge set of a graph, outer edges are transparently converted to inner edges.</li>
-<li><em>Inner Nodes</em><br>Inner nodes are instances of an inner class of the type <code>NodeT</code> implementing the <code>InnerNodeLike</code> interface. They actually wrap outer nodes providing a wealth of graph functionality such as <code>diSuccessors</code> or <code>pathTo</code>. At the same time you can interact with an inner node as if it was your original object.</li>
-<li><em>Inner Edges</em><br>Similarly, inner edges are instances of an inner class of the type <code>EdgeT</code> implementing the <code>InnerEdgeLike</code> interface. They actually wrap outer edges providing a wealth of graph functionality. At the same time you can interact with an inner edge and its incident nodes as if they were your original objects.</li>
+<li><em>Outer Nodes</em><br>
+	Outer nodes exist outside of the context of any particular graph and must be provided by the library user.
+	When added to a graph, they will be transparently wrapped by a corresponding inner node.
+	Outer nodes must satisfy the upper bound of the node type parameter of the graph,
+	being <code>Int</code> in the above example.
+	Otherwise they will be rejected by the compiler. 
+</li>
+<li><em>Inner Nodes</em><br>
+	Inner nodes are objects bound to a particular graph. They are transparently created on graph instantiation
+	or on adding nodes to a graph. Inner nodes are instances of the inner class <code>NodeT</code>, hence
+	the term, and are implementing the <code>InnerNodeLike</code> interface.
+	An inner node acts as a container of the corresponding outer node also providing a wealth of graph functionality
+	such as <code>diSuccessors</code> or <code>pathTo</code>.
+	Inner nodes always equal to the contained, user-provided outer node thus facilitating interchangeability
+	of inner and outer nodes in many situations.
+	Note that <code>NodeT</code> is a path dependent type such as <code>g.NodeT</code>
+	with <code>g</code> denoting a single graph instance.
+</li>
+<li><em>Outer Edges</em><br>
+	Similarly, outer edges exist outside of the context of any particular graph.
+	Usually they will be provided by the library user by implicit edge factory methods like <code>~</code>. 
+	When added to a graph, they will be transparently wrapped by a corresponding inner edge.
+	Outer edges must satisfy the upper bound of the edge type parameter of the graph,
+	being <code>UnDiEdge</code> in the above example. Otherwise they will be rejected by the compiler.
+	Note that <code>UnDiEdge</code> is, in contrast to <code>UnDiEdge[Int]</code>, a so called higher kinded type.
+	Outer edge types must be derived from <code>EdgeLike</code>.
+</li>
+<li><em>Inner Edges</em><br>
+	Last, inner edges are objects bound to a particular graph.
+	They are transparently created on graph instantiation or on adding edges to a graph.
+	Inner edges are instances of the inner class <code>EdgeT</code> and are implementing
+	the <code>InnerEdgeLike</code> interface.
+	An inner edge acts as a container of the corresponding outer edge adding graph functionality.
+	Inner edges always equal to the contained, user-provided outer edge thus facilitating interchangeability
+	of inner and outer edges.
+	Note that <code>EdgeT</code> is a path dependent type such as <code>g.EdgeT</code>
+	with <code>g</code> denoting a single graph instance.
+</li>
 </ul>
 <p>See also:
 </p>

@@ -383,6 +383,83 @@ val sums =
 	</li>
 </ol>
 
+<h2 id="TopoSort">Topological Sorting</h2>
+<p>	<em id="G4S">Graph for Scala</em> comes with three flavors of topological sorting
+	along with a remarkably informative result type.
+	For the following examples, assume <code>graph</code> is a value of type <code>Graph</code>
+	and <code>root</code> is a value of type <code>graph.NodeT</code>.
+</p>
+<h3>Graph-level sorting</h3>
+<p>	As a matter of course you can call <code>topologicalSort</code> directly on your graph instance:
+</p> 
+<pre class="prettyprint lang-scala nolinenum">graph.topologicalSort.fold(
+  cycleNode => ???,
+  order     => ???
+) 
+</pre>
+<p>	The result is of type <code>CycleNodeOrTopologicalOrder</code>,
+	a type alias for <code>Either[NodeT, TopologicalOrder[NodeT]]</code>.
+	<code>Left</code> will wrap an inner node being on a cycle in case there exists no topological order.
+	On success, <code>Right</code> contains the calculated <code>TopologicalOrder</code>.
+	When called at graph level, this will include nodes irrespective of
+	whether they are connected or they are members of different components.      
+</p>
+
+<h3>Combining with fluent properties</h3>
+<p>	Calling <code>componentTraverser</code> first, you may combine <code>topologicalSort</code>
+	with any of the familiar fluent properties like
+</p>
+<pre class="prettyprint lang-scala nolinenum">graph.componentTraverser().withSubgraph(nodes = myNodeFilter).topologicalSort
+</pre>
+
+<h3>Node-level sorting</h3>
+<p>	Whenever starting at a concrete inner node, <code>topologicalSort()</code> will only include
+	nodes within the comopnent spanned by the given node.
+	In reverse, if you know your graph is connected you need not call <code>TopologicalOrder</code>
+	at node level. It suffices to call it at graph level.
+</p>
+<p>	Note that node-level <code>topologicalSort()</code> also has a boolean argument
+	allowing you to exclude predecessors from the result. Therefore you need to place the paranthesis:
+</p>
+<pre class="prettyprint lang-scala nolinenum">root.topologicalSort()
+</pre>
+
+<h3>Component-level sorting</h3>
+<p>	Further, if you are interested in the topological order of the components of your graph,
+	simply call
+</p>
+<pre class="prettyprint lang-scala nolinenum">graph.componentTraverser().topologicalSortByComponent
+</pre>
+<p>	that yiels a <code>Traversable[CycleNodeOrTopologicalOrder]</code> one for each component.
+</p>
+
+<h3>Exploiting <code>TopologicalOrder</code></h3>
+<p>	<code>TopologicalOrder</code> is more than just a list of nodes. Most interestingly,
+	you can call toLayered to lift this result type into a layered representation of the topological order: 
+</p> 
+<pre class="prettyprint lang-scala nolinenum">graph.topologicalSort.fold(
+  cycleNode => yourCycleErrorHandler,
+  _.toLayered foreach println // prints topo order layer by layer
+)
+</pre>
+<p>	The layers of a topological sort can roughly be defined as follows:
+</p>
+<ol>
+	<li>layer 0 contains all nodes having no predecessors
+	</li>
+	<li>layer n contains those nodes that have only predecessors in ancestor layers
+		with at least one of them contained in layer n - 1.
+	</li>
+</ol>
+<p>	Among others, layers are usefull to
+</p>
+<ol>
+	<li>compute several valid topological orders by altering the order of nodes within layers or
+	</li>
+	<li>to maintain a stable ordering over JVM instances.
+	</li>
+</ol>
+
 <h2 id="Canceling">Canceling Traversals</h2>
 <p> To cancel a traversal prefer calling one of <code>scala.collection.Traversable</code>'s
 	methods that finish the traversal as soon as the specified condition holds true such as
@@ -399,7 +476,7 @@ val sums =
 	<a href="/api/core/api/#scalax.collection.GraphTraversal$Path">Path</a>
 	in terms of the underlying graph.
 	This proves usefull whenever you have some results computed outside the library and
-	would like to represent them by <em>Graph for Scala</em> path-dependent types.
+	would like to represent them by <em id="G4S">Graph for Scala</em> path-dependent types.
 	Since <code>WalkBuilder</code> and <code>PathBuilder</code> enforce proper walk/path
 	semantics they are also well suited for testing user-computed paths.
 </p>

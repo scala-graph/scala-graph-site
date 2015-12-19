@@ -10,23 +10,19 @@ sideMenuItems: >
 <h2 id="Introduction">Introduction</h2>
 <p>	Thorough testing is inevitable to assure high quality when implementing your own
 	use-case-specific or generic algorithms on top of <em id="G4S">Graph for Scala</em>.
-	This module aims at helping you to achieve this goal by providing facilities for
-	user-friendly random graph generation.
+	The package <code>scalax.collection.generator</code>, part of the module <code>graph-core</code>
+	helps you to achieve this goal by providing facilities for user-friendly random graph generation.
 </p>
 <p>	Besides accepting a node generator, <em id="G4S">Graph for Scala Test</em>
 	allows you to control the metrics of random graphs including their order,
 	density and density distribution.
-	Further, you determine which edge types should connect nodes and may also supply your own
-	weight and label generators.
+	Further, you control which edge types should connect nodes including custom weight
+	and label generators.
 </p>
-<p>	The companion objects also provide some simple predefined generators such as
-	<a href="http://www.scala-graph.org/api/test/api/index.html#scalax.collection.generator.GraphGen$"
+<p>	The companion objects also provide some predefined generators such as
+	<a href="http://www.scala-graph.org/api/core/api/index.html#scalax.collection.generator.GraphGen$"
 	>smallConnectedIntDi</a>.
 </p>
-<p>	To avoid bundling your distribution with <em id="G4S">Graph for Scala Test</em>
-	limit your dependency scope to testing by appending <code>"test"</code>:</p>
-
-<pre>"com.assembla.scala-incubator" %% "graph-test" % "1.9.0" % "test"</pre>
 
 <h2 id="RandomGraphs">Creating Random Graphs</h2>
 <p>	Think of <code>RandomGraph</code> as the native implementation to generate
@@ -62,7 +58,7 @@ val sparseGraph = randomSparse.draw // Graph[Int,UnDiEdge]
 	</li>
 	<li>The generated graph will have an order of <code>1000</code>.
 	</li>
-	<li>Node degrees will range between <code>1</code> and <code>10</code>.
+	<li>Node degrees will be within the range of <code>1</code> and <code>10</code>.
 	</li>
 	<li>Allows the generated graph to be disconnected.
 	</li>

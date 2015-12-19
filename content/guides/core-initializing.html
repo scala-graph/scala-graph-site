@@ -373,65 +373,112 @@ import scalax.collection.edge.Implicits._ // shortcuts
 </pre>
 <p> While simple directed and undirected edge shortcuts may be used without
 	parenthesis like <code>1 ~&gt; 2</code>, weighted and/or labeled edge shortcuts
-	implicitly map to calls of functions with two parameter lists thus presuming
+	implicitly map to calls of functions with two parameter lists thus requiring
 	parenthesis like <code>(1 ~+&gt; 2)(x)</code>.
 </p>
-<p>	Keyed edges (key-weighted and / or key-labeled edges) come into
-	play whenever you are designing multi-edges. They ensure that, when
-	calculating the hash-code of the edge, the hash-code of the keyed
-	weight and / or that of the keyed label will be included in the
-	hash-code calculation of the edge.
+
+<h3 id="KeyedEdges">Multigraphs by keyed edges</h3>
+<p>	Keyed edges (key-weighted and/or key-labeled edges) come into play
+	whenever you are designing multigraphs.
+	Upon edge insertion <em id="G4S">Graph for Scala</em> checks for edge equality
+	to ensure no duplicate exists in the edge set. Normally, edge equality is merely based
+	on the edge endpoints.
+	So to allow multiedges it is necessary to enhance edge equality by including
+	additional attributes like a label. We denote such an edge `keyed`.
+	For instance, <code>(n1 ~+> n2)(label_1)</code> is equal to <code>(n1 ~+> n2)(label_2)</code>
+	while <code>(n1 ~+#> n2)(label_1)</code> is <em>not</em> equal to <code>(n1 ~+#> n2)(label_2)</code>.
+	You need the latter, keyed edges to include both edges in a multigraph.  
 </p>
-<p> Therefore, when utilizing any of the predefined key-labeled edge
-	classes you are responsible to provide an appropriate label type. If
-	your label is of a compound type in the sense that it is made up of
-	several attributes you should carefully analyze which part of your
-	label should become part of the edge key (hash-code). Unless the
-	edge-key includes all parts of such a compound label you must override
-	<code>equals</code> and <code>hashCode</code> to reflect the real key-parts.
-	For instance, when designing a <code>Flight</code> label for the predefined
+<p> If your labels are of a compound type in the sense that they are made up of
+	several attributes you should carefully analyze which parts of your
+	labels ensure uniqueness because only those should become part of the edge key.
+	Unless the edge key includes all parts of such a compound label type
+	you need to override <code>equals</code> and <code>hashCode</code> to reflect the actual key parts.
+	For instance, when designing a label type <code>Flight</code> for the predefined
 	edge class <code>LkDiEdge</code>, you might observe, that only
-	<code>flightNo</code> should be part of the edge key. Otherwise it would be
+	<code>flightNo</code> needs to be part of the edge key. Otherwise it would be
 	possible to connect two airports with arcs showing to the same direction and
 	with the same <code>flightNo</code> if the edges only differ in its
 	<code>departure</code>. To cope with this problem you have to override
 	<code>equals</code> and <code>hashCode</code> as follows:
 </p>
-<pre class="prettyprint lang-scala nolinenum">case class Flight(val flightNo : String,
-                  val departure: DayTime  = DayTime (0,0),
-                  val duration : Duration = Duration(0,0))
+<pre class="prettyprint lang-scala nolinenum">case class Flight(flightNo : String,
+                  departure: DayTime  = DayTime (0,0),
+                  duration : Duration = Duration(0,0))
 { override def equals(other: Any) = other match {
-    case that: Flight => that.flightNo == this.flightNo
+    case that: Flight => (that.flightNo eq this.flightNo) ||
+                          that.flightNo == this.flightNo
     case _            => false
   }
   override def hashCode = flightNo.##
 }
 </pre>
-<p> (The full example is included in <code>TEdge.scala</code>.)
+<p>	By the way, you can roughly achieve the same by defining your <code>case class</code>
+	with two parameter lists. The difference is that you can only pattern-match and copy on
+	the first parameter list:
 </p>
-<p> Labeled edges will contain a reference to the label but graph instances
-	do not know about the actual label type. This is why edges of the same
-	graph instance are allowed to have different types by design. As a
-	consequence, if you are utilizing a predefined edge class and want to
-	call label methods, you need to <code>match</code> (cast down) the label
-	value of the edge to your label type. This conversion is supported by the
+<pre class="prettyprint lang-scala nolinenum">case class Flight(flightNo : String)(
+                  val departure: DayTime  = DayTime (0,0),
+                  val duration : Duration = Duration(0,0))
+</pre>
+<p> (The full example is included in <a href =
+		"https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TEdge.scala" 
+		target="_blank">TEdge.scala</a>.)
+</p>
+
+<h3 id="LabeledEdges">Labeled edges</h3>
+<p> Labeled edges contain a reference to a label object but the containing graph
+	does not know about the actual label type. This is because edges of the same
+	graph instance are allowed to have different types by design.
+</p>
+<p>	As a consequence, when using labeled edges you need to <code>match</code>
+	against the label value. This conversion is supported by the
 	<code>trait LEdgeImplicits[L]</code>:
 </p>
-<pre class="prettyprint lang-scala nolinenum">case class MyLabel(val i: Int)
-val eOuter = LUnDiEdge(1,3)(MyLabel(4))
-val four_1 = eOuter.label.i // label must be dereferenced first
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.Graph
+import scalax.collection.edge.LUnDiEdge
+case class MyLabel(i: Int)
+val outerEdge = LUnDiEdge(1,3)(MyLabel(4))
+outerEdge.label.i // all right: 4
+outerEdge.i       // compiler error
 
+val g = Graph(outerEdge)           // Graph(1, 3, 1~3 'MyLabel(4))
+g.edges.headOption map (_.label.i) // does not work either
+
+// install implicit conversion for MyLabel 
 import scalax.collection.edge.LBase.LEdgeImplicits
-object MyImplicit extends LEdgeImplicits[MyLabel]
-import MyImplicit._
-val four_2 = eOuter.i       // implicitly dereferenced
+object MyImplicit extends LEdgeImplicits[MyLabel]; import MyImplicit._
+
+outerEdge.i                        // all right: 4
+g.edges.headOption map (_.label.i) // yep: Some(4)
+g.edges.headOption map (_.i)       // you can even omit label
 </pre>
+
+<h3 id="HyperedgeEndpoints">Hyperedge equality</h3>
+<p>	Looking at the endpoints of a hyperedge respectively the sources or targets of
+	a directed hyperedge, equality is even more weird. For instance, would you say that
+	<code>HyperEdge(1, 2, 2)</code> is equal to <code>HyperEdge(2, 2, 1)</code> or not?
+	It turns out that depending on the use case both propositions may be desirable to hold.
+</p>
+<p>	<em id="G4S">Graph for Scala</em> currently supports two kinds of endpoint collections:
+	<code>Bag</code> and <code>Sequence</code>. With <code>Bag</code> being the default kind,
+	the above hyperedges are in fact equal. The endpoint collection kind is controled
+	by an implicit value of the type <code>CollectionKind</code>.
+	Define <code>Sequence</code> as an implicit value to turn this kind on:    
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.GraphEdge._
+implicit val kind: CollectionKind = Sequence
+HyperEdge(1, 2, 2) == HyperEdge(2, 2, 1) // false 
+</pre>
+
+<h3 id="EdgesCreationMethods">Bypassing edge factories</h3>
 <p> What is more, mutable <code>Graph</code> instances provide edge creation methods
 	to be called directly on <code>Graph</code> instances (<code>addEdge</code>,
 	<code>+~=</code>, <code>addAndGetEdge</code>) or on inner nodes
 	(<code>connectWith</code>, <code>+~</code>). These methods should save execution
 	time since less conversion is necessary to complete edge creation.
 </p>
+
 <h2>Instantiating Graphs</h2>
 <pre class="prettyprint lang-scala linenums">val g1 = Graph(3~1, 5)            // Graph[Int,UnDiEdge](1, 3, 5, 3~1)
 val g2 = Graph(UnDiEdge(3, 1), 5) // same as above
