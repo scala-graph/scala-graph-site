@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.10.0</code></td>
+        <td><code>1.11.0</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.11.7"
-libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.10.0"</pre>
+<pre>scalaVersion := "2.11.8"
+libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.11.0"</pre>
 
 <p>to their settings.
 As a Maven user, please set the following ids:</p>
@@ -28,32 +28,60 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.10.0</code></td>
+    <td><code>1.11.0</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
-    <td><code>1.10.0</code></td>
+    <td><code>1.11.0</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-dot</code></td>
-    <td><code>1.10.1</code></td>
+    <td><code>1.11.0</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-json</code></td>
-    <td><code>1.10.0</code></td>
+    <td><code>1.11.0</code></td>
   </tr>
 </table>
 
 You may also manually download the Jars and Scaladoc from
 <a href = "http://search.maven.org/#browse%7C960089992" target="_blank">Maven Central</a>.
 
+<h2 id="1.11">1.11 Release Notes</h2>
+<h3 id="1.11.1">1.11.0</h3>
+<ul>
+	<li>mod: Java serialization has been customized for more efficiency. Due to the
+		<a href="https://issues.scala-lang.org/browse/SI-5773?jql=text%20~%20%22%40transient%22" target="_blank">
+		Scala issue on @transient</a> there is a constant footprint of approximately 4 kb, though.
+		Please vote for this issue if you feel bothered.  
+	</li>
+	<li>fix: In case of possibly mixed graphs, <code>isDirected</code>, <code>isHyper</code> and <code>isMulti</code>
+		now also consider the graph content as opposed to solely checking the edge type parameter.
+		This is achieved O(1) except for <code>isMulti</code>.
+	</li>
+	<li>fix <a href="https://github.com/scala-graph/scala-graph/issues/57" target="_blank">#57</a>:
+		issue with componentTraverser  
+	</li>
+	<li>mod: The node type parameter of edge types is now covariant thus honoring algebraic data types on edges.
+		This meets <a href="https://github.com/scala-graph/scala-graph/issues/40" target="_blank">#40</a>. 
+	</li>
+</ul>
+
 <h2 id="1.10">1.10 Release Notes</h2>
+<h3 id="1.10.1">1.10.1</h3>
+<ul>
+	<li>new: Added <a href="/guides/core-traversing.html#Properties">withMaxWeight</a> as a fluent property.
+		<code>withMaxWeight</code> is implemented for BreadthFirst, DepthFirst and findCycle.  
+	</li>
+	<li>fix #54: Removing an edge in a mutable graph could cause erroneous diSuccessors.  
+	</li>
+</ul>
 <h3 id="1.10.0">1.10.0</h3>
 <ul>
-	<li>new: Added several flavors of <a href="/guides/core-traversing.html#TopoSort">topological sorting</a>.
+	<li>new: Added <a href="/guides/core-traversing.html#TopoSort">topological sorting</a>in several flavors.
 		<code>topologicalSort</code> is now integrated in the <code>Traverser</code> framework
 		allowing for fluent properties.
 		Among others, <code>TopologicalOrder</code>, the result of a topological sort,

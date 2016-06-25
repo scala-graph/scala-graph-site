@@ -140,38 +140,53 @@ for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
 	any operation consider utilizing the <code>Acyclic</code> constraint in
 	the Constrained module.
 </p>
-<h2 id="Properties">Refining Traversers by Overriding Properties</h2>
-<p> Except for <code>withSubgraph</code>, we didn't care about properties in the above
-	examples but we just accepted default values for them. You may refine a
-	<code>Traverser</code> by means of the following properties:
+<h2 id="Properties">Refining Traversers by Supplying Properties</h2>
+<p> Except for <code>withSubgraph</code>, we did not make use of properties in the above examples.
+	Properties, all prefixed by <code>with</code>, encourage a fluent way of method calls,
+	hence we refer to them as fluent properties.
+	You may refine any <code>Traverser</code> by means of the following properties:
 </p>
 <table>
 	<caption>Table: Traversal properties.</caption>
 	<tr><td><strong>Property</strong></td>
 		<td><strong>Factory method</strong></td>
+		<td><strong>Sample Value</strong></td>
 		<td><strong>Described at</strong></td>
 	</tr>
 	<tr><td><code>kind: Kind</code></td>
 		<td><code>withKind</code></td>
+		<td><code>DepthFirst</code></td>
 		<td>members of <code><a href=
 			"/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
 		</td>
 	</tr>
 	<tr><td><code>direction: Direction</code></td>
 		<td><code>withDirection</code></td>
+		<td><code>Successors</code></td>
 		<td>members of <code><a href=
 			"/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
 		</td>
 	</tr>
 	<tr><td><code>maxDepth: Int</code></td>
 		<td><code>withMaxDepth</code></td>
+		<td><code>30</code></td>
 		<td>members of <code><a href=
 			"/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
 		</td>
 	</tr>
+	<tr><td><code>maxWeight: MaxWeight</code></td>
+		<td><code>withMaxWeight</code></td>
+		<td><code>125.3</code></td>
+		<td>members of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$FluentProperties">FluentProperties</a></code>
+			and<br />subclasses of <code><a href=
+			"/api/core/api/scalax.collection.GraphTraversal$Properties">Properties</a></code>
+		</td>
+	</tr>
 	<tr><td><code>nodes: (NodeT) =&gt; Boolean,<br />
-				  edges: (GraphTraversal.EdgeT) =&gt; Boolean</code></td>
+				  edges: (EdgeT) =&gt; Boolean</code></td>
 		<td><code>withSubgraph</code></td>
+		<td><code>_.inDegree &lt; 10</code></td>
 		<td>members of <code><a href=
 			"/api/core/api/scalax.collection.GraphTraversal$FluentProperties">FluentProperties</a></code>
 			and<br />subclasses of <code><a href=
@@ -180,6 +195,7 @@ for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
 	</tr>
 	<tr><td><code>ordering: GraphTraversal.ElemOrdering</code></td>
 		<td><code>withOrdering</code></td>
+		<td><code>myOrdering</code></td>
 		<td>members of <code><a href=
 			"/api/core/api/scalax.collection.GraphTraversal$$FluentProperties">FluentProperties</a></code>
 			and<br />subclasses of <code><a href=
@@ -187,7 +203,7 @@ for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
 		</td>
 	</tr>
 </table>
-<p>	For instance, to exclude specific nodes from the traversal in a lazy manner
+<p>	For instance, to exclude a specific node from the traversal in a lazy manner
 	you'd call <code>withSubgraph</code> like
 </p>
 <pre class="prettyprint lang-scala nolinenum">(g get 1).withSubgraph(nodes = _ != 2) pathTo (g get 4)
