@@ -9,8 +9,8 @@ sideMenuItems: >
 
 <h2 id="Introduction">Introduction</h2>
 <p>	Thorough testing is inevitable to assure high quality when implementing your own
-	use-case-specific or generic algorithms on top of <em id="G4S">Graph for Scala</em>.
-	The package <code>scalax.collection.generator</code>, part of the module <code>graph-core</code>
+	algorithms on top of <em id="G4S">Graph for Scala</em>.
+	The package <code>scalax.collection.generator</code>, part of the module <code>graph-core</code>,
 	helps you to achieve this goal by providing facilities for user-friendly random graph generation.
 </p>
 <p>	Besides accepting a node generator, <em id="G4S">Graph for Scala Test</em>
@@ -136,7 +136,7 @@ val mixedGraph = randomMixedGraph.draw
 <p>	You can even supply your own label and weight generators.
 </p>
 
-<h3>Keeping Metrics Constraints in Mind</h3>
+<h3>Keeping Metric Constraints in Mind</h3>
 <p>	You may wonder why we divided the number of all possible combinations of
 	first names and surnames by 10. The reason is that <code>RandomGraph</code>
 	must be able to draw distinct nodes. Ok, they become most probably distinct
