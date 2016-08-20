@@ -6,21 +6,21 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.11.0</code></td>
+        <td><code>1.11.2</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
 <pre>scalaVersion := "2.11.8"
-libraryDependencies += "com.assembla.scala-incubator" %% "graph-core" % "1.11.0"</pre>
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.11.2"</pre>
 
 <p>to their settings.
-As a Maven user, please set the following ids:</p>
+As a Maven user, please set:</p>
 <table>
   <tr class="split">
     <td><code>group id</code></td>
-    <td><code>com.assembla.scala-incubator</code></td>
+    <td><code>org.scala-graph</code></td>
   </tr>
   <tr class="split">
     <td><code>artifact id</code></td>
@@ -28,10 +28,10 @@ As a Maven user, please set the following ids:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.11.0</code></td>
+    <td><code>1.11.2</code></td>
   </tr>
 </table>
-<p>The latest stable releases of the optional modules are:</p>
+<p>The latest stable releases of the optional modules, at present with the group id <code>com.assembla.scala-incubator</code>, are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
@@ -48,10 +48,28 @@ As a Maven user, please set the following ids:</p>
 </table>
 
 You may also manually download the Jars and Scaladoc from
-<a href = "http://search.maven.org/#browse%7C960089992" target="_blank">Maven Central</a>.
+<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a> resp.
+<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.assembla.scala-incubator%22" target="_blank">com.assembla.scala-incubator</a>
+at Maven Central.
+From release 1.12.0 onwards the optional modules will also be published under the group id "org.scala-graph". 
 
 <h2 id="1.11">1.11 Release Notes</h2>
-<h3 id="1.11.1">1.11.0</h3>
+<h3 id="1.11.2">1.11.2</h3>
+<ul>
+	<li>new: Added <code>withMaxDepth</code> and <code>withMaxWeight</code> support to <code>shortestPathTo</code>
+		meeting <a href="https://github.com/scala-graph/scala-graph/issues/50" target="_blank">#50</a>
+	</li>
+</ul>
+
+<h3 id="1.11.1">1.11.1</h3>
+<ul>
+	<li>mod: Changed Maven group id to <code>org.scala-graph</code>.
+	</li>
+	<li>new: Published <a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22graph-core_sjs0.6_2.11%22">Graph-core Scala.js</a>.
+	</li>
+</ul>
+
+<h3 id="1.11.0">1.11.0</h3>
 <ul>
 	<li>mod: Java serialization has been customized for more efficiency. Due to the
 		<a href="https://issues.scala-lang.org/browse/SI-5773?jql=text%20~%20%22%40transient%22" target="_blank">

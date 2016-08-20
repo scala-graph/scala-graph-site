@@ -468,6 +468,9 @@ g.isCyclic                      // false
 (g + 3~>2).isCyclic             // true
 g.isComplete                    // false 
 (g ++ List(1~>2, 1~>3, 2~>1, 3~>1, 3~>2)).isComplete // true
+g.isDirected                    // true 
+g.isHyper                       // false 
+g.isMulti                       // false 
 </pre>
 <p>As to</p>
 <ol>
@@ -480,7 +483,7 @@ g.isComplete                    // false
 </ol>
 <h2 id="Chaining">Chaining Method Calls</h2>
 <pre class="prettyprint lang-scala nolinenum"
->g.nodes find (_.inDegree > g.order / 5) orElse Some(g.nodes.head)
+>g.nodes find (_.inDegree > g.order / 5) orElse g.nodes.headOption
 </pre>
 <p>Graph is designed for functional style programming enabling to
 	chain method calls as you feel inclined.</p>
