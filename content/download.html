@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.11.2</code></td>
+        <td><code>1.11.4</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.11.8"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.11.2"</pre>
+<pre>scalaVersion := "2.12.0"
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.11.4"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -24,14 +24,14 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>artifact id</code></td>
-    <td><code>graph-core_2.11</code></td>
+    <td><code>graph-core_2.12</code></td>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.11.2</code></td>
+    <td><code>1.11.4</code></td>
   </tr>
 </table>
-<p>The latest stable releases of the optional modules, at present with the group id <code>com.assembla.scala-incubator</code>, are:</p>
+<p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
@@ -43,17 +43,41 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>graph-json</code></td>
-    <td><code>1.11.0</code></td>
+    <td><code>1.11.0</code>, group id <code>com.assembla.scala-incubator</code>, Scala 2.11 only</td>
   </tr>
 </table>
 
 You may also manually download the Jars and Scaladoc from
-<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a> resp.
-<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.assembla.scala-incubator%22" target="_blank">com.assembla.scala-incubator</a>
-at Maven Central.
-From release 1.12.0 onwards the optional modules will also be published under the group id "org.scala-graph". 
+<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph
+</a> at Maven Central. For earlier releases please refer to
+<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.assembla.scala-incubator%22" target="_blank">
+com.assembla.scala-incubator</a>. 
 
 <h2 id="1.11">1.11 Release Notes</h2>
+<h3 id="1.11.4">1.11.4</h3>
+<ul>
+	<li>new: Added method <code>toOuter</code> to inner nodes as a synonym for <code>value</code>.
+	</li>
+	<li>new: released graph-core, graph-constrained and graph-dot for Scala 2.12.
+		The Scala 2.12-release of graph-json is waiting for liftweb-json that in turn is waiting for Scala 2.12.1.
+	</li>
+</ul>
+
+<h3 id="1.11.3">1.11.3</h3>
+<ul>
+	<li>mod: An opposite traversal direction will now be rejected at run time by <code>IllegalArgumentException</code>
+		on any method call returning a Cycle or Path in reaction to
+		<a href="https://github.com/scala-graph/scala-graph/issues/62" target="_blank">#62</a>.
+	</li>
+	<li>fix: For a non-existing topological order, an empty order could be returned instead of
+		a node on the cycle as reported in
+		<a href="https://github.com/scala-graph/scala-graph/issues/61" target="_blank">#61</a>.
+	</li>
+	<li>mod: The Scalacheck dependency has been degraded to <code>"optional;provided"</code>
+		to meet a request on the user list.
+	</li>
+</ul>
+
 <h3 id="1.11.2">1.11.2</h3>
 <ul>
 	<li>new: Added <code>withMaxDepth</code> and <code>withMaxWeight</code> support to <code>shortestPathTo</code>
