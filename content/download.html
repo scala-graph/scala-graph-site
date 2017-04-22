@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.11.4</code></td>
+        <td><code>1.11.5</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.12.0"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.11.4"</pre>
+<pre>scalaVersion := "2.12.2"
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.11.5"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -28,7 +28,7 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.11.4</code></td>
+    <td><code>1.11.5</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
@@ -39,27 +39,36 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>graph-dot</code></td>
-    <td><code>1.11.0</code></td>
+    <td><code>1.11.5</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-json</code></td>
-    <td><code>1.11.0</code>, group id <code>com.assembla.scala-incubator</code>, Scala 2.11 only</td>
+    <td><code>1.11.0</code></td>
   </tr>
 </table>
 
-You may also manually download the Jars and Scaladoc from
+You may find or manually download any Maven release including Scaladoc from
 <a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph
-</a> at Maven Central. For earlier releases please refer to
+</a>. For earlier releases please refer to
 <a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.assembla.scala-incubator%22" target="_blank">
 com.assembla.scala-incubator</a>. 
 
 <h2 id="1.11">1.11 Release Notes</h2>
+<h3 id="1.11.5">1.11.5</h3>
+<ul>
+	<li>fix: <code>topologicalSort</code> of a cyclic graph could leave cycle undetected. 
+		Closes <a href="https://github.com/scala-graph/scala-graph/issues/68" target="_blank">#68</a>.
+	</li>
+	<li>fix: on DOT export, non-empty child subgraphs of an empty subgraph did not render.
+		Closes <a href="https://github.com/scala-graph/scala-graph/issues/69" target="_blank">#69</a>.
+	</li>
+</ul>
+
 <h3 id="1.11.4">1.11.4</h3>
 <ul>
 	<li>new: Added method <code>toOuter</code> to inner nodes as a synonym for <code>value</code>.
 	</li>
-	<li>new: released graph-core, graph-constrained and graph-dot for Scala 2.12.
-		The Scala 2.12-release of graph-json is waiting for liftweb-json that in turn is waiting for Scala 2.12.1.
+	<li>new: released graph-core and all accompanying modules for Scala 2.12.
 	</li>
 </ul>
 
