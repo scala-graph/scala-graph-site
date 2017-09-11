@@ -378,26 +378,84 @@ var center: Option[g.NodeT] = None
 	need not be part of the cycle.
 </p>
 
-<h2 id="Components">Working with Graph Components</h2>
-<p> <a href="/api/core/api/#scalax.collection.GraphTraversal$ComponentTraverser">ComponentTraverser</a>
-	comes into play whenever you are working with subgraphs or disconnected graphs:
+<h2 id="Components">Finding Graph Components</h2>
+<p>	You may search for weakly or strongly connected components.
+	In both cases you first need to decide on where the computation should start:
 </p>
-<pre class="prettyprint lang-scala linenums">def someEdges(i: Int) =
-  List( (i)~>(i + 1), (i)~>(i + 2), (i + 1)~>(i + 2))
- 
-val disconnected = Graph.from(edges = someEdges(1) ++ someEdges(5))
+<ul>
+	<li>Starting at graph level ensures that all components of the graph will be returned.
+	</li>
+	<li>If you choose to start at a specific node you will get all components reachable from that node,
+		that is a subset of graph-level components.
+	</li>
+</ul>
+<h3>Finding weakly connected components</h3>
+<pre class="prettyprint lang-scala linenums">val componentEdges = {
+  def edges(i: Int) = List(i ~> (i + 1), i ~> (i + 2), (i + 1) ~> (i + 2))
+  (edges(1), edges(5))
+}
+val disconnected = Graph.from(edges = componentEdges._1 ++ componentEdges._2)
 val sums =
-  for (c <- disconnected.componentTraverser())
-    yield c.nodes.head.outerNodeTraverser.sum  // Traversable(6, 18)
+    for (component <- disconnected.componentTraverser())
+    yield (0 /: component.nodes)((cum, n) => cum + n.toOuter) // List(6, 18)
 </pre>
 <p>As to</p>
 <ol>
-	<li value="4">Creates a disconnected graph consisting of two components.
+	<li value="5">Creates a disconnected graph having two components.
 	</li>
-	<li>The elements of <code>sums</code> correspond to the sum of the node values
-		of each graph component.
+	<li value="8">The elements of <code>sums</code> correspond to the sums of the integer node values
+		in both components.
 	</li>
 </ol>
+<p>Here is how to search for the weak comopnent containing a specific node:</p>
+<pre class="prettyprint lang-scala linenums">val anyNode = disconnected.nodes.draw(new util.Random)
+anyNode.weakComponent.nodes // componentEdges._1.size = 3
+</pre>
+
+<h3 id="StrongComponents">Finding strongly connected components</h3>
+<p> Strongly connected components are computed based on a tail-recursive version of Tarjan's algorithm.
+</p>
+<p> Let us refer to the
+	<a href="https://de.wikipedia.org/wiki/Datei:Tarjans-algorithm.gif" target="_blank">sample graph on Wikipedia</a>:
+</p>
+<pre class="prettyprint lang-scala linenums">val sccExpected = (
+    Graph('a ~> 'b, 'b ~> 'c, 'c ~> 'd, 'd ~> 'a, 'd ~> 'e, 'c ~> 'e, 'e ~> 'c),
+    Graph('f ~> 'g, 'g ~> 'f, 'g ~> 'h, 'h ~> 'j, 'j ~> 'i, 'i ~> 'g, 'i ~> 'f, 'f ~> 'i)
+)
+val connected = (sccExpected._1 union sccExpected._2) + 'e ~> 'f
+val scc       = connected.strongComponentTraverser().map(_.toGraph)
+scc.toSet == Set(sccExpected._1, sccExpected._2) // true
+</pre>
+<p>As to</p>
+<ol>
+	<li value="5">The graph is comopsed from two strong components connected by a simple directed edge.
+	</li>
+	<li value="6">The graph-level traverser yields the strong components that we lift to graphs.
+	</li>
+	<li value="7">Assure that the strong components found equal to the expected ones.
+	</li>
+</ol>
+<p> To limit the scope of the search to nodes reachable from a give node, start the search at that node like
+</p>
+<pre class="prettyprint lang-scala linenums">val startAt = sccExpected._2.nodes.head
+startAt.strongComponents.size // 1
+startAt.innerNodeTraverser.strongComponents(println)
+</pre>
+<p>As to</p>
+<ol>
+	<li value="2">When starting at a node of the second component, we get just that component.
+	</li>
+	<li value="3">In case you are interested in the visited elements during the search
+		invoke the search on a traverser.
+		Of course, the resulting component contains the very same nodes visited before.
+	</li>
+</ol>
+<h3>On the type <code>Component</code></h3>
+<p>	What about the type returned by a component search?
+	<a href="/api/core/api/#scalax.collection.GraphTraversal$Component">Component</a>
+	is a strict set of the contained <code>nodes</code> and a lazy set of the contained <code>edges</code>.
+	Further you may invoke <code>toGraph</code> on a component. 
+</p>
 
 <h2 id="TopoSort">Topological Sorting</h2>
 <p>	<em id="G4S">Graph for Scala</em> comes with three flavors of topological sorting

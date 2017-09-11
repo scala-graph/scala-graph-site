@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.11.5</code></td>
+        <td><code>1.12.0</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.12.2"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.11.5"</pre>
+<pre>scalaVersion := "2.12.3"
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.0"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -28,7 +28,7 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.11.5</code></td>
+    <td><code>1.12.0</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
@@ -52,6 +52,17 @@ You may find or manually download any Maven release including Scaladoc from
 </a>. For earlier releases please refer to
 <a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.assembla.scala-incubator%22" target="_blank">
 com.assembla.scala-incubator</a>. 
+
+<h2 id="1.12">1.12 Release Notes</h2>
+<h3 id="1.12.0">1.12.0</h3>
+<ul>
+	<li>new: Support for <a href="/guides/core-traversing.html#StrongComponents" target="_blank">finding strongly connected components</a>.
+		Also closes <a href="https://github.com/scala-graph/scala-graph/issues/74" target="_blank">#74</a>.
+	</li>
+	<li>fix: Compiler option "-Yinline" in Scala 2.11 did not work in some cases.
+		Closes <a href="https://github.com/scala-graph/scala-graph/issues/77" target="_blank">#77</a>.
+	</li>
+</ul>
 
 <h2 id="1.11">1.11 Release Notes</h2>
 <h3 id="1.11.5">1.11.5</h3>
