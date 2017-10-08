@@ -153,14 +153,14 @@ object Flight {
 <p>In general, when deciding on how to define your custom edge, the
 	following steps apply:</p>
 <ol>
-	<li>Decide on which predefined 	edge class is to derive from.
-		These are enlisted in <em>2.3 Edge 	Factories</em>.
+	<li>Select a <a href="/guides/core-initializing.html#EdgeFactories">predefined edge class</a>
+		to derive from.
 	</li>
 	<li>If your edge type is labeled by one or more attributes, decide
 		for each attribute whether it counts as a key or as a non-key
 		attribute. You have to deal with key attributes only in case your
 		graph is to be laid out for multi-edges. Then, similar to SQL database
-		primary key design, those attributes making an edge unique must be
+		primary key design, the attributes making up the thought unique key must be
 		defined as key attributes.<br>If you have one or more key
 		attributes, mix in <code>ExtendedKey</code> and enter all key
 		attributes into the list returned by <code>def keyAttributes</code>
@@ -172,11 +172,10 @@ object Flight {
 	<li>If you want to avoid any loop in your graph, you can achieve
 		this by simply mixing in <code>LoopFreeEdge</code>.
 	</li>
-	<li>If your edges are weighted you may have selected either&nbsp;
-		<code>WUnDiEdge</code> or <code>WDiEdge</code> in (B). If <code>weight</code>
-		is your single custom attribute you don't need to implement a custom
-		edge. Otherwise you can use these predefined classes as a template to
-		define your own weighted custom edge.
+	<li>If <code>weight</code> is your single custom attribute go with either
+		<code>WUnDiEdge</code> or <code>WDiEdge</code>. If you have more custom attributes
+		you may select one of the predefined <code>WL*</code> edges but, for better type safety,
+		you are recommended to implement your own custom edge.
 	</li>
 	<li>In your custom edge class you are free to override <code>validate</code>
 		that is called at edge instantiation time. For instance, the
@@ -187,16 +186,15 @@ object Flight {
 			attributesToString</code> which just need to be overridden. Thus they remove
 		the burden of programming <code>toString</code> from the bottom up.
 	</li>
-	<li>Add a type and an<code> implicit</code> <code>def</code> to
-		make passing of the custom edge to <code>Graph</code> methods easy.
+	<li>In the custom edge companion object, implement an <code>implicit def</code> to
+		make edge creation more readable.
 	</li>
-	<li>Optionally, design and implement your custom edge factory
-		shortcut. Doing this you may also opt to use the standard edge factory
-		shortcuts <code>~</code> and <code>~&gt;</code> for your custom edge.
+	<li>Optionally, you are free to implement your custom edge factory
+		shortcut. Doing this you may also opt to reuse any of standard edge factory
+		shortcuts like <code>~</code> or <code>~&gt;</code>.
 	</li>
 </ol>
-<p>	In case of mixed graphs you may also design your own hierarchy of
-	custom edge classes.
+<p>	In case of mixed graphs, prefer an ADT of custom edge classes.
 </p>
 <p> See also:<br />
 	<code>object scalax.collection.GraphEdge._</code><br />

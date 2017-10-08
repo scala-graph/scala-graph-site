@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.12.0</code></td>
+        <td><code>1.12.1</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
 <pre>scalaVersion := "2.12.3"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.0"</pre>
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.1"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -28,22 +28,22 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.12.0</code></td>
+    <td><code>1.12.1</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
-    <td><code>1.11.0</code></td>
+    <td><code>1.12.1</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-dot</code></td>
-    <td><code>1.11.5</code></td>
+    <td><code>1.12.1</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-json</code></td>
-    <td><code>1.11.0</code></td>
+    <td><code>1.12.1</code></td>
   </tr>
 </table>
 
@@ -54,6 +54,12 @@ You may find or manually download any Maven release including Scaladoc from
 com.assembla.scala-incubator</a>. 
 
 <h2 id="1.12">1.12 Release Notes</h2>
+<h3 id="1.12.1">1.12.1</h3>
+<ul>
+	<li>mod: Edge <code>weight</code> is now of the type <code>Double</code>.
+	</li>
+</ul>
+
 <h3 id="1.12.0">1.12.0</h3>
 <ul>
 	<li>new: Support for <a href="/guides/core-traversing.html#StrongComponents" target="_blank">finding strongly connected components</a>.

@@ -46,13 +46,13 @@ n(1) pathUntil (_.outDegree >= 3)     // Some(Path(1, 1~>3 %5, 3))
 val spO = n(3) shortestPathTo n(1) // Path(3, 3~4 %1, 4, 4~>5 %0, 5, 1~5 %3, 1)
 val sp = spO.get                   // here we know spO is defined
 sp.nodes                           // List[g.NodeT] = Nodes(3, 4, 5, 1)
-sp.weight                          // Long = 4
+sp.weight                          // Double = 4.0
 
 def negWeight(e: g.EdgeT): Float = 5.5f - e.weight
 val spNO =
     n(3) shortestPathTo (n(1), negWeight) // Path(3, 2~3 %2, 2, 1~2 %4, 1)
 val spN = spNO.get                        // here we know spNO is defined
-spN.weight                                // Long = 6
+spN.weight                                // Double = 6.0
 
 val pO1 = n(4).withSubgraph(nodes = _ < 4) pathTo n(2) // Some(Path(4, 3~4 %1, 3, 2~3 %2, 2))
 pO1.map(_.nodes)                                       // Some(Nodes(4, 3, 2))
@@ -289,7 +289,7 @@ n1.outerNodeTraverser.sum                 // 10
 g.outerNodeTraverser(n1).sum              // 10
 n1.outerNodeTraverser.withMaxDepth(1).sum //  6
 
-n1.innerEdgeTraverser.map(_.weight).sum   //  7
+n1.innerEdgeTraverser.map(_.weight).sum   //  7.0
 
 n1.innerElemTraverser.filter(_ match {
   case g.InnerNode(n) => n.degree &gt; 1
