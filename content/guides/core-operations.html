@@ -12,9 +12,9 @@ sideMenuItems: >
 <h1>Core User Guide: Graph Operations</h1>
 <h2 id="Iterating">Iterating</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(2~3, 3~1)
-g mkString "-"	             // 1-2-3-2~3-3~1
-g.nodes mkString "-"         // 1-2-3
-g.edges mkString "-"         // 2~3-3~1
+g mkString ","	             // "1,2,3,2~3,3~1"
+g.nodes mkString "-"         // "1-2-3"
+g.edges mkString " "         // "2~3 3~1"
 </pre>
 <p>As to</p>
 <ol>
@@ -42,8 +42,9 @@ g find 3                          // Option[g.NodeT] = None
 g get 1                           // g.NodeT = 1
 g get 3                           // NoSuchElementException
 g find 1~2                        // Option[g.EdgeT] = Some(1~2)
-g addAndGet 5                     // g.NodeT = 5
 g find (g having (node = _ == 1)) // g.NodeT = 1
+val h = mutable.Graph.empty[Int,UnDiEdge] ++ g
+g addAndGet 5                     // g.NodeT = 5
 </pre>
 <p>As to</p>
 <ol>
@@ -62,22 +63,24 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 		<code>1~2</code>. Looking up edges works in the same manner as for
 		nodes.
 	</li>
-	<li>In case of a mutable <code>Graph,</code> adds <code>5</code>
-		to the node set and returns the added inner node. This method enables
-		you to couple adding and getting the same node.
-	</li>
 	<li>This is no more a direct access to a specific element, but
 		rather a search over all nodes stopping at the first node with the
 		predicate <code>_ == 1</code>. <code>having </code>may take a <code>node</code>
 		and/or an <code>edge</code> argument.
 	</li>
+	<li>Creates a mutable Graph equaling to <code>g</code>.
+	</li>
+	<li>For a mutable <code>Graph</code>, adds <code>5</code>
+		to the node set and returns the new inner node. This method
+		couples adding and getting the same node.
+	</li>
 </ol>
-<p> Looking up nodes and edges is necessary to invoke graph functionality
-	on a specific element - also called root - of a given graph. This is similar to
-	getting a value of a <code>Map</code> entry by passing a key to the map.
+<p> Looking up nodes and edges is necessary to invoke graph functionality at a specific
+	element of the graph. With respect to an operation we also call an inner node the "root node".
+	Looking up is similar to getting a value of a <code>Map</code> entry by passing a key to the map.
 	In case of <code>Graph</code> the "key" is an outer node or edge and the returned
-	"value" is the inner node or edge. The default implementation uses <code>hashCode</code>
-	for look-ups.
+	"value" is the inner node or edge.
+	Look up is implemented in terms of <code>hashCode</code> and <code>==</code>.
 </p>
 <h2 id="Equality">Equality of Inner and Outer Objects</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
@@ -101,29 +104,26 @@ g find (g having (node = _ == 1)) // g.NodeT = 1
 </ol>
 <h2 id="Adding">Adding and Subtracting</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1, 2~3)  // immutable or mutable
-g + 1                  // == g
+g + 1                  // g unchanged
 g + 0                  // Graph(0, 1, 2, 3, 2~3)
 g + 1.2                // error: overloaded method...
 g + 0~1                // Graph(0, 1, 2, 3, 0~1, 2~3)
 g ++ List(1~2, 2~3)    // Graph(1, 2, 3, 1~2, 2~3)
-g ++ List[GraphParam[Int,UnDiEdge]](1~2, 2~3, 0)
+g ++ List[Param[Int,UnDiEdge]](1~2, 2~3, 0)
                        // Graph(0, 1, 2, 3, 1~2, 2~3)
-g - 0                  // == g
+g - 0                  // g
 g - 1                  // Graph(2, 3, 2~3)
 g - 2                  // Graph(1, 3)
-g -? 2                 // == g
+g -? 2                 // g
 g - 2~3                // Graph(1, 2, 3)
 g -! 2~3               // Graph(1)
-g --  List(2, 3~3)     // Graph(1, 3)
-val g = scalax.collection.mutable.Graph(1, 2~3)
-                       // Graph[Int,UnDiEdge]
-                       // to be assigned before each example
-g += 0                 // Graph(0, 1, 2, 3, 2~3)
-g ...=                 // (mutated graph)
-g +~= (3~>1)           // Graph(1, 2, 3, 2~3, 3~>1)
+g --  List[Param[Int,UnDiEdge]](2, 3~3)
+                       // Graph(1, 3)
+def h = mutable.Graph.empty[Int,UnDiEdge] ++ g
+h += 0                 // Graph(0, 1, 2, 3, 2~3)
+h += (3 ~> 1)          // Graph(1, 2, 3, 2~3, 3~>1)
 implicit val factory = scalax.collection.edge.LDiEdge
-g.addLEdge(3,4)("red") // true
-g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
+h.addLEdge(3,4)("red") // true
 </pre>
 <p>As to</p>
 <ol>
@@ -166,20 +166,11 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 	<li>All edges or nodes contained in the right hand operand are
 		removed from a new <code>Graph</code> instance.
 	</li>
-	<li value="19">Node 0 is added to the same mutable <code>Graph</code>
-		instance.
+	<li value="18">Node 0 is added to the a mutable <code>Graph</code> equaling to <code>g</code>.
 	</li>
-	<li>All addition and subtraction operations valid for immutable
-		graphs have their mutable counterparts with <code>=</code> as the last
-		operand character.
-	</li>
-	<li><code>+~= </code>is an edge creation operator with its
-		counterpart methods <code>addEdge</code> and <code>addAndGetEdge</code>.
-	</li>
-	<li><code>addLEdge</code> (same as <code>+~+=</code>) adds a
-		labeled edge to a mutable graph specifying its nodes and label. This
-		class of methods (operators) doesn't require outer edge parameters but
-		has an <code>implicit </code>edge factory parameters, instead.
+	<li value="21"><code>addLEdge</code> (same as <code>+~+=</code>) adds a
+		labeled edge to a mutable graph passing the connected nodes and the label.
+		This kind of method has an <code>implicit </code> edge factory parameter.
 	</li>
 </ol>
 <p> The <code>Graph</code> operators <code>+</code>, <code>+=</code> for adding
@@ -220,12 +211,12 @@ g                      // Graph(1, 2, 3, 4, 2~3, 3~>4 'red)
 	see <em>4.5</em>.
 </p>
 <h2 id="Union">Computing Union, Difference and Intersection</h2>
-<pre class="prettyprint lang-scala nolinenum">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
+<pre class="prettyprint lang-scala nolinenum">val g = mutable.Graph(1~2, 2~3, 2~4, 3~5, 4~5)
 val h = Graph(3~4, 3~5, 4~6, 5~6)
 g union h      // Graph(1~2, 2~3, 2~4, 3~5, 4~5, 3~4, 4~6, 5~6) 
 g diff h       // Graph(1~2)
-g intersect h  // Graph(3~5, 4)
-g &= h         // Graph(3~5, 4), same instance
+g intersect h  // Graph(4, 3~5)
+g &= h         // Graph(4, 3~5), mutated instance
 </pre>
 <p> Also <code>union</code> (same as <code>++</code>), difference (<code>diff</code>
 	same as <code>--</code>) and intersection (<code>intersec</code> same as
@@ -235,28 +226,28 @@ g &= h         // Graph(3~5, 4), same instance
 </p>
 <h2 id="Endpoints">Inspecting Endpoints</h2>
 <pre class="prettyprint lang-scala linenums"
->val uE = 3~4            // UnDiEdge[Int] = 3~4
+>val uE = 3~4            // UnDiEdge[Int]
 uE._1 * uE._2           // Int = 12
-uE product              // Int = 12
+uE.product              // Int = 12
 uE match {
   case n ~ m => n * m
 }                       // Int = 12
-val dE = 1~>2           // DiEdge[Int] = 1~>2
+val dE = 1~>2           // DiEdge[Int]
 dE.source - dE.target   // Int = -1
-uE.arity == dE.arity    // Boolean = true
+uE.arity == dE.arity    // true
 dE match {
   case s ~> t => s - t
 }                       // Int = -1
-val hE = 1~2~11~12      // HyperEdge[Int] = 1~2~11~12
+val hE = 1~2~11~12      // HyperEdge[Int]
 hE._n(hE.arity - 1)     // Int = 12
-hE sum                  // Int = 26
+hE.sum                  // Int = 26
 </pre>
 <p>As to</p>
 <ol>
 	<li value="2"><code>_1</code> and <code>_2</code> provide access to the first and
 		second node of an edge.
 	</li>
-	<li>Edges are also <code>Iterable</code>.
+	<li>Edges are also <code>Iterable</code> with respect to the connected nodes.
 	</li>
 	<li>The endpoints of edges may also be extracted by means of pattern matching.
 	</li>
@@ -306,27 +297,28 @@ import StringLabel._
 </p>
 <h2 id="Neighbors">Inspecting Neighbors and Incident Edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(0, 1~3, 3~>2)
-val (n0, n2, n3) = (g get 0, g get 2, g get 3)
-n0 diSuccessors          // Set[g.NodeT] = Set()
-n2.diSuccessors.isEmpty  // Boolean = true
-n3 diSuccessors          // Set[g.NodeT] = Set(1, 2)
-n3 diPredecessors        // Set[g.NodeT] = Set(1)
-n2 incoming              // Set[g.EdgeT] = Set(3~>2)
-n3 ~>? n2                // Option[g.EdgeT] = Some(3~>2)
+def n(outer: Int): g.NodeT           = g get outer
+def e(outer: UnDiEdge[Int]): g.EdgeT = g get outer
+n(0).diSuccessors          // Set[g.NodeT] = Set()
+n(2).diSuccessors.isEmpty  // true
+n(3).diSuccessors          // Set[g.NodeT] = Set(1, 2)
+n(3).diPredecessors        // Set[g.NodeT] = Set(1)
+n(2).incoming              // Set[g.EdgeT] = Set(3~>2)
+n(3) ~>? n2                // Option[g.EdgeT] = Some(3~>2)
 </pre>
 <p>As to</p>
 <ol>
-	<li value="3">Node <code>n0</code> is independent so the set of direct
+	<li value="4">Node <code>n(0)</code> is independent so the set of direct
 		successor nodes is empty.
 	</li>
-	<li>Node <code>n2</code> is reachable but has no direct successor
+	<li>Node <code>n(2)</code> is reachable but has no direct successor
 		so the set of its out-neighbors is empty, too.
 	</li>
-	<li>From node <code>n3</code>, <code>1</code> and <code>2</code> are reachable.
+	<li>From node <code>n(3)</code>, <code>1</code> and <code>2</code> are reachable.
 	</li>
-	<li>The only direct predecessor of node <code>n3</code> is node <code>1</code>.
+	<li>The only direct predecessor of node <code>n(3)</code> is node <code>1</code>.
 	</li>
-	<li>From the perspective of node <code>n2</code> there is only one
+	<li>From the perspective of node <code>n(2)</code> there is only one
 		incoming edge namely <code>3~&gt;2</code>.
 	</li>
 	<li><code>~&gt;?</code> is a synonym to <code>findOutgoingTo</code>.
@@ -425,18 +417,20 @@ As to
 	<a href="/guides/core-traversing.html">Traversing Graphs</a>. Then
 </p>
 <pre class="prettyprint lang-scala linenums"
->g.order                     // Int = 5 
-g.graphSize                 // Int = 8
-g.size                      // Int = 13
-g.totalDegree               // Int = 16 
-g.degreeSet                 // TreeSet(4, 3, 2)
-g.degreeNodeSeq(g.InDegree) // List((4,3), (3,5), (2,1), (2,4), (2,2))
-g.degreeNodesMap            // Map(2->Set(2), 3->Set(5,1), 4->Set(3,4))
-g.degreeNodesMap(degreeFilter = _ > 3)  // Map(4 -> Set(3,4))
+>import scalax.collection.edge.Implicits._
+val g = Graph(1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3, 3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
+g.order                                // Int = 5 
+g.graphSize                            // Int = 8
+g.size                                 // Int = 13
+g.totalDegree                          // Int = 16 
+g.degreeSet                            // TreeSet(4, 3, 2)
+g.degreeNodeSeq(g.InDegree)            // List((4,3), (3,5), (2,1), (2,2), (2,4))
+g.degreeNodesMap                       // Map(2->Set(2), 3->Set(5,1), 4->Set(3,4))
+g.degreeNodesMap(degreeFilter = _ > 3) // Map(4 -> Set(3,4))
 </pre>
 <p>As to</p>
 <ol>
-	<li>The order of (number of nodes in) <code>g</code>.
+	<li value="3">The order of (number of nodes in) <code>g</code>.
 	</li>
 	<li>The size of (number of edges in) <code>g</code>.
 	</li>
@@ -485,5 +479,6 @@ g.isMulti                       // false
 <pre class="prettyprint lang-scala nolinenum"
 >g.nodes find (_.inDegree > g.order / 5) orElse g.nodes.headOption
 </pre>
-<p>Graph is designed for functional style programming enabling to
-	chain method calls as you feel inclined.</p>
+<p><em id="G4S">Graph for Scala</em> is designed for functional style programming
+	meaning that you chain method calls as you feel inclined.
+</p>

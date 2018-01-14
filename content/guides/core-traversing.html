@@ -34,7 +34,7 @@ import scalax.collection.edge.Implicits._
 
 val g = Graph(1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
               3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
-def n(outer: Int): g.NodeT = g get outer  // look up a node known to be contained
+def n(outer: Int): g.NodeT = g get outer  // look up 'outer' that is known to be contained
 
 n(1) findSuccessor (_.outDegree >  3) // Option[g.NodeT] = None 
 n(1) findSuccessor (_.outDegree >= 3) // Option[g.NodeT] = Some(3)
