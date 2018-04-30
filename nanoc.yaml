@@ -1,0 +1,33 @@
+# A list of file extensions that nanoc will consider to be textual rather than
+# binary. If an item with an extension not in this list is found,  the file
+# will be considered as binary.
+text_extensions: [ 'coffee', 'css', 'erb', 'haml', 'handlebars', 'hb', 'htm', 'html', 'js', 'less', 'markdown', 'md', 'ms', 'mustache', 'php', 'rb', 'sass', 'scss', 'txt', 'xhtml', 'xml' ]
+
+# A list of index filenames, i.e. names of files that will be served by a web
+# server when a directory is requested. Usually, index files are named
+# “index.html”, but depending on the web server, this may be something else,
+# such as “default.htm”. This list is used by nanoc to generate pretty URLs.
+index_filenames: [ 'index.html' ]
+
+# Whether or not to generate a diff of the compiled content when compiling a
+# site. The diff will contain the differences between the compiled content
+# before and after the last site compilation.
+enable_output_diff: false
+
+prune:
+  # Whether to automatically remove files not managed by nanoc from the output
+  # directory. For safety reasons, this is turned off by default.
+  auto_prune: false
+
+  # Which files and directories you want to exclude from pruning. If you version
+  # your output directory, you should probably exclude VCS directories such as
+  # .git, .svn etc.
+  exclude: [ '.git', '.hg', '.svn', 'CVS' ]
+
+# The data sources where nanoc loads its data from. This is an array of
+# hashes; each array element represents a single data source. By default,
+# there is only a single data source that reads data from the “content/” and
+# “layout/” directories in the site directory.
+data_sources:
+  - type: filesystem
+    encoding: utf-8

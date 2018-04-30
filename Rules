@@ -3,78 +3,51 @@
 # --------------------------
 # Stylesheets
 # --------------------------
-compile '/css/' do
-end
+passthrough '/css/*.css'
 
-compile '/scss/*_*/' do
-end
-
-compile '/scss/*/' do
+compile '/css/*.scss' do
   filter :sass, syntax: :scss
-  filter :relativize_paths, :type => :css
-end
-
-route '/scss/*_*/' do
-  nil
-end
-
-route '/scss/*/' do
-  item.identifier.sub('scss','css').chop + '.css'
+  filter :relativize_paths, type: :css
+  write item.identifier.without_ext + '.css'
 end
 
 # --------------------------
 # Images
 # --------------------------
-compile '/img/*' do
-end
-
-route '/img/*' do
-  item.identifier.chop + '.' + item[:extension]
-end
+passthrough '/img/**/*'
 
 # --------------------------
 # Javascripts
 # --------------------------
-compile '/js/*' do
-end
-
-route '/js/*' do
-  item.identifier.chop + '.' + item[:extension]
-end
+passthrough '/js/**/*'
 
 # --------------------------
 # Content
 # --------------------------
-compile '/guides/*' do
+compile '/guides/*.html' do
   filter :erb
   filter :kramdown
-  filter :relativize_paths, :type => :html
-  layout 'guides'
+  filter :relativize_paths, type: :html
+  layout '/guides.*'
 end
 
-compile '*' do
-  if item.binary?
-    # don’t filter binary items
-  else
-    filter :erb
-    filter :kramdown
-    filter :relativize_paths, :type => :html
-    layout 'default'
-  end
+compile '/*.html' do
+  filter :erb
+  filter :kramdown
+  filter :relativize_paths, type: :html
+  layout '/default.*'
 end
 
-route '/guides/*' do
-  item[:filename].gsub(/^content/, '') 
+route '/guides/*.html' do
+  item.identifier.to_s
 end
 
-route '*' do
-  if item.binary?
-    # Write item with identifier /foo/ to /foo.ext
-    item.identifier.chop + '.' + item[:extension]
-  else
-    # Write item with identifier /foo/ to /foo/index.html
-    item.identifier + 'index.html'
-  end
+route '/index.html' do
+  item.identifier.to_s
 end
 
-layout '*', :erb
+route '/download.html' do
+  '/download/index.html'
+end
+
+layout '/**/*', :erb
