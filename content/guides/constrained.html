@@ -176,7 +176,7 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
 <h2 id="Composing">Composing Constraints</h2>
 <p> Constraints may be composed by the <code>&amp;&amp;</code> and <code>||</code> operators like:
 </p>
-<pre class="prettyprint lang-scala nolinenum">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(�)
+<pre class="prettyprint lang-scala nolinenum">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(...)
 val e = Graph.from(nodeList, edgeList)
 </pre>
 
@@ -187,7 +187,7 @@ val e = Graph.from(nodeList, edgeList)
 </p>
 <p> Suppose you prefer writing
 </p>
-<pre class="prettyprint lang-scala nolinenum">val t = Tree.from(nodeList, edgeList) // Tree(�)
+<pre class="prettyprint lang-scala nolinenum">val t = Tree.from(nodeList, edgeList) // Tree(...)
 </pre>
 <p> in contrast to the example in 6. Well, you can do this right away because the <code>Tree</code> alias
     is already present in the <code>constrained</code> module. This is how it has been achieved:

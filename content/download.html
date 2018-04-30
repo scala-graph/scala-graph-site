@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.12.3</code></td>
+        <td><code>1.12.5</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.12.4"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.3"</pre>
+<pre>scalaVersion := "2.12.5"
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.5"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -28,7 +28,7 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.12.3</code></td>
+    <td><code>1.12.5</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
@@ -49,11 +49,26 @@ As a Maven user, please set:</p>
 
 You may find or manually download any Maven release including Scaladoc from
 <a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph
-</a>. For earlier releases please refer to
-<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.assembla.scala-incubator%22" target="_blank">
-com.assembla.scala-incubator</a>. 
+</a>.
 
 <h2 id="1.12">1.12 Release Notes</h2>
+<h3 id="1.12.5">1.12.5</h3>
+<ul>
+	<li>new: Added <code>findCycleContaining(node: NodeT)</code> respectively <code>node.partOfCycle</code>
+		to support finding cycles that contain a specific node in any kind of graph.
+	</li>
+	<li>fix: Topological sort could erroneously report a cycle when combined with edge filtering
+		achieved by <code>withSubgraph</code>.
+		Closes <a href="https://github.com/scala-graph/scala-graph/issues/104" target="_blank">#104</a>
+	</li>
+</ul>
+
+<h3 id="1.12.4">1.12.4</h3>
+<ul>
+	<li>mod: Ensured that DFS ordering is always lexicographic.
+	</li>
+</ul>
+
 <h3 id="1.12.3">1.12.3</h3>
 <ul>
 	<li>fix: Added workaround for <a href="https://youtrack.jetbrains.com/issue/SCL-13199" target="_blank">JetBrains SCL-13199</a>

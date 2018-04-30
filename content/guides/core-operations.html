@@ -384,8 +384,7 @@ g filter g.having(node = _ >= 2)        // Graph(2,3,5, 2~>3)
 g filter g.having(edge = _.directed)    // Graph(2,3, 2~>3)
 g count  g.having(node = _ >= 3, edge = _.directed) // Int = 3
 </pre>
-As to
-</p>
+<p>As to</p>
 <ol><li value="2">Filters the node set by <code>(NodeT) =&gt; _ &gt; 2</code>.
 	</li>
 	<li>Filters nodes with a <code>degree &gt; 1</code>.

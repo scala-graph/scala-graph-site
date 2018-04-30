@@ -115,7 +115,7 @@ val g = Graph(flight) // Graph[Airport, Flight] - doesn't work yet
   override protected def attributesToString = s" ($flightNo)" 
 }
 object Flight {
-  implicit final class ImplicitEdge[A <: Airport](val e: DiEdge[A]) extends AnyVal {
+  implicit final class ImplicitEdge[A &lt;: Airport](val e: DiEdge[A]) extends AnyVal {
     def ## (flightNo: String) = new Flight[A](e.source, e.target, flightNo)
   } 
 }

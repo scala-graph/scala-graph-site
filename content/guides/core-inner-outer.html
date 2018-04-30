@@ -35,11 +35,10 @@ e1.toOuter             // UnDiEdge[Int] = 1~2</pre>
 </li>
 <li><code>toOuter</code>, called on an inner edge, returns the <em>outer edge</em> of type <code>UnDiEdge</code>.
 </li>
-</li>
 <li>Remarkably, the incident nodes of inner edges are inner nodes.
 </li>
-<li>Inner nodes like <code>n1</code> allow for calling both graph (<code>NodeT)</code> methods
-	like <code>diSuccessors</code>...</li>
+<li>Inner nodes like <code>n1</code> allow for calling both graph (<code>NodeT)</code> methods like <code>diSuccessors</code>...
+</li>
 <li>...and any method of the outer node type, here <code>%</code> of <code>Int</code>.
 </li>
 <li><code>toOuter</code> reconstructs the outer edge <code>1~2</code>;
