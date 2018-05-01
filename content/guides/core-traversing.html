@@ -118,8 +118,11 @@ pO2.map(_.nodes)                   // Some(Nodes(4, 5, 1, 2))
 <pre class="prettyprint lang-scala linenums">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
 val fc1 = g.findCycle         // Some(Cycle(3, 3~>4, 4, 4~>2, 2, 2~>3, 3))
 val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
+
 for (c1 <- fc1; c2 <- fc2) yield c1 == c2     // false
 for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
+
+g.findCycleContaining(g get 1)                // None
 </pre>
 <p>As to</p>
 <ol>
@@ -128,11 +131,13 @@ for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
 	<li>Finds an arbitrary cycle reachable from node <code>4</code>,
 		if any.
 	</li>
-	<li><code>c1</code> and <code>c2</code> are not equal because they
+	<li value="5"><code>c1</code> and <code>c2</code> are not equal because they
 		start at different nodes.
 	</li>
 	<li>Irrespective of starting at different nodes, <code>c1</code> and <code>c2</code>
 		depict the same cycle in a semantic sense.
+	</li>
+	<li value="8">There exists no cycle containing node <code>1</code>.
 	</li>
 </ol>
 <p> Cycle detecting works for directed, undirected and mixed graphs, alike.
