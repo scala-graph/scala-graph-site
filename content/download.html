@@ -35,7 +35,7 @@ As a Maven user, please set:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
-    <td><code>1.12.3</code></td>
+    <td><code>1.12.7</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-dot</code></td>
@@ -52,6 +52,18 @@ You may find or manually download any Maven release including Scaladoc from
 </a>.
 
 <h2 id="1.12">1.12 Release Notes</h2>
+<h3 id="1.12.7">1.12.7</h3>
+<ul>
+	<li>fix in module constrained: += and ++= could fail to restore the exact original graph after some <code>postCheck</code> failure.
+	</li>
+</ul>
+
+<h3 id="1.12.6">1.12.6</h3>
+<ul>
+	<li>fix in module constrained: Checks were not always suspended internally when handling <code>postCheck</code> failures.
+	</li>
+</ul>
+
 <h3 id="1.12.5">1.12.5</h3>
 <ul>
 	<li>new: Added <code>findCycleContaining(node: NodeT)</code> respectively <code>node.partOfCycle</code>
