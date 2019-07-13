@@ -9,119 +9,120 @@ sideMenuItems: >
   <li><a href="#Composing">Composing Constraints</a></li>
   <li><a href="#Aliases">Providing Aliases</a></li>
 ---
+
 <h1>Constrained User Guide</h1>
+
 <h2 id="Introduction">Introduction</h2>
-<p> This module enables the user of <em id="G4S">Graph for Scala</em> to seamlessly integrate predefined
-    or custom constraints. Constraints are meant to ensure certain graph properties during the whole lifetime
-    of graph instances which are not enforceable through type parameters. Examples for common constraints are
-    <em>connected, acyclic, tree, planar</em> etc.
-    Furthermore, the user is free to provide a custom constraint implementation covering any domain-specific
-    requirements.
+<p> This module enables the user of <em>Graph for Scala</em> to seamlessly integrate predefined
+    or custom constraints. A constraint aims at enforcing any graph properties during the whole lifetime
+    of a <code>Graph</code> that are not adequately enforceable by the type system.
+    Examples for common constraints are <code>Connected</code>, <code>Acyclic</code>, <code>Tree</code>, <code>Planar</code> etc.
+    Based on this module you are free to implement your own custom constraint to cover your domain-specific requirements.
 </p>
-<p> Predefined constraints are placed in <code>scalax.collection.constrained.constraints</code> but currently
-    few predefined constraints are provided. We would certainly be obliged if you contributed your constraint
-    implementation to enhance the library.
+<p> Predefined constraints are placed in <code>scalax.collection.constrained.constraints</code>.
+    We certainly appreciate your contributing any additional constraint that may be of interest to the community.
 </p>
-<p> Graphs may be constrained dynamically or statically. A <code>Graph</code> is called <em>dynamically</em>
-    constrained if a constraint has been passed to its factory method on creation or if it is a result of an
-    operation based on a dynamically constrained <code>Graph</code>:
+<p> To take advantage of constrained <code>Graph</code>s you need to change your <code>import</code> and
+    pass any predefined or custom constraint at <code>Graph</code> creation time like:
 </p>
-<pre class="prettyprint lang-scala nolinenum">import scalax.collection.GraphPredef._,
-       scalax.collection.GraphEdge._
-import scalax.collection.constrained._ // replaces scalax.collection.Graph
+<pre class="prettyprint lang-scala linenums">import scalax.collection.GraphPredef._
+import scalax.collection.GraphEdge._
+import scalax.collection.constrained.mutable.Graph
 import scalax.collection.constrained.constraints.Connected
 
-implicit val conf: Config = Connected  // ConstrainedConfig(...)
-val e = Graph(1~2, 3~4) // Graph()
-val g = Graph(1~2, 2~4) // Graph(1, 2, 4, 1~2, 2~4)
-val h = g + 3           // Graph(1, 2, 4, 1~2, 2~4)
-val i = g + 2~3         // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
+implicit val conf: Config = Connected
+val e = Graph(1 ~ 2, 3 ~ 4) // Graph()
+val g = Graph(1 ~ 2, 2 ~ 4) // Graph(1, 2, 4, 1~2, 2~4)
+g += 3                      // Graph(1, 2, 4, 1~2, 2~4)
+g += 2 ~ 3                  // Graph(1, 2, 3, 4, 1~2, 2~3, 2~4)
 </pre>
-<p>In the above example, <code>e</code>, <code>g,</code> <code>h</code> and <code>i</code> are
-    constrained by the <code>Connected</code> constraint. <code>e</code> remains empty because the initial elements
-    would not result in a connected graph. Likewise, <code>h</code> becomes equal to <code>g</code>.
-    Alternatives of error handling are covered in the following chapters.
+<p>As to</p>
+<ol>
+    <li value="3">Choosing mutable constrained <code>Graph</code>.
+    </li>
+    <li value="6">Referring to the predefined constraint <code>Connected</code>.
+    </li>
+    <li>Creates a connected <code>Graph</code> using the above implicit value.
+        <code>e</code> becomes empty because the total of the passed elements violates the constraint.
+    </li>
+    <li>Creates a connected <code>Graph</code> accepting the passed elements.
+    </li>
+    <li>Adding <code>3</code> is silently rejected because it would create an isolated node.
+    </li>
+    <li>Adding <code>2 ~ 3</code> is carried out since the resulting graph remains connected.
+    </li>
+</ol>
+<p> If you are interested in whether or why an operation has been refused, simply call its verbose counterpart.
+    These additional methods/operators are denoted by a <code>_?</code>/<code>?</code> suffix
+    and return an <code>Either[ConstraintViolation, R]</code>
+    with <code>R</code> being the return type of the non-suffixed counterpart method/operation:
 </p>
+<pre class="prettyprint lang-scala linenums">
+val e = Graph.from_?(edges = 1 ~ 2, 3 ~ 4) // Left(...)
+val g = Graph.from_?(edges = 1 ~ 2, 2 ~ 4) // Right(Graph(1, 2, 4, 1~2, 2~4))
+g += 3                                     // Left(...)
+g += 2 ~ 3                                 // Right(Graph(1, 2, 3, 4, 1~2, 2~3, 2~4))
+</pre>
 <p> Constraints may also be combined by means of the <code>&amp;&amp;</code> and <code>||</code> operators.
 </p>
-<p> A <em>statically</em> constrained <code>Graph</code> incorporates all validations necessary to impose
-    the desired constraint on all operations. Thus no constraint needs to be passed to it on creation.
-    Clearly, any dynamically constrained <code>Graph</code> could also be implemented statically once the
-    constraint is known but dealing with constraints is more flexible and also cheaper to implement.
-    A static implementation might be worthwhile whenever we face broad use and/or need to restrict type
-    parameters such as in case of DAGs.
-</p>
 <p> <em id="G4S">Graph for Scala Constrained</em> is supplied as an extra module
-    (<code>Graph-constrained_&lt;ScalaVer&gt;-&lt;GraphVer&gt;.jar</code>) depending on
-    <code>Graph-core_&lt;ScalaVer&gt;-&lt;GraphVer&gt;.jar</code>.
+    (<code>graph-constrained_&lt;ScalaVer&gt;-&lt;Graph4ScalaVer&gt;.jar</code>).
 </p>
+
 <h2 id="UseCases">Use Cases</h2>
 <p> Among others, the constrained module is worth considering in the following situations:
 </p>
 <ol><li>You have to ensure that some constraints which cannot be achieved by type constructors
         are valid at any time for your <code>Graph</code> instances. Typical examples are acyclic graphs
-        or tree structures.</li>
-    <li>In addition to 1., you must cope with the population or modification of <code>Graph</code>
-        instances in an uncontrolled way such as
-    <ul><li>user input that is not fully validatable with respect to the <code>Graph</code> or</li>
-        <li>import of invalidated data from an external source.</li>
-    </ul></li>
-    <li>You want to log or monitor any kind of <code>Graph</code> creation/modification &#8211;
-        proper or improper.
+        or tree structures.
+    </li>
+    <li>In addition to 1., you need to control the population or modification of <code>Graph</code> instances
+        that occur in an uncontrolled way such as by
+        <ul><li>user input that is not fully validatable with respect to your <code>Graph</code> constraint or</li>
+            <li>import of invalidated data from an external source.</li>
+        </ul>
+    </li>
+    <li>You want to log or monitor <code>Graph</code> creation/modification &#8211;
+        with respect to being proper or improper.
     </li>
 </ol>
+
 <h2 id="Lifecycle">The Constraint Lifecycle</h2>
 <p> For the purpose of a comparison, let's first illustrate the "lifecycle" of an operation such as
-    <code>+</code> or <code>++</code> on a simple, non-constrained <code>Graph</code>:
+    <code>+</code> or <code>+=</code> on a non-constrained <code>Graph</code>:
 </p>
 <figure>
     <img alt="Empty Lifecycle" src="/img/guides/constrained/EmptyLifecycle.jpg">
-    <figcaption>Diagram: Empty Lifecycle of simple <code>Graph</code> operations.</figcaption>
+    <figcaption>Diagram: Trivial Lifecycle of non-constrained <code>Graph</code> operations.</figcaption>
 </figure>
 <p>In contrast, operations on constrained <code>Graph</code>s have the following sophisticated lifecycle:
 </p>
 <figure>
     <img alt="Lifecycle" src="/img/guides/constrained/Lifecycle.jpg">
-    <figcaption>Diagram: Empty Lifecycle of constrained <code>Graph</code> operations.</figcaption>
+    <figcaption>Diagram: Lifecycle of constrained <code>Graph</code> operations.</figcaption>
 </figure>
-<p> <em>Pre-check</em>, <em>post-check</em> and <em>handle</em> depict the three groups of callback-methods
-    to be defined by the implementer of the constraint class. Each group consists of a few concrete methods
-    such as <code>preAdd(node: N)</code>, <code>preAdd(edge: E[N])</code>etc.
+<p> <em>Pre-check</em> and <em>post-check</em> depict the two groups of callback-methods
+    to be defined by the implementer of the constraint. Each group consists of a few concrete methods
+    such as <code>preAdd(node: N)</code>, <code>preAdd(edge: E[N])</code> etc.
 </p>
-<p> The pre-check call-back methods are a means to inspect the underlying <code>Graph</code> and the arguments
+<p> The pre-check methods will be called to inspect the underlying <code>Graph</code> and the arguments
     of the operation before the operation takes place. They take control over whether the operation is to be
-    carried out or aborted (return: <code>Abort</code>). The carry-out case offers to carry out the operation
-    either with (return: <code>PostCheck</code>) or without (return: <code>Complete</code>) a subsequent
-    post-check.
+    performed or aborted (return for the latter <code>Abort</code>).
+    In case the pre-check method requests the operation to be performed, it may do so by either
+    returning <code>PostCheck</code>) or <code>Complete</code> telling whether post-check is to be called or skipped.
 </p>
 <p> In the post-check call-back methods one may inspect the underlying <code>Graph</code> as it would be
-    after the operation and take control over whether the operation is to be committed (return: <code>true</code>)
-    or rolled back (return: <code>false</code>).
+    after the operation and take control over whether the operation is to be committed (return: <code>Right</code>)
+    or rolled back (return: <code>Left</code>).
 </p>
-<p> Whenever the operation has been told by the constraint to be aborted, the appropriate constraint handler is called.
-    It is up to the implementer to throw an Exception in the handler, to leave it silent or undertake
-    any other desirable action.
+<p> Further, you may opt for silent or verbose operations:
+    All operations also known in non-constrained graphs will enforce the constraint but won't be responsive
+    about whether it was successful or has been rejected. Hence the term silent.
+    To retrieve information about success or rejection you need to call a counterpart operation.
+    These counterpart operations/methods have the same name plus a <code>?</code>/<code>_?</code>suffix.
+    For instance, <code>+=</code> its counterpart <code>+=?</code> do the same but are silent resp. verbose.
 </p>
-<h2 id="Altering">Altering Existing Constraints</h2>
-<p> Modifying an existing constraint is as easy as supplying a new companion object with the modified behavior.
-    For instance, to let the <code>onAdditionRefused</code> error handler of the predefined
-    <code>Acyclic</code> constraint throw an exception on improper <code>Graph</code> creation or
-    on addition of any improper elements, just proceed as follows:
-</p>
-<pre class="prettyprint lang-scala nolinenum">object AcyclicWithException extends ConstraintCompanion[Acyclic] {
-  def apply [N, E[X] <: EdgeLikeIn[X]] (self: Graph[N,E]) =
-    new Acyclic[N,E] (self) {
-      override def onAdditionRefused(refusedNodes: Iterable[N],
-                                     refusedEdges: Iterable[E[N]],
-                                     graph:        Graph[N,E]) = {
-        throw new CycleException("Addition refused: " +
-                  "nodes = " + refusedNodes + ", " +
-                  "edges = " + refusedEdges)
-      }
-    }
-}
-class CycleException(msg: String) extends IllegalArgumentException(msg)
-</pre>
+
 <h2 id="Implementing">Implementing New Constraints</h2>
 <p> If none of the supplied constraints suffices your needs you are encouraged to implement your own constraint.
 </p>
@@ -173,6 +174,7 @@ class CycleException(msg: String) extends IllegalArgumentException(msg)
 <p> Once again, if you feel the community could benefit of your constraint implementation, please consider
     contributing it.
 </p>
+
 <h2 id="Composing">Composing Constraints</h2>
 <p> Constraints may be composed by the <code>&amp;&amp;</code> and <code>||</code> operators like:
 </p>
