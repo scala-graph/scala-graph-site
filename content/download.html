@@ -6,14 +6,14 @@ title: Download
 <table>
     <tr class = "split">
         <td><code>graph-core</code></td>
-        <td><code>1.12.5</code></td>
+        <td><code>1.13.0</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.12.5"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.5"</pre>
+<pre>scalaVersion := "2.12.8"
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.13.0"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -28,14 +28,14 @@ As a Maven user, please set:</p>
   </tr>
   <tr class="split">
     <td><code>version</code></td>
-    <td><code>1.12.5</code></td>
+    <td><code>1.13.0</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr class="split">
     <td><code>graph-constrained</code></td>
-    <td><code>1.12.7</code></td>
+    <td><code>1.13.0</code></td>
   </tr>
   <tr class="split">
     <td><code>graph-dot</code></td>
@@ -48,8 +48,26 @@ As a Maven user, please set:</p>
 </table>
 
 You may find or manually download any Maven release including Scaladoc from
-<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph
-</a>.
+<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a>.
+
+<h2 id="1.13">1.13 Release Notes</h2>
+<h3 id="1.13.0">1.13.0</h3>
+<ul>
+	<li>Refactored constraint violation handling in the <code>constrained</code> module.
+		Instead of implementing error handlers, you may now call specific methods that inform you
+		whether an operation was accepted or rejected.
+		Grab the updated <a href="/guides/constrained.html">Constrained Guide</a> to learn more.
+		Many thanks go to Mario for his continuous support on the test side and his advice on true usability
+		of the improved design.
+	</li>
+	<li>Renamed <code>def -?(node: N)</code> to <code>def minusIsolated(node: N)</code> because <code>def -?</code>
+		has been added to the constrained module with another semantic.
+	</li>
+	<li>The methods <code>minusIsolated</code> and <code>-!</code>, <code>--!</code> are now deprecated.
+		This is meaningful because they add little value while increase code complexity.
+	</li>
+</ul>
+
 
 <h2 id="1.12">1.12 Release Notes</h2>
 <h3 id="1.12.7">1.12.7</h3>
