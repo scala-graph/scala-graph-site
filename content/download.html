@@ -2,9 +2,9 @@
 title: Download
 ---
 <h1>Download</h1>
-<p>The latest stable release is</p>
+<p>The latest stable release, available for Scala 2.12 and 2.13, is</p>
 <table>
-    <tr class = "split">
+    <tr>
         <td><code>graph-core</code></td>
         <td><code>1.13.0</code></td>
     </tr>
@@ -12,36 +12,36 @@ title: Download
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.12.8"
+<pre>scalaVersion := "2.13.1"
 libraryDependencies += "org.scala-graph" %% "graph-core" % "1.13.0"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
 <table>
-  <tr class="split">
+  <tr>
     <td><code>group id</code></td>
     <td><code>org.scala-graph</code></td>
   </tr>
-  <tr class="split">
+  <tr>
     <td><code>artifact id</code></td>
-    <td><code>graph-core_2.12</code></td>
+    <td><code>graph-core_2.13</code></td>
   </tr>
-  <tr class="split">
+  <tr>
     <td><code>version</code></td>
     <td><code>1.13.0</code></td>
   </tr>
 </table>
-<p>The latest stable releases of the optional modules are:</p>
+<p>The latest stable releases of the optional modules, with Scala 2.13 support on the way, are:</p>
 <table>
-  <tr class="split">
+  <tr>
     <td><code>graph-constrained</code></td>
     <td><code>1.13.0</code></td>
   </tr>
-  <tr class="split">
+  <tr>
     <td><code>graph-dot</code></td>
     <td><code>1.12.1</code></td>
   </tr>
-  <tr class="split">
+  <tr>
     <td><code>graph-json</code></td>
     <td><code>1.12.1</code></td>
   </tr>
@@ -65,6 +65,8 @@ You may find or manually download any Maven release including Scaladoc from
 	</li>
 	<li>The methods <code>minusIsolated</code> and <code>-!</code>, <code>--!</code> are now deprecated.
 		This is meaningful because they add little value while increase code complexity.
+	</li>
+	<li>Added Scala 2.13 support. Many thanks to Marcus who is doing a great job migrating the code base.
 	</li>
 </ul>
 
