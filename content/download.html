@@ -6,7 +6,7 @@ title: Download
 <table>
     <tr>
         <td><code>graph-core</code></td>
-        <td><code>1.13.0</code></td>
+        <td><code>1.13.0 resp. 1.13.1</code></td>
     </tr>
 </table>
 
@@ -28,22 +28,22 @@ As a Maven user, please set:</p>
   </tr>
   <tr>
     <td><code>version</code></td>
-    <td><code>1.13.0</code></td>
+    <td><code>1.13.1</code></td>
   </tr>
 </table>
-<p>The latest stable releases of the optional modules, with Scala 2.13 support on the way, are:</p>
+<p>The latest stable releases of the optional modules are:</p>
 <table>
   <tr>
     <td><code>graph-constrained</code></td>
-    <td><code>1.13.0</code></td>
+    <td><code>1.13.0 with Scala 2.13 support on the way</code></td>
   </tr>
   <tr>
     <td><code>graph-dot</code></td>
-    <td><code>1.12.1</code></td>
+	  <td><code>1.13.0</code></td>
   </tr>
   <tr>
     <td><code>graph-json</code></td>
-    <td><code>1.12.1</code></td>
+	  <td><code>1.13.0</code></td>
   </tr>
 </table>
 
@@ -51,6 +51,11 @@ You may find or manually download any Maven release including Scaladoc from
 <a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a>.
 
 <h2 id="1.13">1.13 Release Notes</h2>
+<h3 id="1.13.1">1.13.1</h3>
+<ul>
+	<li>Fixed regression when using implicit conversion to call edge methods on inner edges.
+	</li>
+</ul>
 <h3 id="1.13.0">1.13.0</h3>
 <ul>
 	<li>Refactored constraint violation handling in the <code>constrained</code> module.
