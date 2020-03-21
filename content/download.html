@@ -2,18 +2,18 @@
 title: Download
 ---
 <h1>Download</h1>
-<p>The latest stable release, available for Scala 2.12 and 2.13, is</p>
+<p>The latest stable release of Graph Core is</p>
 <table>
-    <tr>
-        <td><code>graph-core</code></td>
-        <td><code>1.13.0 resp. 1.13.1</code></td>
+	<tr><td></td>							<td>Scala 2.12</td>				<td>Scala 2.13</td>
+	</tr>
+    <tr><td><code>graph-core</code></td>	<td><code>1.13.1</code></td>	<td><code>1.13.2</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
 <pre>scalaVersion := "2.13.1"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.13.0"</pre>
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.13.2"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -28,32 +28,38 @@ As a Maven user, please set:</p>
   </tr>
   <tr>
     <td><code>version</code></td>
-    <td><code>1.13.1</code></td>
+    <td><code>1.13.2</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
-  <tr>
-    <td><code>graph-constrained</code></td>
-    <td><code>1.13.0 with Scala 2.13 support on the way</code></td>
-  </tr>
-  <tr>
-    <td><code>graph-dot</code></td>
-	  <td><code>1.13.0</code></td>
-  </tr>
-  <tr>
-    <td><code>graph-json</code></td>
-	  <td><code>1.13.0</code></td>
-  </tr>
+	<tr><td></td>								<td>Scala 2.12</td>			<td>Scala 2.13</td>
+	</tr>
+	<tr><td><code>graph-constrained</code></td>	<td><code>1.13.0</code></td><td><code>1.13.2</code></td>
+	</tr>
+	<tr><td><code>graph-dot</code></td>			<td><code>1.13.0</code></td><td><code>1.13.0</code></td>
+	</tr>
+	<tr><td><code>graph-json</code></td>		<td><code>1.13.0</code></td><td><code>1.13.0</code></td>
+	</tr>
 </table>
 
 You may find or manually download any Maven release including Scaladoc from
 <a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a>.
 
 <h2 id="1.13">1.13 Release Notes</h2>
+
+<h3 id="1.13.2">1.13.2</h3>
+<ul>
+	<li>Completed migration to Scala 2.13 by releasing the last missing part <code>Graph Constrained</code>.
+		Again, many thanks to Marcus.
+	</li>
+	<li>Fixed minor performance regression in the Scala 2.13 release of Core.
+	</li>
+</ul>
+
 <h3 id="1.13.1">1.13.1</h3>
 <ul>
-	<li>Fixed regression when using implicit conversion to call edge methods on inner edges.
+	<li>Fixed Scala 2.13 regression when using implicit conversion to call edge methods on inner edges.
 	</li>
 </ul>
 <h3 id="1.13.0">1.13.0</h3>
