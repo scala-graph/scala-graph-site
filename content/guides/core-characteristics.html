@@ -10,22 +10,42 @@ sideMenuItems: >
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Run-time Characteristics</h1>
-<p>The default <code>Graph</code> implementation is based on <code>scala.collection.mutable.HashMap</code> thus having a reasonably good performance. Also, it is guaranteed that the only limit for storing <code>Graph</code> instances and calling <code>Graph</code> algorithms is the JVM heap space, as the implementation of all algorithms is tail recursive. Typically, it is fast to instantiate graphs made up of several hundred thousands of nodes and edges.</p>
-<p>In terms of the Big-O notation, operation costs on graphs with the default <code>Graph</code> implementation can be summarized as follows:</p>
+<p>	The current <code>Graph</code> representation is based on a mutable hash set.
+	Unfortunately, immutable <code>Graph</code>s have no separate persistent representation.
+</p>
+<p>	In terms of the Big-O notation, operation costs on graphs can be summarized as follows:
+</p>
 <table>
-	<tr><td><strong>Operation</strong></td><td><strong>Cost of Operation</strong></td></tr>
-	<tr><td>Instance Creation</td><td><code>O(V + E)</code></td></tr>
-	<tr><td>element addition</td><td><code>O(1)</code></td></tr>
-	<tr><td>element removal</td><td><code>O(1)</code></td></tr>
-	<tr><td>element look-up</td><td><code>O(1)</code></td></tr>
-	<tr><td>set-based traversal</td><td><code>O(V + E)</code></td></tr>
-	<tr><td>root-based traversal</td><td><code>O(V + E)</code></td></tr>
-	<tr><td>path search</td><td><code>O(V + E)</code></td></tr>
-	<tr><td>shortest path search</td><td><code>O(VlogV + E)</code></td></tr>
+	<tr><td><strong>Operation</strong></td>
+		<td colspan="2" align="center"><strong>Cost</strong></td>
+	</tr>
+	<tr><td></td>
+		<td align="center" style="width:25%"><strong>mutable</strong></td>
+		<td align="center"><strong>immutable</strong></td>
+	</tr>
+	<tr><td>Instance Creation</td>
+		<td colspan="2" align="center"><code>O(V + E)</code></td>
+	</tr>
+	<tr><td>element addition</td>
+		<td align="center"><code>O(1)</code></td>
+		<td align="center"><code>O(V + E)</code></td>
+	</tr>
+	<tr><td>element removal</td>
+		<td align="center"><code>O(1)</code></td>
+		<td align="center"><code>O(V + E)</code></td>
+	</tr>
+	<tr><td>element look-up</td>
+		<td colspan="2" align="center"><code>O(1)</code></td>
+	</tr>
+	<tr><td>traversal</td>
+		<td colspan="2" align="center"><code>O(V + E)</code></td>
+	</tr>
+	<tr><td>path search</td>
+		<td colspan="2" align="center"><code>O(V + E)</code></td>
+	</tr>
+	<tr><td>shortest path search</td>
+		<td colspan="2" align="center"><code>O(VlogV + E)</code></td>
+	</tr>
 </table>
-<p>	If you seek better performance with respect to your use case, one option is
-	to ask for a special implementation.
-	But, provided time is not your main concern, you may as well provide it yourself
-	what should be a straightforward process thanks to the extendible nature of the
-	<em id="G4S">Graph for Scala</em> design.
+<p>	Algorithms are tail recursive so they are guaranteed not to cause any stack overflow.
 </p>
