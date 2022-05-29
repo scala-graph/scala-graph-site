@@ -32,33 +32,33 @@ sideMenuItems: >
 <pre class="prettyprint lang-scala linenums">import scalax.collection.edge.WDiEdge
 import scalax.collection.edge.Implicits._
 
-val g = Graph(1~2 % 4, 2~3 % 2, 1~>3 % 5, 1~5  % 3,
-              3~5 % 2, 3~4 % 1, 4~>4 % 1, 4~>5 % 0)
+val g = Graph(1 ~ 2 % 4, 2 ~ 3 % 2, 1 ~> 3 % 5, 1 ~ 5  % 3,
+              3 ~ 5 % 2, 3 ~ 4 % 1, 4 ~> 4 % 1, 4 ~> 5 % 0)
 def n(outer: Int): g.NodeT = g get outer  // look up 'outer' that is known to be contained
 
 n(1) findSuccessor (_.outDegree >  3) // Option[g.NodeT] = None 
 n(1) findSuccessor (_.outDegree >= 3) // Option[g.NodeT] = Some(3)
 n(4) findSuccessor (_.edges forall (_.undirected)) // Some(2)
 n(4) isPredecessorOf n(1)             // true 
-n(1) pathTo n(4)                      // Some(Path(1, 1~>3 %5, 3, 3~4 %1, 4))
-n(1) pathUntil (_.outDegree >= 3)     // Some(Path(1, 1~>3 %5, 3))
+n(1) pathTo n(4)                      // Some(Path(1, 1 ~> 3 % 5, 3, 3 ~ 4 % 1, 4))
+n(1) pathUntil (_.outDegree >= 3)     // Some(Path(1, 1 ~> 3 % 5, 3))
 
-val spO = n(3) shortestPathTo n(1) // Path(3, 3~4 %1, 4, 4~>5 %0, 5, 1~5 %3, 1)
+val spO = n(3) shortestPathTo n(1) // Path(3, 3 ~ 4 % 1, 4, 4 ~> 5 % 0, 5, 1 ~ 5 % 3, 1)
 val sp = spO.get                   // here we know spO is defined
 sp.nodes                           // List[g.NodeT] = Nodes(3, 4, 5, 1)
 sp.weight                          // Double = 4.0
 
 def negWeight(e: g.EdgeT): Float = 5.5f - e.weight
 val spNO =
-    n(3) shortestPathTo (n(1), negWeight) // Path(3, 2~3 %2, 2, 1~2 %4, 1)
+    n(3) shortestPathTo (n(1), negWeight) // Path(3, 2 ~ 3 % 2, 2, 1 ~ 2 % 4, 1)
 val spN = spNO.get                        // here we know spNO is defined
 spN.weight                                // Double = 6.0
 
-val pO1 = n(4).withSubgraph(nodes = _ < 4) pathTo n(2) // Some(Path(4, 3~4 %1, 3, 2~3 %2, 2))
+val pO1 = n(4).withSubgraph(nodes = _ < 4) pathTo n(2) // Some(Path(4, 3 ~ 4 % 1, 3, 2 ~ 3 % 2, 2))
 pO1.map(_.nodes)                                       // Some(Nodes(4, 3, 2))
 
 val pO2 = n(4).withSubgraph(edges = _.weight != 2) pathTo n(2)
-                                   // Some(Path(4, 4~>5 %0, 5, 1~5 %3, 1, 1~2 %4, 2))
+                                   // Some(Path(4, 4 ~> 5 % 0, 5, 1 ~ 5 % 3, 1, 1 ~ 2 % 4, 2))
 pO2.map(_.nodes)                   // Some(Nodes(4, 5, 1, 2))
 </pre>
 <p>As to</p>
@@ -116,8 +116,8 @@ pO2.map(_.nodes)                   // Some(Nodes(4, 5, 1, 2))
 	</li>
 </ol>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
-val fc1 = g.findCycle         // Some(Cycle(3, 3~>4, 4, 4~>2, 2, 2~>3, 3))
-val fc2 = (g get 4).findCycle // Some(Cycle(4, 4~>2, 2, 2~>3, 3, 3~>4, 4))
+val fc1 = g.findCycle         // Some(Cycle(3, 3 ~> 4, 4, 4 ~> 2, 2, 2 ~> 3, 3))
+val fc2 = (g get 4).findCycle // Some(Cycle(4, 4 ~> 2, 2, 2 ~> 3, 3, 3 ~> 4, 4))
 
 for (c1 <- fc1; c2 <- fc2) yield c1 == c2     // false
 for (c1 <- fc1; c2 <- fc2) yield c1 sameAs c2 // true
@@ -226,13 +226,13 @@ g.findCycleContaining(g get 1)                // None
 <pre class="prettyprint lang-scala nolinenum">import edge.WDiEdge
 
 val root = 1
-val g = Graph(root~>4 % 2, root~>2 % 5, root~>3 % 4,
-                 3~>6 % 4,    3~>5 % 5,    3~>7 % 2)
+val g = Graph(root ~> 4 % 2, root ~> 2 % 5, root ~> 3 % 4,
+                 3 ~> 6 % 4,    3 ~> 5 % 5,    3 ~> 7 % 2)
 
 def edgeOrdering = g.EdgeOrdering(g.Edge.WeightOrdering.reverse.compare)
 val traverser = (g get root).outerNodeTraverser.withOrdering(edgeOrdering)
  
-traverser.toList  // List(1,2,3,4,5,6,7)
+traverser.toList  // List(1, 2, 3, 4, 5, 6, 7)
 </pre>
 <p>	Note that node and edge ordering are limited compared with a priority queue.
 </p>
@@ -287,7 +287,7 @@ traverser.toList  // List(1,2,3,4,5,6,7)
 <pre class="prettyprint lang-scala linenums">import scalax.collection.edge.WDiEdge
 import scalax.collection.edge.Implicits._
 
-val g = Graph(1~>2 % 1, 1~>3 % 2, 2~>3 % 3, 3~>4 % 1)
+val g = Graph(1 ~> 2 % 1, 1 ~> 3 % 2, 2 ~> 3 % 3, 3 ~> 4 % 1)
 val n1 = g get 1
 
 n1.outerNodeTraverser.sum                 // 10
@@ -299,7 +299,7 @@ n1.innerEdgeTraverser.map(_.weight).sum   //  7.0
 n1.innerElemTraverser.filter(_ match {
   case g.InnerNode(n) => n.degree &gt; 1
   case g.InnerEdge(e) => e.weight &gt; 1
-})                                        // Traversable(1, 2, 3, 1~>3 % 2, 2~>3 % 3)
+})                                        // Traversable(1, 2, 3, 1 ~> 3 % 2, 2 ~> 3 % 3)
 </pre>
 <p>As to</p>
 <ol>
@@ -367,7 +367,7 @@ info.sortWith((a: ValDepth, b: ValDepth) =>
 <p> Further, when traversing for a result, it is also possible to append a visitor
 	for additional side effects like: 
 </p>
-<pre class="prettyprint lang-scala nolinenum">val g = Graph(1~>2, 1~>3, 2~>3, 3~>4, 4~>2)
+<pre class="prettyprint lang-scala nolinenum">val g = Graph(1 ~> 2, 1 ~> 3, 2 ~> 3, 3 ~> 4, 4 ~> 2)
 var center: Option[g.NodeT] = None
 
 (g get 4).findCycle( n =>
@@ -424,10 +424,10 @@ anyNode.weakComponent.nodes // componentEdges._1.size = 3
 	<a href="https://de.wikipedia.org/wiki/Datei:Tarjans-algorithm.gif" target="_blank">sample graph on Wikipedia</a>:
 </p>
 <pre class="prettyprint lang-scala linenums">val sccExpected = (
-    Graph('a ~> 'b, 'b ~> 'c, 'c ~> 'd, 'd ~> 'a, 'd ~> 'e, 'c ~> 'e, 'e ~> 'c),
-    Graph('f ~> 'g, 'g ~> 'f, 'g ~> 'h, 'h ~> 'j, 'j ~> 'i, 'i ~> 'g, 'i ~> 'f, 'f ~> 'i)
+    Graph('a' ~> 'b', 'b' ~> 'c', 'c' ~> 'd', 'd' ~> 'a', 'd' ~> 'e', 'c' ~> 'e', 'e' ~> 'c'),
+    Graph('f' ~> 'g', 'g' ~> 'f', 'g' ~> 'h', 'h' ~> 'j', 'j' ~> 'i', 'i' ~> 'g', 'i' ~> 'f', 'f' ~> 'i')
 )
-val connected = (sccExpected._1 union sccExpected._2) + 'e ~> 'f
+val connected = (sccExpected._1 union sccExpected._2) + 'e' ~> 'f'
 val scc       = connected.strongComponentTraverser().map(_.toGraph)
 scc.toSet == Set(sccExpected._1, sccExpected._2) // true
 </pre>
@@ -564,7 +564,7 @@ startAt.innerNodeTraverser.strongComponents(println)
 </p>
 <pre class="prettyprint lang-scala linenums">val builder = g.newPathBuilder(n(1))
 builder += n(3) += n(4)
-builder.result          // Path(1, 1~>3 %5, 3, 3~4 %1, 4)
+builder.result          // Path(1, 1 ~> 3 % 5, 3, 3 ~ 4 % 1, 4)
    
 builder.clear
 builder += n(4) += n(3)

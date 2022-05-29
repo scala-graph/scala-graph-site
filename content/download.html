@@ -6,14 +6,14 @@ title: Download
 <table>
 	<tr><td></td>							<td>Scala 2.12</td>				<td>Scala 2.13</td>
 	</tr>
-    <tr><td><code>graph-core</code></td>	<td><code>1.13.1</code></td>	<td><code>1.13.2</code></td>
+    <tr><td><code>graph-core</code></td>	<td><code>1.13.1</code></td>	<td><code>1.13.5</code></td>
     </tr>
 </table>
 
 <p>To download the latest release of the core module, SBT users should add</p>
 
-<pre>scalaVersion := "2.13.1"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.13.2"</pre>
+<pre>scalaVersion := "2.13.8"
+libraryDependencies += "org.scala-graph" %% "graph-core" % "1.13.5"</pre>
 
 <p>to their settings.
 As a Maven user, please set:</p>
@@ -28,16 +28,16 @@ As a Maven user, please set:</p>
   </tr>
   <tr>
     <td><code>version</code></td>
-    <td><code>1.13.2</code></td>
+    <td><code>1.13.5</code></td>
   </tr>
 </table>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
 	<tr><td></td>								<td>Scala 2.12</td>			<td>Scala 2.13</td>
 	</tr>
-	<tr><td><code>graph-constrained</code></td>	<td><code>1.13.0</code></td><td><code>1.13.2</code></td>
+	<tr><td><code>graph-constrained</code></td>	<td><code>1.13.1</code></td><td><code>1.13.2</code></td>
 	</tr>
-	<tr><td><code>graph-dot</code></td>			<td><code>1.13.0</code></td><td><code>1.13.0</code></td>
+	<tr><td><code>graph-dot</code></td>			<td><code>1.13.0</code></td><td><code>1.13.3</code></td>
 	</tr>
 	<tr><td><code>graph-json</code></td>		<td><code>1.13.0</code></td><td><code>1.13.0</code></td>
 	</tr>
@@ -47,6 +47,20 @@ You may find or manually download any Maven release including Scaladoc from
 <a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a>.
 
 <h2 id="1.13">1.13 Release Notes</h2>
+
+<h3 id="1.13.5">1.13.5</h3>
+<ul>
+	<li>Test scope for Netbeans dependencies.
+	</li>
+</ul>
+
+<h3 id="1.13.4">1.13.4</h3>
+<ul>
+	<li>Ready for use with Scala 3.1.
+	</li>
+	<li>Fixed Scala 3 compatiblity issue.
+	</li>
+</ul>
 
 <h3 id="1.13.2">1.13.2</h3>
 <ul>
