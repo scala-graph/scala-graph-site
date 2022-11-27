@@ -249,7 +249,7 @@ footer {
   }
   li {
     display: block;
-
+    white-space: nowrap;
     a {
       background-color: white;
       border-bottom: 1px solid darken($contrast,12);
@@ -261,6 +261,11 @@ footer {
       &:hover {
         text-decoration: underline;
       }
+    }
+    p {
+      margin: 0;
+      padding: 4px 10px;
+      text-align: center;
     }
   }
 }
