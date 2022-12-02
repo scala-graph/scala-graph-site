@@ -2,14 +2,15 @@
 title: Core User Guide
 sideMenuItems: >
   <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-concepts.html">Concepts</a></li>
   <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
-  <li><a href="/guides/core-inner-outer.html">Inner and Outer Objects</a></li>
   <li><a href="/guides/core-operations.html">Graph Operations</a></li>
   <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
   <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Initializing Graphs</h1>
+
 <h2 id="Prerequisites">Prerequisites</h2>
 <p> The downloadable binaries are named
 	<code>Graph-&lt;module&gt;_&lt;Scala-version&gt;-&lt;Graph-version&gt;.jar</code>
@@ -21,6 +22,7 @@ sideMenuItems: >
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.Graph // or scalax.collection.mutable.Graph
 import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
 </pre>
+
 <h2>Type Parameters</h2>
 <pre class="prettyprint lang-scala nolinenum">trait Graph[N, E[X] <: EdgeLikeIn[X]]
 </pre>
@@ -110,6 +112,7 @@ import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
 	by calling <code>find</code> or <code>filter</code>, but these calls will cause
 	a full scan.)
 </p>
+
 <h2 id="EdgeFactories">Edge Factories</h2>
 <table>
 	<caption>Table: Edge factory examples.</caption>
@@ -530,6 +533,7 @@ var n, m = 0; val f = Graph.fill(100)( {n = m; m += 1; n~m} )
 	<li>Creates a <code>Graph</code> instance with 100 edges {0~1, 1~2, ..., 99~100}.
 	</li>
 </ol>
+
 <h2>Type Parameter Inference</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph()                // Graph[Nothing,Nothing]
 val g = Graph(1)               // Graph[Int,Nothing]
@@ -566,10 +570,4 @@ Graph(1~>2) + 2~3              // compiler error
 </p>
 <pre class="prettyprint lang-scala nolinenum">def myFunction[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E])
 </pre>
-<h2>Implementations</h2>
-<p> As common to members of <code>scala.collection</code>, <em id="G4S">Graph for Scala</em>
-	comes with separate implementations for <em>immutable</em> and <em>mutable</em>
-	<code>Graph</code>'s. For your convenience, the companion 	objects ensure
-	the selection of an appropriate underlying default 	implementation
-	so you normally don't have to take any specific action.
-</p>
+

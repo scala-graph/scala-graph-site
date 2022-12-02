@@ -2,14 +2,15 @@
 title: Core User Guide
 sideMenuItems: >
   <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-concepts.html">Concepts</a></li>
   <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
-  <li><a href="/guides/core-inner-outer.html">Inner and Outer Objects</a></li>
   <li><a href="/guides/core-operations.html">Graph Operations</a></li>
   <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
   <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Graph Operations</h1>
+
 <h2 id="Iterating">Iterating</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(2~3, 3~1)
 g mkString ","	             // "1,2,3,2~3,3~1"
@@ -35,6 +36,7 @@ g.edges mkString " "         // "2~3 3~1"
 	Thus, you can call the gamut of well-known <code>TraversableLike</code> methods
 	on these such as <code>filter</code>, <code>foreach</code> etc.
 </p>
+
 <h2 id="LookingUp">Looking up Nodes and Edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
 g find 1                          // Option[g.NodeT] = Some(1)
@@ -79,26 +81,7 @@ g addAndGet 5                     // g.NodeT = 5
 	"value" is the inner node or edge.
 	Look up is implemented in terms of <code>hashCode</code> and <code>==</code>.
 </p>
-<h2 id="Equality">Equality of Inner and Outer Objects</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
-(g get 1) == 1	        // true
-(g get 1 ~ 2) == 2 ~ 1	// true
-(g get 1 ~ 2) eq 2 ~ 1	// false
-(g get 1 ~ 2) == 2 ~ 2	// false
-</pre>
-<p>As to</p>
-<ol>
-	<li value="2">The inner node <code>1 </code>equals to the outer node <code>1</code>.
-	</li>
-	<li>The inner edge <code>1 ~ 2 </code>equals to the outer edge <code>2 ~ 1</code>.
-		This example also demonstrates, that in case of undirected edges the
-		order of nodes does not influence equality.
-	</li>
-	<li><code>eq</code> fails, because an inner edge can never be the
-		same instance as an outer edge.</li>
-	<li>Obviously, <code>1~2 </code>does not equal to <code>2 ~ 2</code>.
-	</li>
-</ol>
+
 <h2 id="Adding">Adding and Subtracting</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1, 2~3)  // immutable or mutable
 g + 1                  // g unchanged
@@ -207,6 +190,7 @@ h.addLEdge(3,4)("red") // true
 <p> For adding or subtracting elements of another <code>Graph</code> instance in bulk
 	see <em>4.5</em>.
 </p>
+
 <h2 id="Union">Computing Union, Difference and Intersection</h2>
 <pre class="prettyprint lang-scala nolinenum">val g = mutable.Graph(1~2, 2~3, 2~4, 3~5, 4~5)
 val h = Graph(3 ~ 4, 3 ~ 5, 4 ~ 6, 5 ~ 6)
@@ -221,6 +205,7 @@ g &= h         // Graph(4, 3 ~ 5), mutated instance
 	graph theory. Use any of the previous operators followed by <code>=</code>
 	for the mutable variants.
 </p>
+
 <h2 id="Endpoints">Inspecting Endpoints</h2>
 <pre class="prettyprint lang-scala linenums"
 >val uE = 3 ~ 4          // UnDiEdge[Int]
@@ -260,6 +245,7 @@ hE.sum                   // Int = 26
 	<li>Again, all edges including hyperedges are <code>Iterable</code>s.
 	</li>
 </ol>
+
 <h2 id="Patterns">More Edge Patterns</h2>
 <pre class="prettyprint lang-scala linenums"
 >import scalax.collection.edge.Implicits._
@@ -292,6 +278,7 @@ import StringLabel._
     "https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TEdge.scala">
 	TEdge.scala</a>.
 </p>
+
 <h2 id="Neighbors">Inspecting Neighbors and Incident Edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(0, 1~3, 3~>2)
 def n(outer: Int): g.NodeT           = g get outer
@@ -371,6 +358,7 @@ n(3) ~>? n2                // Option[g.EdgeT] = Some(3 ~> 2)
 <p> See also:
 	<code>object scalax.collection.Graph#InnerNodeLike</code>.
 </p>
+
 <h2 id="Querying">Querying by Function</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(2 ~> 3, 3 ~ 1, 5)
 g.nodes filter (_.toOuter > 2)          // Set[g.NodeT] = Set(5, 3)
@@ -408,6 +396,7 @@ g count  g.having(node = _.toOuter >= 3, edge = _.isDirected) // Int = 3
 	Filtering a graph results in a subgraph obtained by node and/or edge
 	predicates.
 </p>
+
 <h2 id="Measuring">Measuring Graphs and Grouping Nodes by Degree</h2>
 <p> Assume <code>g</code> being the mixed graph in chapter
 	<a href="/guides/core-traversing.html">Traversing Graphs</a>. Then
@@ -448,6 +437,7 @@ g.degreeNodesMap(degreeFilter = _ > 3) // Map(4 -> Set(3, 4))
 <p>All degree methods have implicit parameters to query in- or
 	out-degrees and filtering degrees.
 </p>
+
 <h2 id="Classifying">Classifying Graphs</h2>
 <pre class="prettyprint lang-scala linenums"
 >val g = Graph(1, 2~>3) 
@@ -471,10 +461,3 @@ g.isMulti                       // false
 		starting at a specific node.
 	</li>
 </ol>
-<h2 id="Chaining">Chaining Method Calls</h2>
-<pre class="prettyprint lang-scala nolinenum"
->g.nodes find (_.inDegree > g.order / 5) orElse g.nodes.headOption
-</pre>
-<p><em id="G4S">Graph for Scala</em> is designed for functional style programming
-	meaning that you chain method calls as you feel inclined.
-</p>

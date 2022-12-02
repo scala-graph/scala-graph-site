@@ -2,16 +2,17 @@
 title: Core User Guide
 sideMenuItems: >
   <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-concepts.html">Concepts</a></li>
   <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
-  <li><a href="/guides/core-inner-outer.html">Inner and Outer Objects</a></li>
   <li><a href="/guides/core-operations.html">Graph Operations</a></li>
   <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
   <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Run-time Characteristics</h1>
-<p>	The current <code>Graph</code> representation is based on a mutable hash set.
-	Unfortunately, immutable <code>Graph</code>s have no separate persistent representation.
+
+<p>	Currently <code>Graph</code>s are represented by <code>mutable.ArraySet</code> and <code>mutable.HashSet</code>.
+	Unfortunately, <code>immutable.Graph</code> has no persistent representation yet.
 </p>
 <p>	In terms of the Big-O notation, operation costs on graphs can be summarized as follows:
 </p>
@@ -23,7 +24,7 @@ sideMenuItems: >
 		<td align="center" style="width:25%"><strong>mutable</strong></td>
 		<td align="center"><strong>immutable</strong></td>
 	</tr>
-	<tr><td>Instance Creation</td>
+	<tr><td>instance creation</td>
 		<td colspan="2" align="center"><code>O(V + E)</code></td>
 	</tr>
 	<tr><td>element addition</td>
@@ -47,5 +48,34 @@ sideMenuItems: >
 		<td colspan="2" align="center"><code>O(VlogV + E)</code></td>
 	</tr>
 </table>
-<p>	Algorithms are tail recursive so they are guaranteed not to cause any stack overflow.
+
+<h2 id="Algorithms">Algorithms</h2>
+<p>	All algorithms are tail recursive, so they are guaranteed not to cause any stack overflow however big your graph is.
 </p>
+
+<h2 id="BestPractices">Best Practices</h2>
+<p>	Like with all Scala collections, it is thread safe to use the mutable variant in the following situations:
+</p>
+<ol>
+	<li>The collection is instantiated and used solely in the scope of a function.
+	</li>
+	<li>It is known or ensured that the collection will never be accessed concurrently.
+			For instance, a collection defined in an Actor is ensured not to be accessed concurrently
+			because Akka sequentializes message processing.
+	</li>
+</ol>
+<p>	In any of the above use cases, you are recommended using <code>mutable.Graph</code>.
+</p>
+
+<p>	When using the immutable implementation, try to minimize CPU usage:
+</p>
+<ol>
+	<li>Initialize your graph by calling a single method like <code>Graph.from</code>.
+			This is because it is optimized for populating the Graph with all the elements passed.
+			It would be far less efficient to add elements by calling <code>+</code> repeatedly.
+	</li>
+	<li>Same applies to element addition and removal:
+			Whenever you need to add/remove several elements,
+			go for calling a single method like <code>++</code> or <code>--</code>.
+	</li>
+</ol>

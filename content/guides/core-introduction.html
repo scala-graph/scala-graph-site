@@ -2,14 +2,15 @@
 title: Core User Guide
 sideMenuItems: >
   <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-concepts.html">Concepts</a></li>
   <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
-  <li><a href="/guides/core-inner-outer.html">Inner and Outer Objects</a></li>
   <li><a href="/guides/core-operations.html">Graph Operations</a></li>
   <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
   <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
   <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Introduction</h1>
+
 <h2>Motivation</h2>
 <p> This document provides an example-driven, comprehensive coverage of the
 	functionality of <em id="G4S">Graph for Scala</em>.
@@ -24,6 +25,7 @@ sideMenuItems: >
 	<code>Graph</code> customization is shown by the node type <code>Airport</code>
 	and the edge type <code>Flight</code>.
 </p>
+
 <h2>Why Use Graph for Scala?</h2>
 <p> The most important reasons why <em id="G4S">Graph for Scala</em> speeds up your
     development are:
@@ -52,29 +54,20 @@ sideMenuItems: >
 </ul>
 <p>Look and see!
 </p>
-<h2>Terminology</h2>
-<p> Throughout the library we use the terms <em>node</em> as a synonym to
-	vertex and <em>edge</em> as a generic term for hyperedge, line
-	(undirected edge) or arc (directed edge).
+
+<pre class="prettyprint lang-scala nolinenum"
+>g.nodes find (_.inDegree > g.order / 5) orElse g.nodes.headOption
+</pre>
+<p><em id="G4S">Graph for Scala</em> is designed for functional style programming
+	meaning that you chain method calls as you feel inclined.
 </p>
-<h2>Status of Work</h2>
-<p>
-	Among others, <code>Graph</code> creation, editing, functional traversal,
-	path operations, degree calculation and cycle detection have been completed.
-	More functionality is due to be added. You are invited to request enhancements
-	based on your problem domain.
-</p>
-<h2>Limitations</h2>
-<ul>
-	<li>There is no direct support for <em>half-edges</em> but they
-		can be simulated by <code>Option</code>.
-	</li>
-	<li>Neither node nor edge sets may be <em>infinite</em> although
-		this could be achieved by a custom implementation.
-	</li>
-</ul>
+
 <h2>Modules</h2>
 <p> The <em id="G4S">Graph for Scala</em> library consists of the Core and
 	further optional modules. Each module comes with its separate User
 	Guide and is built as a separate Jar.
+</p>
+
+<h2>Roadmap</h2>
+<p> You are invited to request enhancements based on your problem domain.
 </p>

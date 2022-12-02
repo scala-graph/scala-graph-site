@@ -1,0 +1,147 @@
+---
+title: Core User Guide
+sideMenuItems: >
+  <li><a href="/guides/core-introduction.html">Introduction</a></li>
+  <li><a href="/guides/core-concepts.html">Concepts</a></li>
+  <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
+  <li><a href="/guides/core-operations.html">Graph Operations</a></li>
+  <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
+  <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
+  <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
+---
+<h1>Core User Guide: Concepts</h1>
+
+<h2 id="Terminology">Terminology</h2>
+<p> Throughout the library we use the terms
+</p>
+<ul>
+	<li><em>node</em> as a synonym for vertex and</li>
+	<li><em>edge</em> as a generic term for arc, line or hyperedge</li>
+	<li><em>element</em> to cover nodes and edges.</li>
+</ul>
+<p> When dealing elements, we distinguish between
+</p>
+<ul>
+	<li><em>outer elements</em> that you create and pass to the graph to be included.
+			The types of the outer elements correspond to the type parameters of your graph,
+			so outer nodes have the type <code>N</code>, outer edges have the type <code>E[N]</code>.</li>
+	<li><em>inner elements</em> that are created by the graph on addition internally.
+			They wrap the outer elements to enrich them by contextual information.
+			For instance an inner node also knows about the neighbours of the outer node it wraps.
+			Inner elements have path-dependent types: Given a graph <code>g</code>,
+			inner nodes have the type <code>g.NodeT</code> while inner edges have the type <code>g.EdgeT</code>.
+			For a mnemonic remember that we call them "inner" elements because their type is an inner class.</li>
+</ul>
+<p> For brevity, we call a graph
+</p>
+<ul>
+	<li><em>generic</em> if its edge type is a class with a parametrized type for nodes like <code>DiEdge[Int]</code>.
+		<code>DiEdge</code> is generic with respect to the type of nodes it may connect.
+	</li>
+	<li><em>typed</em> if its edge type is a class with no type parameter like <code>Flight</code>.
+			<code>Flight</code> is typed with respect to the type of nodes it connects which is <code>Airport</code>.
+	</li>
+</ul>
+
+<h2 id="MutableImmutable">Mutable and Immutable Graphs</h2>
+<p>	Both a mutable and an immutable implementation are at your disposal.
+</p>
+<p>	Unlike with standard collections it is not meaningful to use the immutable implementation by default because,
+		unfortunately, its underlying data structure is not yet persistent.
+		This means you need to carefully consider the <a href="/guides/core-characteristics.html">run-time characteristics</a>
+		of the immutable implementation along with <a href="/guides/core-characteristics.html#BestPractices">best practices</a>.
+</p>
+
+<h2 id="Types">Types of Graphs</h2>
+<p>	Graphs are defined by
+</p>
+<pre class="prettyprint lang-scala nolinenum">trait Graph[N, E <: Edge[N]]
+</pre>
+<ul>
+	<li><code>N&nbsp;&nbsp;</code> the type of nodes</li>
+	<li><code>E&nbsp;&nbsp;</code> the type of edges.</li>
+</ul>
+<p>	Based on the four edge categories
+</p>
+<ul>
+	<li>directed</li>
+	<li>undirected</li>
+	<li>directed hyperedge</li>
+	<li>hyperedge</li>
+</ul>
+<p> we support
+</p>
+<ul>
+	<li>directed graphs</li>
+	<li>undirected graphs</li>
+	<li>directed hypergraphs</li>
+	<li>hypergraphs</li>
+	<li>mixed graphs with arbitrary sets of edge types</li>
+	<li>multigraphs with arbitrary multiplicity between nodes, and also</li>
+	<li>graphs with loops.</li>
+</ul>
+<p> While nodes are labeled by nature, edges may be labeled or not.
+<p> You control the type of the graph by determining, and most often implementing, the edge type of your graph.
+		For mixed graphs and multigraphs it is especially useful to roll out your own ADT of edges.
+</p>
+<p>	Graphs are not constrained other than by the type parameters <code>N</code> and <code>E[N]</code>.
+		This means that currently you yourself need to ensure that you graph which is, for instance,
+		supposed to represent a DAG, is really a DAG.
+</p>
+
+<h2 id="PropertyGraphs">Relation to Property Graphs</h2>
+<p>	<em id="G4S">Graph for Scala</em> is superior to the popular
+	<a href="http://graphdatamodeling.com/Graph%20Data%20Modeling/GraphDataModeling/page/PropertyGraphs.html">Property Graph Model</a>
+	in that
+</p>
+<ol>
+	<li>you can not only associate nodes and edges with properties but, by rolling out your specific ADT of edges,
+			you have full control over which nodes may be connected by what kind of edges.
+			Of course, every edge type in your ADT, usually represented by a <code>case class</code>,
+			will go with its distinct set of "properties".
+	</li>
+	<li>In contrast to representing properties by generic maps <code>Map[String, Any]</code>, your model becomes type safe
+			thanks to specific edge classes with properly typed fields.
+	</li>
+</ol>
+<p> As an example, you can properly represent RDF with <em id="G4S">Graph for Scala</em>
+	while the Property Graph model is less suitable for this purpose.
+</p>
+
+<h2 id="EdgeClasses">Edge Classes</h2>
+<p>	All possible non-labeled as well as weighted edge classes are available out of the box
+		but for labeled edges you need to define your edge class yourself.
+		This is pretty straightforward based on the provided abstract classes and mix ins.
+		You will find plenty of examples paving your way.
+</p>
+<p>	Weighted edges are just specific labeled ones so why did we provide them? We did so because
+</p>
+<ul>
+	<li>with weights having the label type <code>Double</code> you now have ready-made edge classes for this use case
+	</li>
+	<li>they also serve as an example how to fine tune edge classes.
+	</li>
+</ul>
+<p>	Since the edge set of a graph is represented by a hash set, edge equality determines
+		if a specific edge may be added to the graph.
+	  When defining your edge classes remember to mix in <code>MultiEdge</code> if you need multi-graph support.
+</p>
+<p>	To achieve light-weight, unified syntax, it's a good idea to also add infix constructor and extractor support
+		to your edge classes. Mix ins and examples help you to also get this right in minutes.
+</p>
+<p>	Finally you might wonder why there is no direct support for labeled edges. The reason is that
+</p>
+<ul>
+	<li>apart from weights, label types depend on your use case.
+			It would be awkward to expect you to use <code>label: Any</code> instead of facilitating the definition
+		  of your edge classes with properly named and typed fields fitting your needs.
+	</li>
+	<li>If we added a third type parameter for edge labels, what is also an option,
+			the graph still would not know about different labels for different edges in a mixed graph on type level.
+			A type parameter for labels would only help in case of graphs that contain edges with a single type of label.
+	</li>
+	<li>When having a label type parameter, it would also be necessary to add new editing methods or
+			change the signature of the existing graph editing methods to allow for passing labels.
+			This would increase complexity.
+	</li>
+</ul>
