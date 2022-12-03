@@ -81,11 +81,14 @@ sideMenuItems: >
 	<li>graphs with loops.</li>
 </ul>
 <p> While nodes are labeled by nature, edges may be labeled or not.
-<p> You control the type of the graph by determining, and most often implementing, the edge type of your graph.
-		For mixed graphs and multigraphs it is especially useful to roll out your own ADT of edges.
+<p> You control the type of the graph by determining the edge type.
+		You can use the provided edge classes to create generic graphs.
+		However, it is often beneficial to roll out your own ADT of edges to constrain edge usage with respect to
+		which nodes they are allowed to connect and what kind of labels they have.
+		This will make your graphs more type safe, hence the term <em>typed graph</em>.
 </p>
 <p>	Graphs are not constrained other than by the type parameters <code>N</code> and <code>E[N]</code>.
-		This means that currently you yourself need to ensure that you graph which is, for instance,
+		This means that, currently, you yourself need to ensure that you graph which is, for instance,
 		supposed to represent a DAG, is really a DAG.
 </p>
 
@@ -100,8 +103,8 @@ sideMenuItems: >
 			Of course, every edge type in your ADT, usually represented by a <code>case class</code>,
 			will go with its distinct set of "properties".
 	</li>
-	<li>In contrast to representing properties by generic maps <code>Map[String, Any]</code>, your model becomes type safe
-			thanks to specific edge classes with properly typed fields.
+	<li>In contrast to representing properties by generic maps of the type <code>Map[String, Any]</code>,
+			your graph becomes type safe thanks to the ability to accept your specific edge classes with properly typed fields.
 	</li>
 </ol>
 <p> As an example, you can properly represent RDF with <em id="G4S">Graph for Scala</em>
