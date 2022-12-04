@@ -1,13 +1,13 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-  <li><a href="/guides/core-introduction.html">Introduction</a></li>
-  <li><a href="/guides/core-concepts.html">Concepts</a></li>
-  <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
-  <li><a href="/guides/core-operations.html">Graph Operations</a></li>
-  <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
-  <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
-  <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
+  <li><a href="/guides/core/contents.html">Introduction</a></li>
+  <li><a href="/guides/core/concepts.html">Concepts</a></li>
+  <li><a href="/guides/core/initializing.html">Initializing Graphs</a></li>
+  <li><a href="/guides/core/operations.html">Graph Operations</a></li>
+  <li><a href="/guides/core/traversing.html">Traversing Graphs</a></li>
+  <li><a href="/guides/core/customizing.html">Customizing Graphs</a></li>
+  <li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Run-time Characteristics</h1>
 
@@ -18,34 +18,34 @@ sideMenuItems: >
 </p>
 <table>
 	<tr><td><strong>Operation</strong></td>
-		<td colspan="2" align="center"><strong>Cost</strong></td>
+			<td colspan="2" align="center"><strong>Cost</strong></td>
 	</tr>
 	<tr><td></td>
-		<td align="center" style="width:25%"><strong>mutable</strong></td>
-		<td align="center"><strong>immutable</strong></td>
+			<td align="center" style="width:25%"><strong>mutable</strong></td>
+			<td align="center"><strong>immutable</strong></td>
 	</tr>
 	<tr><td>instance creation</td>
-		<td colspan="2" align="center"><code>O(V + E)</code></td>
+			<td colspan="2" align="center"><code>O(V + E)</code></td>
 	</tr>
-	<tr><td>element addition</td>
-		<td align="center"><code>O(1)</code></td>
-		<td align="center"><code>O(V + E)</code></td>
+	<tr><td>addition or removal of a single element</td>
+			<td align="center"><code>O(1)</code></td>
+			<td align="center"><code>O(V + E)</code></td>
 	</tr>
-	<tr><td>element removal</td>
-		<td align="center"><code>O(1)</code></td>
-		<td align="center"><code>O(V + E)</code></td>
+	<tr><td> bulk addition or removal of n elements</td>
+			<td align="center"><code>O(n)</code></td>
+			<td align="center"><code>O(V + E + n)</code></td>
 	</tr>
 	<tr><td>element look-up</td>
-		<td colspan="2" align="center"><code>O(1)</code></td>
+			<td colspan="2" align="center"><code>O(1)</code></td>
 	</tr>
-	<tr><td>traversal</td>
-		<td colspan="2" align="center"><code>O(V + E)</code></td>
+	<tr><td>full traversal</td>
+			<td colspan="2" align="center"><code>O(V + E)</code></td>
 	</tr>
-	<tr><td>path search</td>
-		<td colspan="2" align="center"><code>O(V + E)</code></td>
+	<tr><td>path search in connected graph</td>
+			<td colspan="2" align="center"><code>O(V + E)</code></td>
 	</tr>
-	<tr><td>shortest path search</td>
-		<td colspan="2" align="center"><code>O(VlogV + E)</code></td>
+	<tr><td>shortest path search in connected graph</td>
+			<td colspan="2" align="center"><code>O(VlogV + E)</code></td>
 	</tr>
 </table>
 

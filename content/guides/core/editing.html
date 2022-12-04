@@ -1,13 +1,14 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-  <li><a href="/guides/core-introduction.html">Introduction</a></li>
-  <li><a href="/guides/core-concepts.html">Concepts</a></li>
-  <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
-  <li><a href="/guides/core-operations.html">Graph Operations</a></li>
-  <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
-  <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
-  <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
+	<li><a href="/guides/core/contents.html">Contents</a></li>
+	<li><a href="/guides/core/concepts.html">Concepts</a></li>
+	<li><a href="/guides/core/planning.html">Planning</a></li>
+	<li><a href="/guides/core/inspecting.html">Inspecting Graphs</a></li>
+	<li><a href="/guides/core/traversing.html">Traversing Graphs</a></li>
+	<li><a href="/guides/core/mapping.html">Mapping Graphs</a></li>
+	<li><a href="/guides/core/enriching.html">Enriching Graphs</a></li>
+	<li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Initializing Graphs</h1>
 
@@ -87,15 +88,13 @@ import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
 		<td><code>UnDiEdge</code> or any of its variants except the keyed ones
 		</td>
 	</tr>
-	<tr><td>Weighted
-		</td>
+	<tr><td>Weighted</td>
 		<td>edges with the special label <code>weight</code>
 		</td>
 		<td>any of the predefined edge classes containing <code>W</code> in its prefix
 		</td>
 	</tr>
-	<tr><td>Multi
-		</td>
+	<tr><td>Multi</td>
 		<td>One or more edge types with multi-edges</td>
 		<td>any of the predefined edge classes containing <code>K</code> in its prefix
 		</td>

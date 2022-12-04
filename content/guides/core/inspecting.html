@@ -1,13 +1,14 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-  <li><a href="/guides/core-introduction.html">Introduction</a></li>
-  <li><a href="/guides/core-concepts.html">Concepts</a></li>
-  <li><a href="/guides/core-initializing.html">Initializing Graphs</a></li>
-  <li><a href="/guides/core-operations.html">Graph Operations</a></li>
-  <li><a href="/guides/core-traversing.html">Traversing Graphs</a></li>
-  <li><a href="/guides/core-customizing.html">Customizing Graphs</a></li>
-  <li><a href="/guides/core-characteristics.html">Run-time Characteristics</a></li>
+	<li><a href="/guides/core/contents.html">Contents</a></li>
+	<li><a href="/guides/core/concepts.html">Concepts</a></li>
+	<li><a href="/guides/core/planning.html">Planning</a></li>
+	<li><a href="/guides/core/editing.html">Editing Graphs</a></li>
+	<li><a href="/guides/core/traversing.html">Traversing Graphs</a></li>
+	<li><a href="/guides/core/mapping.html">Mapping Graphs</a></li>
+	<li><a href="/guides/core/enriching.html">Enriching Graphs</a></li>
+	<li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Graph Operations</h1>
 
@@ -399,7 +400,7 @@ g count  g.having(node = _.toOuter >= 3, edge = _.isDirected) // Int = 3
 
 <h2 id="Measuring">Measuring Graphs and Grouping Nodes by Degree</h2>
 <p> Assume <code>g</code> being the mixed graph in chapter
-	<a href="/guides/core-traversing.html">Traversing Graphs</a>. Then
+	<a href="/guides/core/traversing.html">Traversing Graphs</a>. Then
 </p>
 <pre class="prettyprint lang-scala linenums"
 >import scalax.collection.edge.Implicits._
