@@ -1,15 +1,151 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-  <li><a href="/guides/core/contents.html">Contents</a></li>
-  <li><a href="/guides/core/concepts.html">Key Concepts</a></li>
-  <li><a>Plan Your Graph</a></li>
-  <li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
-  <li><a href="/guides/core/inspecting.html">Inspect Your Graph</a></li>
-  <li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
-  <li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
-  <li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
-  <li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
+<li><a href="/guides/core/contents.html">Contents</a></li>
+<li><a href="/guides/core/concepts.html">Key Concepts</a></li>
+<li><a>Plan Your Graph</a></li>
+<li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
+<li><a href="/guides/core/inspecting.html">Inspect Your Graph</a></li>
+<li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
+<li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
+<li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
+<li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Plan Your Graph</h1>
 
+<h2 id="NodesEdges">Nodes and Edges</h2>
+<p> Presumably, you go for graphs because you have <em>things</em> that are <em>connected</em>, and you want to easily
+    navigate along those <em>connections</em>.
+    So the <em>things</em> become the nodes and their <em>connections</em> the edges.
+    For instance, think of a graph describing relationships between persons. Persons become the nodes and their
+    relations become the edges:
+</p>
+<pre class="prettyprint lang-scala linenums">case class Person(name: String)
+
+val g: Graph[Person, UnDiEdge[Person]] = ...
+</pre>
+<ol>
+    <li>The node type.
+    </li>
+    <li value="3">A graph with node type <code>Person</code> and undirected edge type <code>UnDiEdge</code>.
+        The predefined <code>UnDiEdge</code> suffices as long as you need a single type of relation between persons.
+    </li>
+</ol>
+<p> Simple enough, why should we waste time worrying about nodes and edges that are self-evident?
+    Well, because real life often leaves you with different options.
+</p>
+<p> Let's consider some options for modelling a database schema.
+    <em>Tables</em> and <em>columns</em> become nodes, edges represent which <em>columns</em> a <em>table</em> has:
+    Next, what about <em>indexes</em>? <em>Indexes</em> could be modelled as another node type since they are kind of
+    <em>things</em>, not just <em>connections</em>:
+</p>
+<pre class="prettyprint lang-scala linenums">sealed trait SchemaObject
+case class Table(name: String)  extends SchemaObject
+case class Column(name: String) extends SchemaObject
+case class Index(name: String)  extends SchemaObject
+
+val g: Graph[SchemaObject, DiEdge[SchemaObject]] = ...
+</pre>
+<ol>
+    <li>The node ADT.</li>
+    <li value="6">The predefined directed edge class <code>DiEdge</code> may point
+        <ul>
+            <li>from a table to the contained column or</li>
+            <li>from an index to the contained column.</li>
+        </ul>
+    </li>
+</ol>
+<p> The above attempt has some deficiencies, though. First of all, there is no guarantee that nodes will be connected
+    as expected.
+    For instance, it is possible to add a directed edge from a column to an index.
+    Such an arrow would result in a wrong set of adjacent nodes which should always be tables.
+    Here is what we should prefer as a first improvement:
+</p>
+<pre class="prettyprint lang-scala linenums">// ... (node ADT unchanged)
+
+sealed trait Relation
+case class TableColumn(table: Table, column: Column) extends AbstractDiEdge(from = table, to = column) with Relation
+case class IndexColumn(index: Index, column: Column) extends AbstractDiEdge(from = index, to = column) with Relation
+
+val g: Graph[SchemaObject, Relation] = ...
+</pre>
+<ol>
+    <li value="3">The ADT of edges.</li>
+    <li>These edge types are now <em>typed</em> with respect to the source and target nodes.</li>
+    <li value="7">
+        Note that, unlike <code>DiEdge</code>, <code>Relation</code> has no type parameter.
+        Hence, we call such a graph <em>typed graph</em>.
+    </li>
+</ol>
+<p> Another drawback of the above design is that we missed relating indexes with tables.
+    To overcome this issue in a property graph, you would use an edge labelled like <code>IndexTable</code>
+    to be able to distinguish between arrows pointing to columns and those pointing to the table.
+    Alternatively you could check that target node for its type.
+    Keeping this in mind, let's move to the next drawback because once we get that resolved we also get rid of this
+    <code>IndexTable</code> issue.
+</p>
+<p> You have probably noticed, that an <em>index</em> is existentially bound to a table what is proven by the fact that
+    if you drop a table, the index needs be dropped as well.
+    In terms of a graph it feels a little strange if a node needs be dropped on dropping another node.
+    Would it be more viable to model an <em>index</em> as an edge?
+</p>
+<p> In fact, you can model <em>indexes</em> as hyperedges.
+    In the <a
+            href="https://github.com/scala-graph/scala-graph/blob/49912d57b4b70cec03c13c21c4e602376cc6765b/core/src/test/scala/demo/HyperADTDemo.scala#L73">database
+        schema demo</a>
+    we play around with this approach, including <code>Subset</code>,
+    but to start with take a look at the following simplified version:
+</p>
+<pre class="prettyprint lang-scala linenums">sealed trait SchemaObject
+case class Table(name: String)  extends SchemaObject
+case class Column(name: String) extends SchemaObject
+
+sealed trait Relation
+case class TableColumn(table: Table, column: Column) extends AbstractDiEdge(from = table, to = column) with Relation
+case class Index(table: Table, columns: OneOrMore[Column])
+    extends AbstractDiHyperEdge(one(table), columns)
+    with Relation
+
+val g: Graph[SchemaObject, Relation] = ...
+</pre>
+<ol>
+    <li>The ADT of nodes does not contain <code>Index</code> any more.</li>
+    <li value="7">
+        The edge type <code>Index</code> relates a table with a non-empty list of columns.
+        <code>OneOrMore</code> is a data type supplied with <em id="G4S">Graph for Scala</em>.
+        It represents a list of at least <code>one</code>
+        while <code>Several</code> represents a list of at leas two elements.
+        <code>OneOrMore</code> and <code>Several</code> are useful for type-safe hyperedges because
+        a directed hyperedge has one or more sources and also one or more targets
+        while a hyperedge has at least two ends.
+        Note, that once you remove a <em>table</em> from the graph, it's <em>indexes</em> will now be removed
+        automatically.
+    </li>
+</ol>
+<p> As you can see hyperedges are also at your fingertips.
+    Don't hesitate to take advantage of them whenever they improve your design.
+</p>
+
+<h2 id="DirectedUndirected">Directed or Undirected</h2>
+
+<h2 id="Mixed">Mixed Graphs</h2>
+
+<h2 id="Multi">Multigraphs</h2>
+
+<p> Imagine a graph of <em>persons</em> and relations between them.
+    To keep the example simple let their relations span from friendship to siblings only
+    where siblings might be friends or not.
+</p>
+<p> Our initial attempt looks something like
+</p>
+<pre class="prettyprint lang-scala">case class Person(name: String)
+
+sealed trait Relation
+case class Friends(one: Person, another: Person)  extends AbstractUnDiEdge(one, another) with Relation
+case class Siblings(one: Person, another: Person) extends AbstractUnDiEdge(one, another) with Relation
+
+val g: Graph[Person, Relation] = ...
+</pre>
+<p> At first glance it's fine. So what are we missing?
+
+</p>

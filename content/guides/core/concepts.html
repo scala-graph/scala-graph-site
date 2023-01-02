@@ -56,7 +56,7 @@ sideMenuItems: >
 </p>
 
 <h2 id="Types">Types of Graphs</h2>
-<p>	Graphs are defined by
+<p> Graphs are defined by
 </p>
 <pre class="prettyprint lang-scala nolinenum">trait Graph[N, E <: Edge[N]]
 </pre>
@@ -115,8 +115,8 @@ sideMenuItems: >
 </p>
 
 <h2 id="EdgeClasses">Edge Classes</h2>
-<p>	All possible non-labeled as well as weighted edge classes are available out of the box
-		but for labeled edges you need to define your edge class yourself.
+<p>	While all possible non-labeled as well as weighted edge classes are available out of the box,
+		for labeled edges you need to define your edge class yourself.
 		This is pretty straightforward based on the provided abstract classes and mix ins.
 		You will find plenty of examples paving your way.
 </p>
@@ -128,7 +128,7 @@ sideMenuItems: >
 	<li>they also serve as an example how to fine tune edge classes.
 	</li>
 </ul>
-<p>	Since the edge set of a graph is represented by a hash set, edge equality determines
+<p>	Since the edge set of a graph is represented by a hash set internally, edge equality determines
 		if a specific edge may be added to the graph.
 	  When defining your edge classes remember to mix in <code>MultiEdge</code> if you need multi-graph support.
 </p>
