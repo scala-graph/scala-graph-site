@@ -34,10 +34,17 @@ val g: Graph[Person, UnDiEdge[Person]] = ...
 <p> Simple enough, why should we waste time worrying about nodes and edges that are self-evident?
     Well, because real life often leaves you with different options.
 </p>
-<p> Let's consider some options for modelling a database schema.
-    <em>Tables</em> and <em>columns</em> become nodes, edges represent which <em>columns</em> a <em>table</em> has:
-    Next, what about <em>indexes</em>? <em>Indexes</em> could be modelled as another node type since they are kind of
-    <em>things</em>, not just <em>connections</em>:
+<p> Let's consider some options for modelling a database schema including
+</p>
+<ul>
+    <li>tables with their columns</li>
+    <li>indexes per table with a list of columns.</li>
+</ul>
+<p>
+    Intuitively, <em>Tables</em> and <em>columns</em> become nodes, edges represent which <em>columns</em> a
+    <em>table</em> has.
+    Next, what about <em>indexes</em>?
+    <em>Indexes</em> could be modelled as another node type since they are kind of <em>things</em>, not just <em>connections</em>:
 </p>
 <pre class="prettyprint lang-scala linenums">sealed trait SchemaObject
 case class Table(name: String)  extends SchemaObject
@@ -79,7 +86,7 @@ val g: Graph[SchemaObject, Relation] = ...
 </ol>
 <p> Another drawback of the above design is that we missed relating indexes with tables.
     To overcome this issue in a property graph, you would use an edge labelled like <code>IndexTable</code>
-    to be able to distinguish between arrows pointing to columns and those pointing to the table.
+    to be able to distinguish between arrows pointing to columns and arrows pointing to the table.
     Alternatively you could check that target node for its type.
     Keeping this in mind, let's move to the next drawback because once we get that resolved we also get rid of this
     <code>IndexTable</code> issue.
@@ -118,19 +125,85 @@ val g: Graph[SchemaObject, Relation] = ...
         <code>OneOrMore</code> and <code>Several</code> are useful for type-safe hyperedges because
         a directed hyperedge has one or more sources and also one or more targets
         while a hyperedge has at least two ends.
-        Note, that once you remove a <em>table</em> from the graph, it's <em>indexes</em> will now be removed
-        automatically.
     </li>
 </ol>
-<p> As you can see hyperedges are also at your fingertips.
-    Don't hesitate to take advantage of them whenever they improve your design.
+<p> With this approach we have won the following:
+</p>
+<ul>
+    <li>Representing an <em>index</em> by a single directed hyperedge we got rid of unrelated directed edges per column
+        that are much harder to maintain in a consistent way.
+    </li>
+    <li>It suffices to inspect this single directed hyperedge to get all information about a specific <em>index</em>.
+        In comparison, with directed edges per column you need to programmatically collect related nodes first
+        to get the same information.
+    </li>
+    <li>Once you remove a <em>table</em> from the graph, it's <em>indexes</em> will now be removed automatically.
+    </li>
+</ul>
+<p> With hyperedges at your fingertips, don't hesitate to take advantage of them whenever they improve your design.
 </p>
 
-<h2 id="DirectedUndirected">Directed or Undirected</h2>
+<h2 id="DirectedUndirected">Directed versus Undirected</h2>
+<p> If the relation you plan to represent is symmetrical go for undirected edges or undirected hyperedges.
+    To test for symmetry, just read the relation from both sides:
+    If you end up with the same phrase from both sides your relation is symmetrical.
+    For instance, in a road net locations are symmetrical tested by
+    "I can drive from location A to location B and, likewise, I can drive from location B to location A."
+    Let`s deal with one-way roads below.
+</p>
+<p> As an example for asymmetrical relations, think of a person net that includes family as well as social relations.
+    Then, <em>parenthood</em> is asymmetrical proven by "A is a parent of B and B is <b>not</b> a parent of A".
+    B is rather a child of A.
+    Also, assume you want to represent both <em>parenthood</em> and <em>children</em> in some way.
+</p>
+<p> For asymmetrical relations, different options are viable. Concerning our example you may
+</p>
+<ul>
+    <li>use a directed edge for <em>parenthood</em> with the parent as the target.
+        So you get the meaning depending on the direction you navigate.
+        This assumes you can navigate into the opposite direction to get <em>children</em>
+        what is supported by <em id="G4S">Graph for Scala</em>, of course.
+        <pre class="prettyprint lang-scala linenums">case class Person(name: String)
+
+sealed trait Relation
+case class Parent(child: Person, parent: Person)
+    extends AbstractDiEdge(from = child, to = parent) with Relation
+// ...more relations
+
+val g: Graph[Person, Relation] = ...
+        </pre>
+    </li>
+    <li>use different directed edges for <em>parents</em> and <em>children</em>.
+        In this approach both directed edges need be present or absent with respect to two specific persons.
+        <pre class="prettyprint lang-scala linenums">sealed trait Relation
+case class Parent(child: Person, parent: Person)
+    extends AbstractDiEdge(from = child, to = parent) with Relation
+case class Child(parent: Person, child: Person)
+    extends AbstractDiEdge(from = parent, to = child) with Relation
+// ...more relations
+        </pre>
+    </li>
+    <li>irrespective of the asymmetric nature of the relation, use an undirected edge
+        with the first end being the <em>child</em> and the second end being the <em>parent</em>.
+        Here we assume that you can filter edges during traversals like
+        "to get parents, navigate along with an edge only if its second end is different from the node to navigate from".
+        However, since this solution seems a bit tricky, we do not find it outstanding.
+        <pre class="prettyprint lang-scala linenums">sealed trait Relation
+case class Parent(child: Person, parent: Person)
+    extends AbstractUnDiEdge(child, parent) with Relation
+// ...more relations
+        </pre>
+    </li>
+</ul>
+
+<h2 id="Labelled">Labelled Edges</h2>
 
 <h2 id="Mixed">Mixed Graphs</h2>
 
 <h2 id="Multi">Multigraphs</h2>
+
+<p> You might want to check out ...
+</p>
 
 <p> Imagine a graph of <em>persons</em> and relations between them.
     To keep the example simple let their relations span from friendship to siblings only
