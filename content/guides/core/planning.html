@@ -122,7 +122,7 @@ val g: Graph[SchemaObject, Relation] = ...
         <code>OneOrMore</code> is a data type supplied with <em id="G4S">Graph for Scala</em>.
         It represents a list of at least <code>one</code>
         while <code>Several</code> represents a list of at leas two elements.
-        <code>OneOrMore</code> and <code>Several</code> are useful for type-safe hyperedges because
+        <code>OneOrMore</code> and <code>Several</code> facilitate type-safe hyperedges because
         a directed hyperedge has one or more sources and also one or more targets
         while a hyperedge has at least two ends.
     </li>
@@ -163,7 +163,7 @@ val g: Graph[SchemaObject, Relation] = ...
         So you get the meaning depending on the direction you navigate.
         This assumes you can navigate into the opposite direction to get <em>children</em>
         what is supported by <em id="G4S">Graph for Scala</em>, of course.
-        <pre class="prettyprint lang-scala linenums">case class Person(name: String)
+        <pre class="prettyprint lang-scala">case class Person(name: String)
 
 sealed trait Relation
 case class Parent(child: Person, parent: Person)
@@ -173,9 +173,9 @@ case class Parent(child: Person, parent: Person)
 val g: Graph[Person, Relation] = ...
         </pre>
     </li>
-    <li>use different directed edges for <em>parents</em> and <em>children</em>.
+    <li>use separate directed edges for <em>parents</em> and <em>children</em>.
         In this approach both directed edges need be present or absent with respect to two specific persons.
-        <pre class="prettyprint lang-scala linenums">sealed trait Relation
+        <pre class="prettyprint lang-scala">sealed trait Relation
 case class Parent(child: Person, parent: Person)
     extends AbstractDiEdge(from = child, to = parent) with Relation
 case class Child(parent: Person, child: Person)
@@ -187,38 +187,140 @@ case class Child(parent: Person, child: Person)
         with the first end being the <em>child</em> and the second end being the <em>parent</em>.
         Here we assume that you can filter edges during traversals like
         "to get parents, navigate along with an edge only if its second end is different from the node to navigate from".
-        However, since this solution seems a bit tricky, we do not find it outstanding.
-        <pre class="prettyprint lang-scala linenums">sealed trait Relation
+        However, since this solution seems rather tricky, we do not find it outstanding.
+        <pre class="prettyprint lang-scala">sealed trait Relation
 case class Parent(child: Person, parent: Person)
     extends AbstractUnDiEdge(child, parent) with Relation
+// ...more relations
+        </pre>
+    </li>
+    <li>use directed hyperedges for <em>parents</em> and <em>children</em> alike.
+        Thus, both getting parents and getting children are pretty straightforward
+        compared with gathering relevant non-hyper edges.
+        <pre class="prettyprint lang-scala">sealed trait Relation
+case class Parents(child: Person, mather: Person, father: Person)
+    extends AbstractDiHyperedge(sources = one(child), targets = OneOrMore(mather, father)) with Relation
+case class Children(parent: Person, children: OneOrMore[Person])
+    extends AbstractDiHyperedge(sources = one(parent), targets = children) with Relation
 // ...more relations
         </pre>
     </li>
 </ul>
 
 <h2 id="Labelled">Labelled Edges</h2>
+<p> Most often you also need some edge label. Feel free to add any number of fields to your typed edge for this purpose.
+    In terms of our above database schema example, we could add a "unique" property to the <code>Index</code> edge like:
+</p>
+<pre class="prettyprint lang-scala">case class Index(table: Table, columns: OneOrMore[Column], unique: Boolean)
+    extends AbstractDiHyperEdge(one(table), columns)
+with Relation
+</pre>
+<p> As a second example, we could extend the above <code>Parent</code> edge like
+</p>
+<pre class="prettyprint lang-scala">case class Parent(child: Person, parent: Person, `type`: ParenthoodType)
+    extends AbstractDiEdge(from = child, to = parent) with Relation
+</pre>
+<p> with <code>ParenthoodType</code> being an enumeration of Biological, Adoptive, Surrogate etc.
+</p>
+<p> In case you are still wondering, here is why we refrain from providing generic labelled edges:
+</p>
+<ul>
+    <li>Whenever you define a typed edge, what we recommend anyway, you may also add any number of labels in one go.
+    </li>
+    <li>Adding yet another type parameter for the label would increase complexity.
+    </li>
+    <li>With heterogeneous graphs in mind, typed edges are fully flexible with respect to different edge types.
+        A type parameter for the label would only be a good pick for homogeneous graphs.
+    </li>
+    <li>With typed edges you can use proper names for your label fields.
+        You don't need any redirection by an artificial field called <code>label</code>.
+    </li>
+</ul>
 
 <h2 id="Mixed">Mixed Graphs</h2>
-
-<h2 id="Multi">Multigraphs</h2>
-
-<p> You might want to check out ...
+<p> you are free to mix any combination of directed, undirected and hyperedges in the very same graph.
+    Just look up the lowest common ancestor of your edge types in
 </p>
-
-<p> Imagine a graph of <em>persons</em> and relations between them.
-    To keep the example simple let their relations span from friendship to siblings only
-    where siblings might be friends or not.
+<figure>
+    <img alt="Edge Type Hierarchy"
+         src="/img/guides/core/EdgeTypeHierarchy.jpg">
+    <figcaption>Diagram: Edge Type Hierarchy.</figcaption>
+</figure>
+<p> and use the corresponding abstraction with the prefix <code>Any</code> like
 </p>
-<p> Our initial attempt looks something like
-</p>
-<pre class="prettyprint lang-scala">case class Person(name: String)
+<pre class="prettyprint lang-scala linenums">sealed trait Relation extends AnyEdge[Person]
 
-sealed trait Relation
-case class Friends(one: Person, another: Person)  extends AbstractUnDiEdge(one, another) with Relation
-case class Siblings(one: Person, another: Person) extends AbstractUnDiEdge(one, another) with Relation
+case class Parent(child: Person, parent: Person)
+    extends AbstractDiEdge(from = child, to = parent) with Relation
+case class Friends(one: Person, another: Person)
+    extends AbstractUnDiEdge(one, another) with Relation
 
 val g: Graph[Person, Relation] = ...
 </pre>
-<p> At first glance it's fine. So what are we missing?
-
+<ol>
+    <li><code>AnyEdge</code> is the lowest common ancestor of <code>DiEdge</code> and <code>UnDiEdge</code>.
+    </li>
+</ol>
+<p> Mixed graphs work for generic and typed edges alike.
 </p>
+
+<h2 id="Multi">Multigraphs</h2>
+<p> The previous example graph supporting edges of the type <code>Parent</code> or <code>Friends</code> works fine.
+    You can connect two given <code>Person</code>s with a single edge or both <code>Parent</code> and <code>Friends</code>
+    while you cannot connect them by more than one edge of the same type like <code>Friends</code>.
+    This is the case because <code>AbstractDiEdge</code> and <code>AbstractUnDiEdge</code> apply a different built-in
+    equality with respect to the same nodes. In specific,
+</p>
+<ul>
+    <li>directed and undirected edges connecting the very same nodes never equal
+    </li>
+    <li>a directed edge with their nodes swapped is not equal to the original edge
+    </li>
+    <li>an undirected edge with their nodes swapped is equal to the original edge
+    </li>
+    <li>for hyperedges different strategies are supported.
+    </li>
+</ul>
+<p> But what happens if we add yet another edge type?
+</p>
+<pre class="prettyprint lang-scala">case class Siblings(one: Person, another: Person)
+    extends AbstractUnDiEdge(one, another) with Relation
+</pre>
+<p> Now <code>Friends</code> and <code>Siblings</code> have the same equality,
+    so you will not be able to connect the same nodes by both edge types.
+    To resolve this conflict mix in <code>MultiEdge</code> which serves to extend equality:
+</p>
+<pre class="prettyprint lang-scala linenums">case class Friends(one: Person, another: Person)
+    extends AbstractUnDiEdge(one, another)
+    with MultiEdge
+    with Relation {
+  def extendKeyBy = OneOrMore.one(Friends)
+}
+case class Siblings(one: Person, another: Person)
+    extends AbstractUnDiEdge(one, another)
+    with MultiEdge
+    with Relation {
+  def extendKeyBy = OneOrMore.one(Siblings)
+}
+</pre>
+<ol>
+    <li value="5">The mix-in <code>MultiEdge</code> requires <code>extendKeyBy</code> to be implemented.
+        Defining a single constant key suffices here.
+    </li>
+    <li value="11">Same as with <code>Friends</code> but we need a different constant.
+        Using constants ensures that you cannot connect two given <code>Person</code>s by the same edge type
+        more than once.
+    </li>
+</ol>
+<p> In contrast, whenever you need to allow for several edges of the same type between two given nodes
+    you would implement <code>extendKeyBy</code> by referring to some discriminator value specific to edge instances.
+    For instance, were you also keeping track of <code>Meeting</code>s between <code>Person</code>s,
+    you could go with something like
+</p>
+<pre class="prettyprint lang-scala">case class Meeting(a: Person, b: Person, time: Datetime)
+    extends AbstractUnDiEdge(a, b)
+    with MultiEdge
+    with Relation {
+  def extendKeyBy = one(time)
+}
+</pre>
