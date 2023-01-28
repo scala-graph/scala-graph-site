@@ -1,15 +1,15 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-<li><a href="/guides/core/contents.html">Contents</a></li>
-<li><a href="/guides/core/concepts.html">Key Concepts</a></li>
-<li><a>Plan Your Graph</a></li>
-<li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
-<li><a href="/guides/core/inspecting.html">Inspect Your Graph</a></li>
-<li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
-<li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
-<li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
-<li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
+  <li><a href="/guides/core/contents.html">Contents</a></li>
+  <li><a href="/guides/core/concepts.html">Key Concepts</a></li>
+  <li><a>Plan Your Graph</a></li>
+  <li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
+  <li><a href="/guides/core/inspecting.html">Inspect Your Graph</a></li>
+  <li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
+  <li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
+  <li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
+  <li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Plan Your Graph</h1>
 
@@ -71,8 +71,12 @@ val g: Graph[SchemaObject, DiEdge[SchemaObject]] = ...
 <pre class="prettyprint lang-scala linenums">// ... (node ADT unchanged)
 
 sealed trait Relation
-case class TableColumn(table: Table, column: Column) extends AbstractDiEdge(from = table, to = column) with Relation
-case class IndexColumn(index: Index, column: Column) extends AbstractDiEdge(from = index, to = column) with Relation
+case class TableColumn(table: Table, column: Column)
+    extends AbstractDiEdge(from = table, to = column)
+    with Relation
+case class IndexColumn(index: Index, column: Column)
+    extends AbstractDiEdge(from = index, to = column)
+    with Relation
 
 val g: Graph[SchemaObject, Relation] = ...
 </pre>
@@ -108,7 +112,9 @@ case class Table(name: String)  extends SchemaObject
 case class Column(name: String) extends SchemaObject
 
 sealed trait Relation
-case class TableColumn(table: Table, column: Column) extends AbstractDiEdge(from = table, to = column) with Relation
+case class TableColumn(table: Table, column: Column)
+    extends AbstractDiEdge(from = table, to = column)
+    with Relation
 case class Index(table: Table, columns: OneOrMore[Column])
     extends AbstractDiHyperEdge(one(table), columns)
     with Relation
@@ -163,11 +169,12 @@ val g: Graph[SchemaObject, Relation] = ...
         So you get the meaning depending on the direction you navigate.
         This assumes you can navigate into the opposite direction to get <em>children</em>
         what is supported by <em id="G4S">Graph for Scala</em>, of course.
-        <pre class="prettyprint lang-scala">case class Person(name: String)
+        <pre class="prettyprint lang-scala nolinenum">case class Person(name: String)
 
 sealed trait Relation
 case class Parent(child: Person, parent: Person)
-    extends AbstractDiEdge(from = child, to = parent) with Relation
+    extends AbstractDiEdge(from = child, to = parent)
+    with Relation
 // ...more relations
 
 val g: Graph[Person, Relation] = ...
@@ -175,11 +182,13 @@ val g: Graph[Person, Relation] = ...
     </li>
     <li>use separate directed edges for <em>parents</em> and <em>children</em>.
         In this approach both directed edges need be present or absent with respect to two specific persons.
-        <pre class="prettyprint lang-scala">sealed trait Relation
+        <pre class="prettyprint lang-scala nolinenum">sealed trait Relation
 case class Parent(child: Person, parent: Person)
-    extends AbstractDiEdge(from = child, to = parent) with Relation
+    extends AbstractDiEdge(from = child, to = parent)
+    with Relation
 case class Child(parent: Person, child: Person)
-    extends AbstractDiEdge(from = parent, to = child) with Relation
+    extends AbstractDiEdge(from = parent, to = child)
+    with Relation
 // ...more relations
         </pre>
     </li>
@@ -188,20 +197,23 @@ case class Child(parent: Person, child: Person)
         Here we assume that you can filter edges during traversals like
         "to get parents, navigate along with an edge only if its second end is different from the node to navigate from".
         However, since this solution seems rather tricky, we do not find it outstanding.
-        <pre class="prettyprint lang-scala">sealed trait Relation
+        <pre class="prettyprint lang-scala nolinenum">sealed trait Relation
 case class Parent(child: Person, parent: Person)
-    extends AbstractUnDiEdge(child, parent) with Relation
+    extends AbstractUnDiEdge(child, parent)
+    with Relation
 // ...more relations
         </pre>
     </li>
     <li>use directed hyperedges for <em>parents</em> and <em>children</em> alike.
         Thus, both getting parents and getting children are pretty straightforward
         compared with gathering relevant non-hyper edges.
-        <pre class="prettyprint lang-scala">sealed trait Relation
+        <pre class="prettyprint lang-scala nolinenum">sealed trait Relation
 case class Parents(child: Person, mather: Person, father: Person)
-    extends AbstractDiHyperedge(sources = one(child), targets = OneOrMore(mather, father)) with Relation
+    extends AbstractDiHyperedge(sources = one(child), targets = OneOrMore(mather, father))
+    with Relation
 case class Children(parent: Person, children: OneOrMore[Person])
-    extends AbstractDiHyperedge(sources = one(parent), targets = children) with Relation
+    extends AbstractDiHyperedge(sources = one(parent), targets = children)
+    with Relation
 // ...more relations
         </pre>
     </li>
@@ -211,16 +223,17 @@ case class Children(parent: Person, children: OneOrMore[Person])
 <p> Most often you also need some edge label. Feel free to add any number of fields to your typed edge for this purpose.
     In terms of our above database schema example, we could add a "unique" property to the <code>Index</code> edge like:
 </p>
-<pre class="prettyprint lang-scala">case class Index(table: Table, columns: OneOrMore[Column], unique: Boolean)
+<pre class="prettyprint lang-scala nolinenum">case class Index(table: Table, columns: OneOrMore[Column], unique: Boolean)
     extends AbstractDiHyperEdge(one(table), columns)
-with Relation
+    with Relation
 </pre>
 <p> As a second example, we could extend the above <code>Parent</code> edge like
 </p>
-<pre class="prettyprint lang-scala">case class Parent(child: Person, parent: Person, `type`: ParenthoodType)
-    extends AbstractDiEdge(from = child, to = parent) with Relation
+<pre class="prettyprint lang-scala nolinenum">case class Parent(child: Person, parent: Person, `type`: ParenthoodType)
+    extends AbstractDiEdge(from = child, to = parent)
+    with Relation
 </pre>
-<p> with <code>ParenthoodType</code> being an enumeration of Biological, Adoptive, Surrogate etc.
+<p> with <code>ParenthoodType</code> being an enumeration like {Biological, Adoptive, Surrogate...}.
 </p>
 <p> In case you are still wondering, here is why we refrain from providing generic labelled edges:
 </p>
@@ -238,7 +251,7 @@ with Relation
 </ul>
 
 <h2 id="Mixed">Mixed Graphs</h2>
-<p> you are free to mix any combination of directed, undirected and hyperedges in the very same graph.
+<p> You are free to mix any combination of directed, undirected and hyperedges in the same graph.
     Just look up the lowest common ancestor of your edge types in
 </p>
 <figure>
@@ -251,9 +264,11 @@ with Relation
 <pre class="prettyprint lang-scala linenums">sealed trait Relation extends AnyEdge[Person]
 
 case class Parent(child: Person, parent: Person)
-    extends AbstractDiEdge(from = child, to = parent) with Relation
+    extends AbstractDiEdge(from = child, to = parent)
+    with Relation
 case class Friends(one: Person, another: Person)
-    extends AbstractUnDiEdge(one, another) with Relation
+    extends AbstractUnDiEdge(one, another)
+    with Relation
 
 val g: Graph[Person, Relation] = ...
 </pre>
@@ -283,8 +298,9 @@ val g: Graph[Person, Relation] = ...
 </ul>
 <p> But what happens if we add yet another edge type?
 </p>
-<pre class="prettyprint lang-scala">case class Siblings(one: Person, another: Person)
-    extends AbstractUnDiEdge(one, another) with Relation
+<pre class="prettyprint lang-scala nolinenum">case class Siblings(one: Person, another: Person)
+    extends AbstractUnDiEdge(one, another)
+    with Relation
 </pre>
 <p> Now <code>Friends</code> and <code>Siblings</code> have the same equality,
     so you will not be able to connect the same nodes by both edge types.
@@ -317,7 +333,7 @@ case class Siblings(one: Person, another: Person)
     For instance, were you also keeping track of <code>Meeting</code>s between <code>Person</code>s,
     you could go with something like
 </p>
-<pre class="prettyprint lang-scala">case class Meeting(a: Person, b: Person, time: Datetime)
+<pre class="prettyprint lang-scala nolinenum">case class Meeting(a: Person, b: Person, time: Datetime)
     extends AbstractUnDiEdge(a, b)
     with MultiEdge
     with Relation {

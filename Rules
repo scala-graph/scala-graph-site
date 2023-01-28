@@ -31,6 +31,20 @@ compile '/guides/*.html' do
   layout '/guides.*'
 end
 
+compile '/guides/core/*.html' do
+  filter :erb
+  filter :kramdown
+  filter :relativize_paths, type: :html
+  layout '/guides.*'
+end
+
+compile '/guides-1.13/*.html' do
+  filter :erb
+  filter :kramdown
+  filter :relativize_paths, type: :html
+  layout '/guides.*'
+end
+
 compile '/*.html' do
   filter :erb
   filter :kramdown
@@ -39,6 +53,14 @@ compile '/*.html' do
 end
 
 route '/guides/*.html' do
+  item.identifier.to_s
+end
+
+route '/guides/core/*.html' do
+  item.identifier.to_s
+end
+
+route '/guides-1.13/*.html' do
   item.identifier.to_s
 end
 
