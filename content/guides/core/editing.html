@@ -245,23 +245,6 @@ sideMenuItems: >
 <h2 id="CustomEdges">Touch Up your Custom Edge</h2>
 
 
-<h3 id="HyperedgeEndpoints">Hyperedge equality</h3>
-<p> Looking at the endpoints of a hyperedge respectively the sources or targets of
-    a directed hyperedge, equality is even more weird. For instance, would you say that
-    <code>HyperEdge(1, 2, 2)</code> is equal to <code>HyperEdge(2, 2, 1)</code> or not?
-    It turns out that depending on the use case both propositions may be desirable to hold.
-</p>
-<p><em id="G4S">Graph for Scala</em> currently supports two kinds of endpoint collections:
-    <code>Bag</code> and <code>Sequence</code>. With <code>Bag</code> being the default kind,
-    the above hyperedges are in fact equal. The endpoint collection kind is controlled
-    by an implicit value of the type <code>CollectionKind</code>.
-    Define <code>Sequence</code> as an implicit value to turn this kind on:
-</p>
-<pre class="prettyprint lang-scala nolinenum">import scalax.collection.GraphEdge._
-implicit val kind: CollectionKind = Sequence
-HyperEdge(1, 2, 2) == HyperEdge(2, 2, 1) // false 
-</pre>
-
 <h3 id="EdgesCreationMethods">Bypassing edge factories</h3>
 <p> What is more, mutable <code>Graph</code> instances provide edge creation methods
     to be called directly on <code>Graph</code> instances (<code>addEdge</code>,
