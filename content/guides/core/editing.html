@@ -464,53 +464,33 @@ object +: extends UnapplyLabel[Node, Labels]
 <p> The supporting traits are not specific to edge types unless you have a custom generic edge.</p>
 
 <h2>Populate your Graph</h2>
-<pre class="prettyprint lang-scala linenums">val g1 = Graph(3~1, 5)            // Graph[Int,UnDiEdge](1, 3, 5, 3~1)
-val g2 = Graph(UnDiEdge(3, 1), 5) // same as above
-val gA = Graph(3~>1.2)            // Graph[AnyVal,DiEdge](3, 1.2, 3~>1.2)
-val h = Graph(1~1, 1~2~3)         // Graph[Int,HyperEdge](1, 2, 3, 1~1, 1~2~3)
-val (jfc, fra, dme) = (Airport("JFC"), Airport("FRA"), Airport("DME"))
-val flights = Graph(
-	(jfc ~+#> fra)(Flight("LH 400" ,10 o 25, 8 h 20)),
-	(fra ~+#> dme)(Flight("LH 1444", 7 o 50, 3 h 10))
-val nodes = List(5)
-val edges = List(3~1)
-val g3 = Graph.from(nodes, edges)
-var n, m = 0; val f = Graph.fill(100)( {n = m; m += 1; n~m} ) 
+<pre class="prettyprint lang-scala linenums">case class Person(name: String)
+
+sealed trait Relation extends AnyEdge[Person]
+// Parent, Friends and Siblings extend Relation
+
+import scalax.collection.mutable.{Graph, TypedGraphFactory}
+type SocialGraph = Graph[Person, Relation]
+object SocialGraph extends TypedGraphFactory[Person, Relation]
+
+SocialGraph.from(Parent(kate, mike) :: Friends(kate, john) :: Siblings(kate, john) :: Nil)
+
+import People.OuterImplicits._
+val g = People(kate, Parent(kate, mike), Friends(kate, john), Siblings(kate, john))
+
+g += Friends(kate, susan)
 </pre>
 <p>As to</p>
 <ol>
-    <li>Creates an undirected graph of the type <code>Graph[Int,UnDiEdge]
-    </code>with the node set <code>{1, 3, 5}</code> and the edge set {3~1}.
-        The operator <code>~</code> is used to create undirected edges.
-        N is inferred to be <code>Int</code> because both the edge ends
-        and the single node are of type <code>Int</code>.
+    <li value="8">For typed graphs it is best practice to create a type specific singleton
+        that <code>extends TypedGraphFactory</code> to support better type inference and more.
     </li>
-    <li>Creates the very same undirected graph as a). Operator <code>~</code>
-        is just a short-hand for invoking the factory <code>UnDiEdge</code>.
+    <li value="10">Prefer instantiating and populationg your graph by calling a single method
+        that accepts an <code>Iterable</code> of elements for performance reasons.
     </li>
-    <li>Creates a directed graph of the type <code>Graph[AnyVal,DiEdge]</code>
-        with the node set <code>{3, 1.2}</code> and the edge set {3~&gt;1.2}.
-        The operator <code>~&gt;</code> is used to create directed edges.
-        N is inferred to be <code>AnyVal</code> because this is the smallest common
-        super type of the edge ends.
+    <li value="12">Import <code>OuterImplicits</code> to facilitate type inference when calling <code>apply</code>.
     </li>
-    <li>Creates a hypergraph of the type <code>Graph[Int,HyperEdge]
-    </code>with the node set <code>{1, 2, 3}</code> and the edge set {1~1, 1~2~3}.
-        In <code>1~2~3</code> the second <code>~</code> operator creates
-        an undirected hyperedge because the left operand is already an edge.
-    </li>
-    <li value="6">Creates an instance of<code> Graph[Airport,LkDiEdge]</code>
-        with a node set containing the airports <code>JFC</code>, <code>FRA</code>
-        and <code>DME</code> derived from the edge ends and an edge set
-        containing two flights. The edges have labels of the type <code>Flight</code>,
-        <code>~+#&gt;</code> is an edge factory shortcut to pass the labels.
-        The <code>Flight</code> attributes are flight number, departure time
-        and flight duration. See also <em>2.3 Edge Factories</em>.
-    </li>
-    <li value="11">Creates a <code>Graph</code> from the <code>Iterable</code>
-        values <code>nodes</code> and <code>edges</code>. This <code>Graph</code>
-        instance&nbsp; <code>g3</code> equals to <code>g1</code>.
-    </li>
-    <li>Creates a <code>Graph</code> instance with 100 edges {0~1, 1~2, ..., 99~100}.
+    <li value="15">Here we add another edge to the social graph. You can add or subtract nodes and edges
+        one by one or in bulk just like you are familiar with from the standard library.
     </li>
 </ol>
