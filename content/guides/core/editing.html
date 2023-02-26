@@ -24,10 +24,11 @@ sideMenuItems: >
 </p>
 <p><code>E&nbsp;</code> type of the edges like a concrete <code>class</code>, a <code>trait</code> or an ADT.
 </p>
-<p> The node type is unconstrained. Normally you will opt for immutable nodes but, in rare cases, mutable nodes might
+<p> The node type is unconstrained. Normally you will opt for immutable nodes but sometimes mutable nodes might
     make sense. When using mutable nodes, beware that only fields that are not used by the class'
     <code>equals</code>/<code>hashCode</code> may be mutated.
-    This is because the behavior of hash-based collections is not specified if the value of a field is changed
+    Otherwise, you would be posed to observe issues on adding or looking up nodes.
+    This is because the behaviour of hash-based collections is not specified if the value of a field is changed
     such that <code>equals</code>/<code>hashCode</code> are affected - see also
     <a href="http://download.oracle.com/javase/1.4.2/docs/api/java/util/Map.html">java.util.Map</a>.
 </p>
@@ -242,18 +243,227 @@ sideMenuItems: >
     </tr>
 </table>
 
-<h2 id="CustomEdges">Touch Up your Custom Edge</h2>
-
-
-<h3 id="EdgesCreationMethods">Bypassing edge factories</h3>
-<p> What is more, mutable <code>Graph</code> instances provide edge creation methods
-    to be called directly on <code>Graph</code> instances (<code>addEdge</code>,
-    <code>+~=</code>, <code>addAndGetEdge</code>) or on inner nodes
-    (<code>connectWith</code>, <code>+~</code>). These methods should save execution
-    time since less conversion is necessary to complete edge creation.
+<h2 id="CustomEdgeGoodies">Touch Up your Custom Edge</h2>
+<p> It is in your hands to follow library conventions or stay with the simplest possible, Java-like implementation.
+    We provide separate traits for every aspect of those conventions to facilitate a fine-grained selection.
 </p>
 
-<h2>Instantiating Graphs</h2>
+<h3 id="InfixEdgeConstructors">Add Infix Edge Constructors</h3>
+<p> Go for the syntactic sugar <code>~></code> and its companions if you like. As per library convention
+</p>
+<table>
+    <tr>
+        <td><strong>The infix constructor of</strong></td>
+        <td><strong>Uses the node operator</strong></td>
+        <td><strong>Like</strong></td>
+    </tr>
+    <tr>
+        <td>directed edges</td>
+        <td align="center"><code>~></code></td>
+        <td><code>1 ~> 2</code></td>
+    </tr>
+    <tr>
+        <td>undirected edges</td>
+        <td align="center"><code>~</code></td>
+        <td><code>1 ~ 2</code></td>
+    </tr>
+    <tr>
+        <td>directed hyperedges</td>
+        <td align="center"><code>~~></code></td>
+        <td><code>more(1, -1) ~~> one(2)</code></td>
+    </tr>
+    <tr>
+        <td>hyperedges</td>
+        <td align="center"><code>~~</code></td>
+        <td><code>1 ~~ -1 ~~ 2</code></td>
+    </tr>
+</table>
+<p>and</p>
+<table>
+    <tr>
+        <td><strong>The infix constructor of</strong></td>
+        <td><strong>Uses the label operator</strong></td>
+        <td><strong>Like</strong></td>
+    </tr>
+    <tr>
+        <td>weighted edges</td>
+        <td align="center"><code>%</code></td>
+        <td><code>1 ~> 2 % 5.5</code></td>
+    </tr>
+    <tr>
+        <td>weighted multiedges</td>
+        <td align="center"><code>%%</code></td>
+        <td><code>1 ~ 2 %% 5.5</code></td>
+    </tr>
+    <tr>
+        <td>any other non-multi edge</td>
+        <td align="center"><code>:+</code></td>
+        <td><code>1 ~> 2 :+ labels</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td><code>more(1, -1) ~~> one(2) :+ labels</code></td>
+    </tr>
+    <tr>
+        <td>any other multiedge</td>
+        <td align="center"><code>:++</code></td>
+        <td><code>1 ~ 2 :++ labels</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td><code>more(1, -1) ~~> one(2) :++ labels</code></td>
+    </tr>
+</table>
+<p> In case your custom edge is not labeled you can extend one of the following traits:
+</p>
+<table>
+    <tr>
+        <td><strong>Edge type</strong></td>
+        <td><strong>Supporting trait in scalax.collections</strong></td>
+    </tr>
+    <tr>
+        <td>directed</td>
+        <td><code>generic.AbstractDiEdgeImplicits</code></td>
+    </tr>
+    <tr>
+        <td>undirected</td>
+        <td><code>generic.AbstractEdgeImplicits</code></td>
+    </tr>
+    <tr>
+        <td>hyperedge</td>
+        <td><code>generic.AbstractHyperEdgeImplicits.FromAny</code><br/>
+            <code>generic.AbstractHyperEdgeImplicits.FromEdge</code>
+        </td>
+    </tr>
+    <tr>
+        <td>directed hyperedge</td>
+        <td><code>generic.AbstractDiHyperEdgeImplicits.FronOneOrMore</code></td>
+    </tr>
+</table>
+<p> Create the implicit conversion to employ a standard infix constructor like
+</p>
+<pre class="prettyprint lang-scala nolinenum">case class MyDiEdge(source: String, target: String)
+    extends AbstractDiEdge(source, target)
+
+implicit final class MyNodeImplicits(val source: String)
+    extends AnyVal
+    with AbstractDiEdgeImplicits[String, MyDiEdge, MyDiEdge.type] {
+  protected def companion = MyDiEdge
+}
+
+"ab" ~> "cd" // MyDiEdge("ab", "cd")
+</pre>
+<p> For your labeled custom edge, reuse the corresponding node operator and define your label conversion operator like
+</p>
+<pre class="prettyprint lang-scala nolinenum">case class MyLDiEdge(source: String, target: String, n: Int, s: String)
+    extends AbstractDiEdge(source, target)
+
+import scalax.collection.edges.DiEdgeImplicits
+
+implicit class MyLDiEdgeInfixLabelConstructor(val e: DiEdge[String]) extends AnyVal {
+  def :+(label_1: Int, label_2: String) = MyLDiEdge(e.source, e.target, label_1, label_2)
+}
+
+"ab" ~> "cd" :+ (1, "xy") // MyLDiEdge("ab", "cd", 1, "xy")
+</pre>
+
+<h3 id="ToString">Override toString</h3>
+<p> Whenever you opt for an infix constructor, do not miss the corresponding <code>toString</code> representation.
+    This is also facilitated by convenience traits for every edge type like
+</p>
+<pre class="prettyprint lang-scala nolinenum">case class MyLDiEdge(source: String, target: String, n: Int, s: String)
+    extends AbstractDiEdge(source, target)
+    with LDiEdgeToString {
+  override protected def labelToString: String = s"($n, $s)"
+}
+
+("ab" ~> "cd" :+ (1, "xy")).toString // "ab" ~> "cd" :+ (1, "xy")
+</pre>
+<p> To override the symbol <code>:+</code> by <code>:++</code> for multiedges you should further mix in
+    <code>MultiLEdgeToString</code>.
+</p>
+
+<h3 id="InfixEdgeExtractors">Add Infix Edge Extractors</h3>
+<p> Add more syntactic sugar to get edge patterns shine alike. Here is an example for how it works for the above
+    <code>MyLDiEdge</code>:
+</p>
+<pre class="prettyprint lang-scala nolinenum">type Node = String
+type Labels = (Int, String)
+
+object :~> extends UnapplyLabeledEdge[Node, MyLDiEdge, Labels] {
+  protected def label(e: MyLDiEdge): Labels = (e.n, e.s)
+}
+object +: extends UnapplyLabel[Node, Labels]
+
+"ab" ~> "cd" :+ (1, "xy") match {
+  case source :~> target +: (num, str) =>
+}
+</pre>
+<p> You might wonder why the position of colons is mixed up in the infix edge extractor symbols.
+    Unfortunately this is the only way to get the desired outcome due to operator precedence rules.
+    To make the best of it, we recommend using the following infix extractors:
+</p>
+<table>
+    <tr>
+        <td><strong>Edge type</strong></td>
+        <td><strong>Edge extractor</strong></td>
+        <td><strong>Further decompose by</strong></td>
+        <td><strong>Label extractor</strong></td>
+    </tr>
+    <tr>
+        <td>directed edge</td>
+        <td align="center"><code>:~></code></td>
+        <td></td>
+        <td align="center"><code>+:</code></td>
+    </tr>
+    <tr>
+        <td>directed multiedge</td>
+        <td align="center"><code>:~></code></td>
+        <td></td>
+        <td align="center"><code>++:</code></td>
+    </tr>
+    <tr>
+        <td>unirected edge</td>
+        <td align="center"><code>:~</code></td>
+        <td></td>
+        <td align="center"><code>+:</code></td>
+    </tr>
+    <tr>
+        <td>undirected multiedge</td>
+        <td align="center"><code>:~</code></td>
+        <td></td>
+        <td align="center"><code>++:</code></td>
+    </tr>
+    <tr>
+        <td>hyperedge</td>
+        <td align="center"></td>
+        <td align="center"><code>Several.Seq</code></td>
+        <td align="center"><code>+:</code></td>
+    </tr>
+    <tr>
+        <td>multi hyperedge</td>
+        <td align="center"></td>
+        <td align="center"><code>Several.Seq</code></td>
+        <td align="center"><code>++:</code></td>
+    </tr>
+    <tr>
+        <td>directed hyperedge</td>
+        <td align="center"><code>:~~></code></td>
+        <td align="center"><code>OneOrMore.Seq</code></td>
+        <td align="center"><code>+:</code></td>
+    </tr>
+    <tr>
+        <td>directed multi hyperedge</td>
+        <td align="center"><code>:~~></code></td>
+        <td align="center"><code>OneOrMore.Seq</code></td>
+        <td align="center"><code>++:</code></td>
+    </tr>
+</table>
+<p> The supporting traits are not specific to edge types unless you have a custom generic edge.</p>
+
+<h2>Populate your Graph</h2>
 <pre class="prettyprint lang-scala linenums">val g1 = Graph(3~1, 5)            // Graph[Int,UnDiEdge](1, 3, 5, 3~1)
 val g2 = Graph(UnDiEdge(3, 1), 5) // same as above
 val gA = Graph(3~>1.2)            // Graph[AnyVal,DiEdge](3, 1.2, 3~>1.2)
@@ -304,46 +514,3 @@ var n, m = 0; val f = Graph.fill(100)( {n = m; m += 1; n~m} )
     <li>Creates a <code>Graph</code> instance with 100 edges {0~1, 1~2, ..., 99~100}.
     </li>
 </ol>
-
-<h2>Type Parameter Inference</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph()                // Graph[Nothing,Nothing]
-val g = Graph(1)               // Graph[Int,Nothing]
-val g = Graph(1~>2); g += 1.2  // Graph[Int,DiEdge]; compiler error
-Graph(1~>2) + 2~3              // compiler error
-</pre>
-<p> Calling the default <code>Graph</code> factory without type parameters is in general
-    satisfactory if at least one edge is passed. Otherwise, analogously to regular Scala
-    collection members, you are advised to explicitly define the type parameters:
-</p>
-<p>As to</p>
-<ol>
-    <li>In absence of any arguments, <code>Nothing</code> is inferred for both the node
-        and the edge type so you cannot add any nodes or edges to this instance later on.
-    </li>
-    <li>In absence of any edge arguments, <code>Nothing</code> is inferred for the
-        edge type so you can add only nodes to this instance later on.
-    </li>
-    <li>To be able to add a <code>Double</code> to this instance, you must define
-        its type parameters broader at creation time like <code>Graph[AnyVal,DiEdge]</code>.
-        Also note that, due to the higher kinded nature of the <code>E[X]</code>
-        type parameter, <code>DiEdge</code> is correctly inferred &#8211;
-        even if some of you would expect <code>DiEdge[Int]</code>.
-    </li>
-    <li>This addition is rejected by the compiler because <code>[Int,DiEdge]</code>
-        is inferred and <code>2~3</code> is not a directed but an undirected
-        edge. Directed edges inherit from undirected edges but the opposite is
-        not true.
-    </li>
-</ol>
-<p> As a final note, whenever you are implementing own functionality on top
-    of <code>Graph</code>, the Scala type system requires to declaratively
-    maintain type parameter bounds as shown in the following example:
-</p>
-<pre class="prettyprint lang-scala nolinenum">def myFunction[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E])
-</pre>
-
-<p> In most cases you need to import the following:</p>
-<pre class="prettyprint lang-scala nolinenum">import scalax.collection.Graph // or scalax.collection.mutable.Graph
-import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
-</pre>
-
