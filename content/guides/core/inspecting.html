@@ -1,196 +1,80 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-  <li><a href="/guides/core/contents.html">Contents</a></li>
-  <li><a href="/guides/core/concepts.html">Key Concepts</a></li>
-  <li><a href="/guides/core/planning.html">Plan Your Graph</a></li>
-  <li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
-  <li><a>Inspect Your Graph</a></li>
-  <li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
-  <li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
-  <li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
-  <li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
+<li><a href="/guides/core/index.html">Contents</a></li>
+<li><a href="/guides/core/concepts.html">Key Concepts</a></li>
+<li><a href="/guides/core/planning.html">Plan Your Graph</a></li>
+<li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
+<li><a>Inspect Your Graph</a></li>
+<li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
+<li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
+<li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
+<li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Inspect Your Graph</h1>
+<p>Import the following for the examples below:</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.edges._
+import scalax.collection.OuterImplicits._
+import scalax.collection.mutable.Graph
+</pre>
 
 <h2 id="Iterating">Iterating</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(2~3, 3~1)
-g mkString ","	             // "1,2,3,2~3,3~1"
-g.nodes mkString "-"         // "1-2-3"
-g.edges mkString " "         // "2~3 3~1"
+<pre class="prettyprint lang-scala linenums">val g = Graph(2 ~ 3, 3 ~ 1)
+  g.toString            // "Graph(NodeSet(1, 2, 3), EdgeSet(2 ~ 3, 3 ~ 1))"
+  g.nodes mkString ", " // "1, 2, 3"
+  g.edges mkString ", " // "2 ~ 3, 3 ~ 1"
+  g.outerIterator
+    .map {
+      case g.OuterNode(n) => n.toString
+      case g.OuterEdge(e) => e.toString
+    }
+    .mkString(", ")     // 1, 2, 3, 2 ~ 3, 3 ~ 1
 </pre>
 <p>As to</p>
 <ol>
-	<li value="2">Iterating over a <code>Graph</code> instance you get all nodes
-		and all edges. <code>Graph</code> extends <code>Set[GraphParam]</code>.
-		<code>GraphParam</code> is an algebraic type for outer nodes, outer edges,
-		inner nodes and inner edges.
-	</li>
-	<li><code>nodes</code> returns the node set which in turn is an instance of
-		<code>Set[NodeT]</code>.
-	</li>
-	<li><code>edges</code> returns the edge set which in turn is an 	instance of
-		<code>Set[EdgeT]</code>.
-	</li>
+    <li value="3"><code>nodes</code> of the type <code>NodeSetT</code> returns the node set of the graph.</li>
+    <li><code>edges</code> of the type <code>EdgeSetT</code> returns the edge set of the graph.</li>
+    <li>You can use <code>iterator</code> or <code>outerIterator</code> to iterate over nodes and edges in one go.
+    </li>
 </ol>
-<p> Both <code>Graph</code> and its inner classes <code>NodeSet</code> and
-	<code>EdgeSet</code> extend <code>scala.collection.Set</code>.
-	Thus, you can call the gamut of well-known <code>TraversableLike</code> methods
-	on these such as <code>filter</code>, <code>foreach</code> etc.
+<p><code>NodeSetT</code> and <code>EdgeSetT</code> are inner classes that extend <code>scala.collection.Set</code>
+    by also adding a few methods like <code>draw</code> for picking a random element.
 </p>
 
 <h2 id="LookingUp">Looking up Nodes and Edges</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(1~2)
-g find 1                          // Option[g.NodeT] = Some(1)
-g find 3                          // Option[g.NodeT] = None
-g get 1                           // g.NodeT = 1
-g get 3                           // NoSuchElementException
-g find 1 ~ 2                      // Option[g.EdgeT] = Some(1~2)
-g find (g having (node = _.toOuter == 1)) // g.NodeT = 1
-val h = mutable.Graph.empty[Int,UnDiEdge] ++ g
-g addAndGet 5                     // g.NodeT = 5
+<pre class="prettyprint lang-scala linenums">val g = Graph(1 ~ 2)
+g find 1              // Option[g.NodeT] = Some(1)
+g find 3              // Option[g.NodeT] = None
+g get 1               // g.NodeT = 1
+g get 3               // NoSuchElementException
+g find 1 ~ 2          // Option[g.EdgeT] = Some(1 ~ 2)
+g.nodes find (_ == 1) // Option[g.NodeT] = 1
+g addAndGet 3         // g.NodeT = 3
 </pre>
 <p>As to</p>
 <ol>
-	<li value="2">Searches for and finds the inner node wrapping the outer node <code>1</code>.
-	</li>
-	<li>Searches for the inner node wrapping the outer node 3 but cannot find it.
-	</li>
-	<li>Searches for, finds and gets the inner node wrapping the outer node <code>1</code>.
-		Call <code>get</code> with caution. It is ok in test code if you know that the node exists.
-	</li>
-	<li>Searches for but does not find an inner node wrapping the outer node <code>3</code>.
-	</li>
-	<li>Searches for and finds the inner edge wrapping the outer edge
-		<code>1 ~ 2</code>. Looking up edges works in the same manner as for nodes.
-	</li>
-	<li>This is no more a direct access to a specific element, but
-		rather a search over all nodes stopping at the first node with the
-		predicate <code>_ == 1</code>. <code>having </code>may take a <code>node</code>
-		and/or an <code>edge</code> argument.
-	</li>
-	<li>Creates a mutable Graph equaling to <code>g</code>.
-	</li>
-	<li>For a mutable <code>Graph</code>, adds <code>5</code>
-		to the node set and returns the new inner node. This method
-		couples adding and getting the same node.
-	</li>
+    <li value="2">Searches for and finds the inner node wrapping the outer node <code>1</code> in constant time.
+    </li>
+    <li>Searches for the inner node wrapping the outer node 3 but cannot find it.
+    </li>
+    <li>Searches for, finds and gets the inner node wrapping the outer node <code>1</code> in constant time.
+        Call <code>get</code> with caution. It is fine especially in test code if you know that the node exists.
+    </li>
+    <li>Searches for but does not find any inner node that wraps <code>3</code> so <code>NoSuchElementException</code>
+        is thrown.
+    </li>
+    <li>Searches for and finds the inner edge wrapping the outer edge <code>1 ~ 2</code>.
+        Looking up edges works in the same manner as for nodes.
+    </li>
+    <li>Not a real lookup since it searches over all nodes stopping at the first node with the predicate <code>_ ==
+        1</code> in linear time.
+    </li>
+    <li>Available only for mutable graphs, adds <code>3</code> to the node set and returns the new inner node.
+    </li>
 </ol>
-<p> Looking up nodes and edges is necessary to invoke graph functionality at a specific
-	element of the graph. With respect to an operation we also call an inner node the "root node".
-	Looking up is similar to getting a value of a <code>Map</code> entry by passing a key to the map.
-	In case of <code>Graph</code> the "key" is an outer node or edge and the returned
-	"value" is the inner node or edge.
-	Look up is implemented in terms of <code>hashCode</code> and <code>==</code>.
-</p>
-
-<h2 id="Adding">Adding and Subtracting</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(1, 2~3)  // immutable or mutable
-g + 1                  // g unchanged
-g + 0                  // Graph(0, 1, 2, 3, 2 ~ 3)
-g + 1.2                // error: overloaded method...
-g + 0~1                // Graph(0, 1, 2, 3, 0 ~ 1, 2 ~ 3)
-g ++ List(1~2, 2~3)    // Graph(1, 2, 3, 1 ~ 2, 2 ~ 3)
-g ++ List[Param[Int,UnDiEdge]](1~2, 2~3, 0)
-                       // Graph(0, 1, 2, 3, 1 ~ 2, 2 ~ 3)
-g - 0                  // g
-g - 1                  // Graph(2, 3, 2 ~ 3)
-g - 2                  // Graph(1, 3)
-g -? 2                 // g
-g - 2~3                // Graph(1, 2, 3)
-g -! 2~3               // Graph(1)
-g --  List[Param[Int,UnDiEdge]](2, 3 ~ 3)
-                       // Graph(1, 3)
-def h = mutable.Graph.empty[Int,UnDiEdge] ++ g
-h += 0                 // Graph(0, 1, 2, 3, 2 ~ 3)
-h += (3 ~> 1)          // Graph(1, 2, 3, 2 ~ 3, 3 ~> 1)
-implicit val factory = scalax.collection.edge.LDiEdge
-h.addLEdge(3,4)("red") // true
-</pre>
-<p>As to</p>
-<ol>
-	<li value="2">Node <code>1</code> is not added because it is already
-		contained, so the same instance is returned.
-	</li>
-	<li>Node 0 is added to a new <code>Graph</code> instance.
-	</li>
-	<li><code>Double</code> is incompatible with <code>Int</code> so
-		the compiler will issue an error.</li>
-	<li>Edge <code>0~1</code> is added to a new <code>Graph</code> 	instance.
-	</li>
-	<li>All edges contained in the right hand operand are added to a
-		new <code>Graph</code> instance.
-	</li>
-	<li>All edges or nodes contained in the right hand operand are
-		added to a new <code>Graph</code> instance.
-	</li>
-	<li value="9">Node <code>0</code> is not removed because it is not
-		contained, so the same instance is returned.
-	</li>
-	<li>Node <code>1</code> is removed from a new <code>Graph</code>
-		instance. This node was not incident with any edge.
-	</li>
-	<li>Node <code>2</code> along 	with <code>2~3</code> is <em>ripple</em> removed
-		from a new <code>Graph</code> instance. Node <code>2</code> was incident
-		with <code>2~3</code>.
-	</li>
-	<li>Node <code>2</code> is not 	removed because this <em>gentle</em> removal
-		succeeds only if the node is not incident with any edge.
-	</li>
-	<li>Edge <code>2~3</code> is removed from a new <code>Graph</code> instance
-		leaving its incident nodes in place.
-	</li>
-	<li>Edge <code>2~3</code> along with its incident nodes <code>2</code> and
-		<code>3</code> is removed from a new <code>Graph</code> instance.
-		Incident nodes will only be removed if they are not incident with
-		any other edge.
-	</li>
-	<li>All edges or nodes contained in the right hand operand are
-		removed from a new <code>Graph</code> instance.
-	</li>
-	<li value="18">Node 0 is added to the a mutable <code>Graph</code> equaling to <code>g</code>.
-	</li>
-	<li value="21"><code>addLEdge</code> (same as <code>+~+=</code>) adds a
-		labeled edge to a mutable graph passing the connected nodes and the label.
-		This kind of method has an <code>implicit </code> edge factory parameter.
-	</li>
-</ol>
-<p> The <code>Graph</code> operators <code>+</code>, <code>+=</code> for adding
-	and <code>-</code>, <code> -=</code> for subtracting may have an inner or outer
-	node or edge at the right hand side.
-	<em id="G4S">Graph for Scala</em> guarantees a consistent state of the node and
-	edge sets after any operation including duplicate node/edge prevention
-	as demonstrated on line <em>5</em>.
-</p>
-<p> Both <em>ripple</em> and <em>gentle</em> removal schemas are supported.
-	Using the standard operators <code>-</code> and <code>-=</code>, removals comply
-	with the definition of node and edge removal in graph theory:
-	<em>ripple</em> removal of nodes as on the lines <em>9</em> to <em>11</em> and
-	<em>gentle</em> removal of edges as on line <em>13</em>.
-	In addition, <em>gentle</em> removal of nodes by <code>-?</code> and
-	<code>-?=</code> as on line <em>12</em> as well as <em>ripple</em> removal of edges by
-	<code>-!</code> and <code>-!=</code> as on line <em>13</em> are also supported.
-</p>
-<p>	It is also possible to add elements to or subtract elements from node and edge
-	sets. However, these operations have less practical relevance as the result
-	is always a decoupled immutable set.
-</p>
-<p>In case of mutable graphs, two kinds of edge addition are supported:</p>
-<ul>
-	<li><em>Standard</em> addition is achieved by the operator <code>+=
-		</code>requiring an instance of <code>EdgeLike</code> at the right hand side
-		<code>&#8211;</code> see example <em>d)</em>.
-	</li>
-	<li><em>Factory-based</em> addition is achieved by special <code>add*</code>
-		methods or the corresponding operators having the incident nodes and
-		optionally an edge weight and label as arguments. The edge factory to
-		be used for internal edge creation must be defined as <code>implicit
-		val</code> - see example <em>q)</em>. Factory based addition should
-		slightly outperform standard addition.
-	</li>
-</ul>
-<p> For adding or subtracting elements of another <code>Graph</code> instance in bulk
-	see <em>4.5</em>.
+<p> You need to look up nodes and edges to invoke traversals starting at a specific element.
+    With respect to traversals we also call the starting inner node the "root node".
+    Look-ups are implemented in terms of <code>hashCode</code> and <code>equals</code>.
 </p>
 
 <h2 id="Union">Computing Union, Difference and Intersection</h2>
@@ -202,10 +86,10 @@ g intersect h  // Graph(4, 3 ~ 5)
 g &= h         // Graph(4, 3 ~ 5), mutated instance
 </pre>
 <p> Also <code>union</code> (same as <code>++</code>), difference (<code>diff</code>
-	same as <code>--</code>) and intersection (<code>intersec</code> same as
-	<code>&amp;</code>) work in compliance with the corresponding definitions in
-	graph theory. Use any of the previous operators followed by <code>=</code>
-	for the mutable variants.
+    same as <code>--</code>) and intersection (<code>intersec</code> same as
+    <code>&amp;</code>) work in compliance with the corresponding definitions in
+    graph theory. Use any of the previous operators followed by <code>=</code>
+    for the mutable variants.
 </p>
 
 <h2 id="Endpoints">Inspecting Endpoints</h2>
@@ -228,24 +112,24 @@ hE.sum                   // Int = 26
 </pre>
 <p>As to</p>
 <ol>
-	<li value="2"><code>_1</code> and <code>_2</code> provide access to the first and
-		second node of an edge.
-	</li>
-	<li>Edges are also <code>Iterable</code> with respect to the connected nodes.
-	</li>
-	<li>The endpoints of edges may also be extracted by means of pattern matching.
-	</li>
-	<li value="8">The first node of a directed edge may be accessed by <code>_1</code>
-		or <code>source</code>, the second by <code>_2</code> or <code>target</code>.
-	</li>
-	<li>Both <code>uE</code> and <code>dE</code> have an <code>arity</code>
-		of 2.
-	</li>
-	<li value="14"><code>_n</code> also enables direct access. Here we access the
-		last node of <code>hE</code>.
-	</li>
-	<li>Again, all edges including hyperedges are <code>Iterable</code>s.
-	</li>
+    <li value="2"><code>_1</code> and <code>_2</code> provide access to the first and
+        second node of an edge.
+    </li>
+    <li>Edges are also <code>Iterable</code> with respect to the connected nodes.
+    </li>
+    <li>The endpoints of edges may also be extracted by means of pattern matching.
+    </li>
+    <li value="8">The first node of a directed edge may be accessed by <code>_1</code>
+        or <code>source</code>, the second by <code>_2</code> or <code>target</code>.
+    </li>
+    <li>Both <code>uE</code> and <code>dE</code> have an <code>arity</code>
+        of 2.
+    </li>
+    <li value="14"><code>_n</code> also enables direct access. Here we access the
+        last node of <code>hE</code>.
+    </li>
+    <li>Again, all edges including hyperedges are <code>Iterable</code>s.
+    </li>
 </ol>
 
 <h2 id="Patterns">More Edge Patterns</h2>
@@ -262,23 +146,23 @@ import StringLabel._
        sum + s.outDegree + t.outDegree
 }) // Int = 6
 </pre>
-<p>	Edge patterns are especially handy when extracting the attributes
+<p> Edge patterns are especially handy when extracting the attributes
     of weighted and/or labeled edges. The above <code>fold</code> calculates the
     sum of the out-degrees of edge endpoints restricted to edges with a label
     containing <code>'A'</code> by applying an infix operator pattern to each edge
     of the graph.
 </p>
-<p>	The constructor pattern <code>LDiEdge(s, t, l)</code>  would be an alternative
+<p> The constructor pattern <code>LDiEdge(s, t, l)</code> would be an alternative
     to <code>s :~> t + l</code>. Operator names have been selected in compliance
     with edge constructor shortcuts: <code>:~</code> matches undirected, <code>:~></code>
     directed edges. <code>%</code>, <code>+</code> and <code>%+</code> match weighted,
     labeled and weighted-labeled edges, respectively.
 </p>
-<p>	Note that you need to dereference inner edges of type <code>EdgeT</code> by
+<p> Note that you need to dereference inner edges of type <code>EdgeT</code> by
     calling the accessor method <code>edge</code> to facilitate the predefined edge
     extractors. You'll find more edge pattern matching examples in <a href=
-    "https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TEdge.scala">
-	TEdge.scala</a>.
+                                                                              "https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TEdge.scala">
+        TEdge.scala</a>.
 </p>
 
 <h2 id="Neighbors">Inspecting Neighbors and Incident Edges</h2>
@@ -294,71 +178,81 @@ n(3) ~>? n2                // Option[g.EdgeT] = Some(3 ~> 2)
 </pre>
 <p>As to</p>
 <ol>
-	<li value="4">Node <code>n(0)</code> is independent so the set of direct
-		successor nodes is empty.
-	</li>
-	<li>Node <code>n(2)</code> is reachable but has no direct successor
-		so the set of its out-neighbors is empty, too.
-	</li>
-	<li>From node <code>n(3)</code>, <code>1</code> and <code>2</code> are reachable.
-	</li>
-	<li>The only direct predecessor of node <code>n(3)</code> is node <code>1</code>.
-	</li>
-	<li>From the perspective of node <code>n(2)</code> there is only one
-		incoming edge namely <code>3~&gt;2</code>.
-	</li>
-	<li><code>~&gt;?</code> is a synonym to <code>findOutgoingTo</code>.
-	</li>
+    <li value="4">Node <code>n(0)</code> is independent so the set of direct
+        successor nodes is empty.
+    </li>
+    <li>Node <code>n(2)</code> is reachable but has no direct successor
+        so the set of its out-neighbors is empty, too.
+    </li>
+    <li>From node <code>n(3)</code>, <code>1</code> and <code>2</code> are reachable.
+    </li>
+    <li>The only direct predecessor of node <code>n(3)</code> is node <code>1</code>.
+    </li>
+    <li>From the perspective of node <code>n(2)</code> there is only one
+        incoming edge namely <code>3~&gt;2</code>.
+    </li>
+    <li><code>~&gt;?</code> is a synonym to <code>findOutgoingTo</code>.
+    </li>
 </ol>
-<p>	All in all, given a specific node, the following methods are available to inspect
-	incident edges and neighbors:</p>
+<p> All in all, given a specific node, the following methods are available to inspect
+    incident edges and neighbors:</p>
 <table>
-	<tr><td><strong>Result Type</strong></td>
-		<td><strong>Method name</strong></td>
-		<td><strong>Synonyms</strong></td>
-	</tr>
-	<tr><td><strong><code>Set[NodeT]</code></strong></td>
-		<td><code>diSuccessors</code></td>
-		<td><code>outNeighbors</code>, <code>~&gt;|</code></td>
-	</tr>
-	<tr><td></td>
-		<td><code>diPredecessors</code></td>
-		<td><code>inNeighbors</code>, <code>&lt;~|</code></td>
-	</tr>
-	<tr><td></td>
-		<td><code>neighbors</code></td>
-		<td><code>~|</code></td>
-	</tr>
-	<tr><td><strong><code>Set[EdgeT]</code></strong></td>
-		<td><code>outgoing</code></td>
-		<td><code>~&gt;</code></td>
-	</tr>
-	<tr><td></td>
-		<td><code>outgoingTo</code></td>
-		<td><code>~&gt;</code></td>
-	</tr>
-	<tr><td></td>
-		<td><code>incoming</code></td>
-		<td><code>&lt;~</code></td>
-	</tr>
-	<tr><td></td>
-		<td><code>incomingFrom</code></td>
-		<td><code>&lt;~</code></td>
-	</tr>
-	<tr><td><strong><code>Option[EdgeT]</code></strong></td>
-		<td><code>findOutgoingTo</code></td>
-		<td><code>~&gt;?</code></td>
-	</tr>
-	<tr><td></td>
-		<td><code>findIncomingFrom</code></td>
-		<td><code>&lt;~?</code></td>
-	</tr>
+    <tr>
+        <td><strong>Result Type</strong></td>
+        <td><strong>Method name</strong></td>
+        <td><strong>Synonyms</strong></td>
+    </tr>
+    <tr>
+        <td><strong><code>Set[NodeT]</code></strong></td>
+        <td><code>diSuccessors</code></td>
+        <td><code>outNeighbors</code>, <code>~&gt;|</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><code>diPredecessors</code></td>
+        <td><code>inNeighbors</code>, <code>&lt;~|</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><code>neighbors</code></td>
+        <td><code>~|</code></td>
+    </tr>
+    <tr>
+        <td><strong><code>Set[EdgeT]</code></strong></td>
+        <td><code>outgoing</code></td>
+        <td><code>~&gt;</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><code>outgoingTo</code></td>
+        <td><code>~&gt;</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><code>incoming</code></td>
+        <td><code>&lt;~</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><code>incomingFrom</code></td>
+        <td><code>&lt;~</code></td>
+    </tr>
+    <tr>
+        <td><strong><code>Option[EdgeT]</code></strong></td>
+        <td><code>findOutgoingTo</code></td>
+        <td><code>~&gt;?</code></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><code>findIncomingFrom</code></td>
+        <td><code>&lt;~?</code></td>
+    </tr>
 </table>
 <figure>
-	<figcaption>Neighbor and Incident Methods.</figcaption>
+    <figcaption>Neighbor and Incident Methods.</figcaption>
 </figure>
 <p> See also:
-	<code>object scalax.collection.Graph#InnerNodeLike</code>.
+    <code>object scalax.collection.Graph#InnerNodeLike</code>.
 </p>
 
 <h2 id="Querying">Querying by Function</h2>
@@ -372,36 +266,37 @@ g filter g.having(edge = _.directed)    // Graph(2, 3, 2 ~> 3)
 g count  g.having(node = _.toOuter >= 3, edge = _.isDirected) // Int = 3
 </pre>
 <p>As to</p>
-<ol><li value="2">Filters the node set by <code>(NodeT) =&gt; _.toOuter &gt; 2</code>.
-	</li>
-	<li>Filters nodes with a <code>degree &gt; 1</code>.
-	</li>
-	<li>Filters edges with no adjacent edges.</li>
-	<li>Creates a subgraph of <code>g</code> 	with nodes satisfying
-		<code>_ &gt;= 2</code> and their incident edges.
-	</li>
-	<li>Same as <em>d)</em> utilizing <code>having</code>. Method <code>having</code>,
-		returning a partial function, helps to reduce code by internally
-		<code>match</code>ing nodes and edges.
-	</li>
-	<li>Creates a subgraph of <code>g</code> consisting of <code>directed</code>
-		edges only. Note that filtering <code>g.edges</code> is not an
-		alternative because it would return a set of contained edges, not a
-		subgraph.
-	</li>
-	<li>Counts the number of nodes and edges satisfying either of the
-		given predicates.
-	</li>
+<ol>
+    <li value="2">Filters the node set by <code>(NodeT) =&gt; _.toOuter &gt; 2</code>.
+    </li>
+    <li>Filters nodes with a <code>degree &gt; 1</code>.
+    </li>
+    <li>Filters edges with no adjacent edges.</li>
+    <li>Creates a subgraph of <code>g</code> with nodes satisfying
+        <code>_ &gt;= 2</code> and their incident edges.
+    </li>
+    <li>Same as <em>d)</em> utilizing <code>having</code>. Method <code>having</code>,
+        returning a partial function, helps to reduce code by internally
+        <code>match</code>ing nodes and edges.
+    </li>
+    <li>Creates a subgraph of <code>g</code> consisting of <code>directed</code>
+        edges only. Note that filtering <code>g.edges</code> is not an
+        alternative because it would return a set of contained edges, not a
+        subgraph.
+    </li>
+    <li>Counts the number of nodes and edges satisfying either of the
+        given predicates.
+    </li>
 </ol>
-<p> <code>Graph</code> queries may start at the node set <code>nodes</code>,
-	the edge set <code>edges</code> or at the <code>Graph</code> instance.
-	Filtering a graph results in a subgraph obtained by node and/or edge
-	predicates.
+<p><code>Graph</code> queries may start at the node set <code>nodes</code>,
+    the edge set <code>edges</code> or at the <code>Graph</code> instance.
+    Filtering a graph results in a subgraph obtained by node and/or edge
+    predicates.
 </p>
 
 <h2 id="Measuring">Measuring Graphs and Grouping Nodes by Degree</h2>
 <p> Assume <code>g</code> being the mixed graph in chapter
-	<a href="/guides/core/traversing.html">Traverse Your Graph</a>. Then
+    <a href="/guides/core/traversing.html">Traverse Your Graph</a>. Then
 </p>
 <pre class="prettyprint lang-scala linenums"
 >import scalax.collection.edge.Implicits._
@@ -417,27 +312,27 @@ g.degreeNodesMap(degreeFilter = _ > 3) // Map(4 -> Set(3, 4))
 </pre>
 <p>As to</p>
 <ol>
-	<li value="3">The order of (number of nodes in) <code>g</code>.
-	</li>
-	<li>The size of (number of edges in) <code>g</code>.
-	</li>
-	<li>The number of all contained elements (nodes and edges) of <code>g</code>.
-	</li>
-	<li>The total degree (sum of degrees over all nodes) of <code>g</code>.
-	</li>
-	<li>The distinct, decreasing set of degrees over all nodes of <code>g</code>.
-	</li>
-	<li>The non-decreasing sequence of in-degrees over all nodes in <code>g</code>
-		with inner node references.
-	</li>
-	<li>A map of degrees over all nodes in <code>g</code> with nodes
-		having the degree of key.
-	</li>
-	<li>The same map as on line <em>7</em> restricted to degrees greater than <code>3</code>.
-	</li>
+    <li value="3">The order of (number of nodes in) <code>g</code>.
+    </li>
+    <li>The size of (number of edges in) <code>g</code>.
+    </li>
+    <li>The number of all contained elements (nodes and edges) of <code>g</code>.
+    </li>
+    <li>The total degree (sum of degrees over all nodes) of <code>g</code>.
+    </li>
+    <li>The distinct, decreasing set of degrees over all nodes of <code>g</code>.
+    </li>
+    <li>The non-decreasing sequence of in-degrees over all nodes in <code>g</code>
+        with inner node references.
+    </li>
+    <li>A map of degrees over all nodes in <code>g</code> with nodes
+        having the degree of key.
+    </li>
+    <li>The same map as on line <em>7</em> restricted to degrees greater than <code>3</code>.
+    </li>
 </ol>
 <p>All degree methods have implicit parameters to query in- or
-	out-degrees and filtering degrees.
+    out-degrees and filtering degrees.
 </p>
 
 <h2 id="Classifying">Classifying Graphs</h2>
@@ -456,10 +351,10 @@ g.isMulti                       // false
 </pre>
 <p>As to</p>
 <ol>
-	<li value="4">Besides determining whether <code>g</code> is connected it is
-		also possible to call <code>findConnected</code> at a specific node.
-	</li>
-	<li>See also <code>findCycle</code> on the graph instance or
-		starting at a specific node.
-	</li>
+    <li value="4">Besides determining whether <code>g</code> is connected it is
+        also possible to call <code>findConnected</code> at a specific node.
+    </li>
+    <li>See also <code>findCycle</code> on the graph instance or
+        starting at a specific node.
+    </li>
 </ol>

@@ -1,7 +1,7 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-<li><a href="/guides/core/contents.html">Contents</a></li>
+<li><a href="/guides/core/index.html">Contents</a></li>
 <li><a href="/guides/core/concepts.html">Key Concepts</a></li>
 <li><a href="/guides/core/planning.html">Plan Your Graph</a></li>
 <li><a>Edit Your Graph</a></li>
@@ -13,8 +13,8 @@ sideMenuItems: >
 ---
 <h1>Core User Guide: Edit Your Graph</h1>
 
-<p> After the planning phase you are now sure about what type of nodes and edges to be employed.
-    Here you will learn how to roll out and populate your graph.
+<p> After the planning phase, you have made a decision about the type of nodes and edges you will be using.
+    Here you will learn how to set up and populate your graph in detail.
 </p>
 
 <h2>Choose the Type Parameters</h2>
@@ -490,7 +490,69 @@ g += Friends(kate, susan)
     </li>
     <li value="12">Import <code>OuterImplicits</code> to facilitate type inference when calling <code>apply</code>.
     </li>
-    <li value="15">Here we add another edge to the social graph. You can add or subtract nodes and edges
-        one by one or in bulk just like you are familiar with from the standard library.
+    <li value="15">Here we add another edge to the social graph.
+    </li>
+</ol>
+
+<h2 id="Add">Add and Subtract Elements</h2>
+<p> You can add or subtract nodes and edges one by one or in bulk just like you are familiar with
+    from the standard library.
+    <em id="G4S">Graph for Scala</em> guarantees a consistent state of the node and edge sets after any operation
+    including duplicate node/edge prevention:
+</p>
+<pre class="prettyprint lang-scala linenums">val g = immutable.Graph(1, 2 ~ 3)      // Graph(NodeSet(1, 2, 3), EdgeSet(2 ~ 3))
+g + 1                                  // same as g
+g + 0                                  // Graph(NodeSet(0, 1, 2, 3), EdgeSet(2 ~ 3))
+g + 1.2                                // compile error
+g + 0 ~ 1                              // Graph(NodeSet(0, 1, 2, 3), EdgeSet(0 ~ 1, 2 ~ 3))
+g ++ List(1 ~ 2, 2 ~ 3)                // Graph(NodeSet(1, 2, 3), EdgeSet(1 ~ 2, 2 ~ 3))
+g ++ (0 :: Nil, 1 ~ 2 :: 2 ~ 3 :: Nil) // Graph(NodeSet(0, 1, 2, 3), EdgeSet(1 ~ 2, 2 ~ 3))
+g - 0                                  // Graph(NodeSet(1, 2, 3), EdgeSet(2 ~ 3))
+g - 1                                  // Graph(NodeSet(2, 3), EdgeSet(2 ~ 3))
+g - 2                                  // Graph(NodeSet(1, 3), EdgeSet())
+g - 2 ~ 3                              // Graph(NodeSet(1, 2, 3), EdgeSet())
+g -- (2 :: Nil, 3 ~ 3 :: Nil)          // Graph(NodeSet(1, 3), EdgeSet())
+</pre>
+<p>As to</p>
+<ol>
+    <li value="2">Node <code>1</code> won't be added because it is already present, so you get the same instance.
+    </li>
+    <li>You get a new instance with node <code>0</code> added.
+    </li>
+    <li><code>Double</code> is incompatible with <code>Int</code> so the compiler reports an error.
+    </li>
+    <li>Edge <code>0 ~ 1</code> is added to a new <code>Graph</code> instance.
+    </li>
+    <li>All edges contained in the right hand operand are added to a new <code>Graph</code> instance.
+    </li>
+    <li>All nodes and edges are added to a new <code>Graph</code> instance.
+    </li>
+    <li>Node <code>0</code> cannot be removed because it is not contained, so you get the same instance.
+    </li>
+    <li>You get a new instance with node <code>1</code> removed. Edges won't be removed
+        because <code>1</code> had no incident edge.
+    </li>
+    <li>Node <code>2</code> along with <code>2 ~ 3</code> is "ripple" removed from a new <code>Graph</code>
+        instance.
+    </li>
+    <li>Edge <code>2 ~ 3</code> is removed from a new <code>Graph</code> instance leaving its incident nodes in place.
+    </li>
+    <li>All listed nodes and edges are removed from a new <code>Graph</code> instance.
+    </li>
+</ol>
+<p> It is also possible to add elements to or subtract elements from the node and edge sets.
+    Such operations always return a decoupled immutable set.
+</p>
+<pre class="prettyprint lang-scala linenums">import mutable.Graph
+Graph(1, 2 ~ 3) += 0                    // Graph(0, 1, 2, 3, 2 ~ 3)
+Graph[Int, AnyEdge](1, 2 ~ 3) += 3 ~> 1 // Graph(NodeSet(1, 2, 3), EdgeSet(2 ~ 3, 3 ~> 1))
+</pre>
+<ol>
+    <li value="2">Node <code>0</code> is added to the same <code>Graph</code> instance.
+    </li>
+    <li>Edge <code>3 ~ 1</code> is added to the same <code>Graph</code> instance.
+        Note how you facilitate mixed graphs by <code>AnyEdge</code>.
+        When using <code>apply</code> you pass just the higher kind,
+        but your graph will have the type <code>Graph[Int, AnyEdge[Int]]</code> anyway.
     </li>
 </ol>
