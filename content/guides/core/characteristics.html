@@ -59,7 +59,7 @@ sideMenuItems: >
 <p>	Like with all Scala collections, it is thread safe to use the mutable variant in the following situations:
 </p>
 <ol>
-	<li>The collection is instantiated and used solely in the scope of a function.
+	<li>The collection is instantiated and used solely in the scope of a function, so it's only accessible on the stack.
 	</li>
 	<li>It is known or ensured that the collection will never be accessed concurrently.
 			For instance, a collection defined in an Actor is ensured not to be accessed concurrently
