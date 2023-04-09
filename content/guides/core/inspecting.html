@@ -1,24 +1,28 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-  <li><a href="/guides/core/index.html">Contents</a></li>
-  <li><a href="/guides/core/concepts.html">Key Concepts</a></li>
-  <li><a href="/guides/core/planning.html">Plan Your Graph</a></li>
-  <li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
-  <li><a>Inspect Your Graph</a></li>
-  <li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
-  <li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
-  <li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
-  <li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
+<li><a href="/guides/core/index.html">Contents</a></li>
+<li><a href="/guides/core/concepts.html">Key Concepts</a></li>
+<li><a href="/guides/core/planning.html">Plan Your Graph</a></li>
+<li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
+<li><a>Inspect Your Graph</a></li>
+<li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
+<li><a href="/guides/core/mapping.html">Map Your Graph</a></li>
+<li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
+<li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Inspect Your Graph</h1>
 <p>Import the following for the examples below:</p>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.edges._
+import scalax.collection.hyperedges._
+import scalax.collection.{OneOrMore, Several}
 import scalax.collection.OuterImplicits._
 import scalax.collection.mutable.Graph
 </pre>
+<p> Note that all the demonstrated features work also for immutable graphs unless commented to the contrary.
+</p>
 
-<h2 id="Iterating">Iterating</h2>
+<h2 id="Iterating">Iterate over Elements</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(2 ~ 3, 3 ~ 1)
   g.toString            // "Graph(NodeSet(1, 2, 3), EdgeSet(2 ~ 3, 3 ~ 1))"
   g.nodes mkString ", " // "1, 2, 3"
@@ -41,7 +45,7 @@ import scalax.collection.mutable.Graph
     by also adding a few methods like <code>draw</code> for picking a random element.
 </p>
 
-<h2 id="LookingUp">Looking up Nodes and Edges</h2>
+<h2 id="LookingUp">Look up Nodes and Edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1 ~ 2)
 g find 1              // Option[g.NodeT] = Some(1)
 g find 3              // Option[g.NodeT] = None
@@ -77,121 +81,98 @@ g addAndGet 3         // g.NodeT = 3
     Look-ups are implemented in terms of <code>hashCode</code> and <code>equals</code>.
 </p>
 
-<h2 id="Union">Computing Union, Difference and Intersection</h2>
-<pre class="prettyprint lang-scala nolinenum">val g = mutable.Graph(1~2, 2~3, 2~4, 3~5, 4~5)
-val h = Graph(3 ~ 4, 3 ~ 5, 4 ~ 6, 5 ~ 6)
-g union h      // Graph(1 ~ 2, 2 ~ 3, 2 ~ 4, 3 ~ 5, 4 ~ 5, 3 ~ 4, 4 ~ 6, 5 ~ 6)
-g diff h       // Graph(1 ~ 2)
-g intersect h  // Graph(4, 3 ~ 5)
-g &= h         // Graph(4, 3 ~ 5), mutated instance
-</pre>
-<p> Also <code>union</code> (same as <code>++</code>), difference (<code>diff</code>
-    same as <code>--</code>) and intersection (<code>intersec</code> same as
-    <code>&amp;</code>) work in compliance with the corresponding definitions in
-    graph theory. Use any of the previous operators followed by <code>=</code>
-    for the mutable variants.
-</p>
-
-<h2 id="Endpoints">Inspecting Endpoints</h2>
+<h2 id="Ends">Inspect Edge Ends</h2>
 <pre class="prettyprint lang-scala linenums"
->val uE = 3 ~ 4          // UnDiEdge[Int]
-uE._1 * uE._2            // Int = 12
-uE.product               // Int = 12
-uE match {
-  case n ~ m => n * m
-}                        // Int = 12
-val dE = 1~>2            // DiEdge[Int]
-dE.source - dE.target    // Int = -1
-uE.arity == dE.arity     // true
-dE match {
-  case s ~> t => s - t
-}                        // Int = -1
-val hE = 1 ~ 2 ~ 11 ~ 12 // HyperEdge[Int]
-hE._n(hE.arity - 1)      // Int = 12
-hE.sum                   // Int = 26
+>val unDiEdge = 3 ~ 4           // UnDiEdge[Int]
+unDiEdge._1 * unDiEdge._2      // Int = 12
+unDiEdge.ends.iterator.product // Int = 12
+unDiEdge match {
+  case n ~ m => n * m          // Int = 12
+}
+
+val diEdge = 1 ~> 2            // DiEdge[Int]
+unDiEdge.arity == diEdge.arity // true
+diEdge.source - diEdge.target  // Int = -1
+diEdge match {
+  case s ~> t => s - t         // Int = -1
+}
+
+val hyperEdge = 1 ~~ 2 ~~ 11 ~~ 12            // HyperEdge[Int]
+hyperEdge.ends.get(hyperEdge.arity - 1)       // Int = 12
+hyperEdge.ends.iterator.sum                   // Int = 26
+hyperEdge match {
+  case ~~(Several.Seq(n1, n2, _*)) => n1 - n2 // Int = -1
+}
+
+val diHyperEdge = OneOrMore(1, 2) ~~> OneOrMore(5, 6)           // DiHyperEdge[Int]
+diHyperEdge.sources.iterator.sum                                // Int = 3
+diHyperEdge.targets.iterator.sum                                // Int = 11
+diHyperEdge match {
+  case OneOrMore.Seq(_, s2, _*) ~~> OneOrMore(t1, _) => s2 * t1 // Int = 10
+}
 </pre>
 <p>As to</p>
 <ol>
-    <li value="2"><code>_1</code> and <code>_2</code> provide access to the first and
-        second node of an edge.
+    <li value="2"><code>_1</code> and <code>_2</code> provide access to the first and second node of an edge.
     </li>
-    <li>Edges are also <code>Iterable</code> with respect to the connected nodes.
+    <li><code>ends</code> allows for iterating over all connected nodes.
     </li>
     <li>The endpoints of edges may also be extracted by means of pattern matching.
     </li>
-    <li value="8">The first node of a directed edge may be accessed by <code>_1</code>
-        or <code>source</code>, the second by <code>_2</code> or <code>target</code>.
+    <li value="10">When dealing with directed edges,
+        you will prefer the accessors <code>source</code> and <code>target</code>
+        that are synonyms for <code>_1</code> and <code>_2</code>.
     </li>
-    <li>Both <code>uE</code> and <code>dE</code> have an <code>arity</code>
-        of 2.
+    <li>Both <code>unDiEdge</code> and <code>diEdge</code> have an <code>arity</code> of 2.
     </li>
-    <li value="14"><code>_n</code> also enables direct access. Here we access the
-        last node of <code>hE</code>.
-    </li>
-    <li>Again, all edges including hyperedges are <code>Iterable</code>s.
+    <li value="18"><code>get</code> allows for direct access by index.
+        Here we access the last node of <code>hyperEdge</code>.
     </li>
 </ol>
 
-<h2 id="Patterns">More Edge Patterns</h2>
-<pre class="prettyprint lang-scala linenums"
->import scalax.collection.edge.Implicits._
-val g = Graph((1 ~+> 2)("A"), (1 ~+> 1)("AB"))
-
-import scalax.collection.edge.LBase._
-object StringLabel extends LEdgeImplicits[String]
-import StringLabel._
-
-(0 /: g.edges)((sum, e) => e.edge match {
-  case s :~> t + (l: String) if l contains 'A' =>
-       sum + s.outDegree + t.outDegree
-}) // Int = 6
-</pre>
-<p> Edge patterns are especially handy when extracting the attributes
-    of weighted and/or labeled edges. The above <code>fold</code> calculates the
-    sum of the out-degrees of edge endpoints restricted to edges with a label
-    containing <code>'A'</code> by applying an infix operator pattern to each edge
-    of the graph.
+<h2 id="LabeledEdges">Pattern Match Labeled Edges</h2>
+<p> Besides <a href="/guides/core/editing.html#InfixEdgeExtractors">how to add infix edge extractors</a>,
+    please refer to any of the numerous examples in the test code base like
 </p>
-<p> The constructor pattern <code>LDiEdge(s, t, l)</code> would be an alternative
-    to <code>s :~> t + l</code>. Operator names have been selected in compliance
-    with edge constructor shortcuts: <code>:~</code> matches undirected, <code>:~></code>
-    directed edges. <code>%</code>, <code>+</code> and <code>%+</code> match weighted,
-    labeled and weighted-labeled edges, respectively.
-</p>
-<p> Note that you need to dereference inner edges of type <code>EdgeT</code> by
-    calling the accessor method <code>edge</code> to facilitate the predefined edge
-    extractors. You'll find more edge pattern matching examples in <a href=
-                                                                              "https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TEdge.scala">
-        TEdge.scala</a>.
-</p>
+<ul>
+    <li>
+        <a href="https://github.com/scala-graph/scala-graph/blob/9327639cb085e1b2424cc71d1c0ec4e1f062e0ae/core/src/test/scala/demo/FlightDemoSpec.scala#L69">edges
+            of type Flight</a>
+    </li>
+    <li>
+        <a href="https://github.com/scala-graph/scala-graph/blob/336405c6b9a462ca13bc083ce817b531eca6233d/core/src/test/scala/scalax/collection/EditingLabeledSpec.scala#L186">labeled
+            edges</a> ff
+    </li>
+    <li>
+        <a href="https://github.com/scala-graph/scala-graph/blob/336405c6b9a462ca13bc083ce817b531eca6233d/core/src/test/scala/scalax/collection/EditingLabeledHyperSpec.scala#L159">labeled
+            hyperedges and labeled directed hyperedges</a> ff.
+    </li>
+</ul>
 
-<h2 id="Neighbors">Inspecting Neighbors and Incident Edges</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(0, 1~3, 3~>2)
-def n(outer: Int): g.NodeT           = g get outer
-def e(outer: UnDiEdge[Int]): g.EdgeT = g get outer
-n(0).diSuccessors          // Set[g.NodeT] = Set()
-n(2).diSuccessors.isEmpty  // true
-n(3).diSuccessors          // Set[g.NodeT] = Set(1, 2)
-n(3).diPredecessors        // Set[g.NodeT] = Set(1)
-n(2).incoming              // Set[g.EdgeT] = Set(3 ~> 2)
-n(3) ~>? n2                // Option[g.EdgeT] = Some(3 ~> 2)
+<h2 id="Neighbors">Inspect Neighbors and Incident Edges</h2>
+<pre class="prettyprint lang-scala linenums">val g = Graph[Int, AnyEdge](0, 1 ~ 3, 3 ~> 2)
+
+def n(outer: Int): g.NodeT = g get outer
+
+n(0).diSuccessors   // Set[g.NodeT] = Set()
+n(2).diSuccessors   // Set[g.NodeT] = Set()
+n(3).diSuccessors   // Set[g.NodeT] = Set(1, 2)
+n(3).diPredecessors // Set[g.NodeT] = Set(1)
+n(2).incoming       // Set[g.EdgeT] = Set(3 ~> 2)
 </pre>
 <p>As to</p>
 <ol>
-    <li value="4">Node <code>n(0)</code> is independent so the set of direct
-        successor nodes is empty.
+    <li value="3">Looks up the inner node for a given outer node.
     </li>
-    <li>Node <code>n(2)</code> is reachable but has no direct successor
-        so the set of its out-neighbors is empty, too.
+    <li value="5">Node <code>n(0)</code> is independent so the set of direct successor nodes is empty.
+    </li>
+    <li>Node <code>n(2)</code> is reachable but has no direct successor so the set of its out-neighbors is empty, too.
     </li>
     <li>From node <code>n(3)</code>, <code>1</code> and <code>2</code> are reachable.
     </li>
     <li>The only direct predecessor of node <code>n(3)</code> is node <code>1</code>.
     </li>
-    <li>From the perspective of node <code>n(2)</code> there is only one
-        incoming edge namely <code>3~&gt;2</code>.
-    </li>
-    <li><code>~&gt;?</code> is a synonym to <code>findOutgoingTo</code>.
+    <li>From the perspective of <code>n(2)</code> there is only one incoming edge namely <code>3 ~&gt; 2</code>.
     </li>
 </ol>
 <p> All in all, given a specific node, the following methods are available to inspect
@@ -200,111 +181,127 @@ n(3) ~>? n2                // Option[g.EdgeT] = Some(3 ~> 2)
     <tr>
         <td><strong>Result Type</strong></td>
         <td><strong>Method name</strong></td>
-        <td><strong>Synonyms</strong></td>
+        <td><strong>Synonym</strong></td>
     </tr>
     <tr>
         <td><strong><code>Set[NodeT]</code></strong></td>
         <td><code>diSuccessors</code></td>
-        <td><code>outNeighbors</code>, <code>~&gt;|</code></td>
+        <td><code>outNeighbors</code></td>
     </tr>
     <tr>
         <td></td>
         <td><code>diPredecessors</code></td>
-        <td><code>inNeighbors</code>, <code>&lt;~|</code></td>
+        <td><code>inNeighbors</code></td>
     </tr>
     <tr>
         <td></td>
         <td><code>neighbors</code></td>
-        <td><code>~|</code></td>
     </tr>
     <tr>
         <td><strong><code>Set[EdgeT]</code></strong></td>
         <td><code>outgoing</code></td>
-        <td><code>~&gt;</code></td>
     </tr>
     <tr>
         <td></td>
         <td><code>outgoingTo</code></td>
-        <td><code>~&gt;</code></td>
     </tr>
     <tr>
         <td></td>
         <td><code>incoming</code></td>
-        <td><code>&lt;~</code></td>
     </tr>
     <tr>
         <td></td>
         <td><code>incomingFrom</code></td>
-        <td><code>&lt;~</code></td>
     </tr>
     <tr>
         <td><strong><code>Option[EdgeT]</code></strong></td>
         <td><code>findOutgoingTo</code></td>
-        <td><code>~&gt;?</code></td>
     </tr>
     <tr>
         <td></td>
         <td><code>findIncomingFrom</code></td>
-        <td><code>&lt;~?</code></td>
     </tr>
 </table>
-<figure>
-    <figcaption>Neighbor and Incident Methods.</figcaption>
-</figure>
-<p> See also:
-    <code>object scalax.collection.Graph#InnerNodeLike</code>.
+<p> For "inspecting" elements that need not be connected directly, see <a
+        href="/guides/core/traversing.html">Traversing</a>.
 </p>
 
-<h2 id="Querying">Querying by Function</h2>
-<pre class="prettyprint lang-scala linenums">val g = Graph(2 ~> 3, 3 ~ 1, 5)
-g.nodes filter (_.toOuter > 2)          // Set[g.NodeT] = Set(5, 3)
-g.nodes filter (_.degree > 1)           // Set[g.NodeT] = Set(3)
-g.edges filter (_.diSuccessors.isEmpty) // Set[g.EdgeT] = Set()
-g filter ((i: Int) => i >= 2)           // Graph(2, 3, 5, 2 ~> 3)
-g filter g.having(node = _ >= 2)        // Graph(2, 3, 5, 2 ~> 3)
-g filter g.having(edge = _.directed)    // Graph(2, 3, 2 ~> 3)
-g count  g.having(node = _.toOuter >= 3, edge = _.isDirected) // Int = 3
+<h2 id="Querying">Query the Node or Edge Set</h2>
+<pre class="prettyprint lang-scala linenums">val g = Graph[Int, AnyEdge](2 ~> 3, 3 ~ 1, 5)
+
+g.nodes.filter(_.outer > 2)         // Set[g.NodeT] = Set(3, 5)
+g.nodes.filter(_.degree > 1)        // Set[g.NodeT] = Set(3)
+g.edges.filter(_.adjacents.isEmpty) // Set[g.EdgeT] = Set()
+
+g.outerIterator
+  .filter {
+    case g.OuterNode(n)               => n > 1
+    case g.OuterEdge(AnyEdge(n1, n2)) => n1 > 1 && n2 > 1
+  }
+  .map {
+    case g.OuterNode(n) => n
+    case g.OuterEdge(e) => e
+  }
+  .toList // List[Any] = List(2, 3, 5, 2 ~> 3)
+
+g.iterator
+  .filter {
+    case g.InnerNode(innerN, _) => innerN.degree > 1
+    case g.InnerEdge(_, outerE) => outerE.isDirected
+  }
+  .mkString // String = 3, 2 ~> 3
 </pre>
 <p>As to</p>
 <ol>
-    <li value="2">Filters the node set by <code>(NodeT) =&gt; _.toOuter &gt; 2</code>.
+    <li value="3">Filters the node set by <code>(n: NodeT) =&gt; n.outer &gt; 2</code>.
     </li>
-    <li>Filters nodes with a <code>degree &gt; 1</code>.
+    <li>Filters nodes by the predicate <code>_.degree &gt; 1</code> where <code>degree</code> is a method of inner
+        nodes.
     </li>
-    <li>Filters edges with no adjacent edges.</li>
-    <li>Creates a subgraph of <code>g</code> with nodes satisfying
-        <code>_ &gt;= 2</code> and their incident edges.
+    <li>Filters edges by not having any adjacent edges.
     </li>
-    <li>Same as <em>d)</em> utilizing <code>having</code>. Method <code>having</code>,
-        returning a partial function, helps to reduce code by internally
-        <code>match</code>ing nodes and edges.
+    <li value="7">Filters all outer elements to be either a node with a value greater than 1 or
+        an edge with ends that have a value greater than 1.
+        <code>outerIterator</code> has the type <code>Iterator[OuterElem]</code>.
     </li>
-    <li>Creates a subgraph of <code>g</code> consisting of <code>directed</code>
-        edges only. Note that filtering <code>g.edges</code> is not an
-        alternative because it would return a set of contained edges, not a
-        subgraph.
+    <li value="12">Filters all inner elements to be either a nodes with a degree greater than 1 or
+        a directed edge.
+        <code>iterator</code> has the type <code>Iterator[g.InnerElem]</code>.
     </li>
-    <li>Counts the number of nodes and edges satisfying either of the
-        given predicates.
+    <li value="14"><code>InnerNode</code> extracts both the inner and the corresponding outer node.
+        We need the inner node to be able to call <code>degree</code>.
+    </li>
+    <li><code>InnerEdge</code> extracts both the inner and the corresponding outer edge.
+        Here we just need the outer edge.
     </li>
 </ol>
-<p><code>Graph</code> queries may start at the node set <code>nodes</code>,
-    the edge set <code>edges</code> or at the <code>Graph</code> instance.
-    Filtering a graph results in a subgraph obtained by node and/or edge
-    predicates.
+
+<h2 id="Union">Compute Union, Difference and Intersection</h2>
+<pre class="prettyprint lang-scala nolinenum">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
+val h = Graph(3 ~ 4, 3 ~ 5, 4 ~ 6, 5 ~ 6)
+g union h      // Graph(1 ~ 2, 2 ~ 3, 2 ~ 4, 3 ~ 5, 4 ~ 5, 3 ~ 4, 4 ~ 6, 5 ~ 6)
+g diff h       // Graph(1 ~ 2)
+g intersect h  // Graph(4, 3 ~ 5)
+g &= h         // Graph(4, 3 ~ 5), mutated instance
+</pre>
+<p><code>union</code>, same as operator <code>++</code>, <code>diff</code>, same as <code>--</code>, and
+    <code>intersec</code>, same as <code>&amp;</code>, work in compliance with graph theory definitions.
+</p>
+<p> Use any of the above operators followed by <code>=</code> to mutate your mutable graph.
 </p>
 
-<h2 id="Measuring">Measuring Graphs and Grouping Nodes by Degree</h2>
+<h2 id="Measuring">Measure your Graph</h2>
 <p> Assume <code>g</code> being the mixed graph in chapter
     <a href="/guides/core/traversing.html">Traverse Your Graph</a>. Then
 </p>
 <pre class="prettyprint lang-scala linenums"
 >import scalax.collection.edge.Implicits._
-val g = Graph(1 ~ 2 % 4, 2 ~ 3 % 2, 1 ~> 3 % 5, 1 ~ 5  % 3, 3 ~ 5 % 2, 3 ~ 4 % 1, 4 ~> 4 % 1, 4 ~> 5 % 0)
-g.order                                // Int = 5 
-g.graphSize                            // Int = 8
-g.size                                 // Int = 13
-g.totalDegree                          // Int = 16 
+val g = Graph[Int, AnyEdge](1 ~ 2, 2 ~ 3, 1 ~> 3, 1 ~ 5, 3 ~ 5, 3 ~ 4, 4 ~> 4, 4 ~> 5)
+
+g.order                                // Int = 5
+g.size                                 // Int = 8
+g.elementCount                         // Int = 13
+g.totalDegree                          // Int = 16
 g.degreeSet                            // TreeSet(4, 3, 2)
 g.degreeNodeSeq(g.InDegree)            // List((4, 3), (3, 5), (2, 1), (2, 2), (2, 4))
 g.degreeNodesMap                       // Map(2->Set(2), 3->Set(5, 1), 4->Set(3, 4))
@@ -312,49 +309,29 @@ g.degreeNodesMap(degreeFilter = _ > 3) // Map(4 -> Set(3, 4))
 </pre>
 <p>As to</p>
 <ol>
-    <li value="3">The order of (number of nodes in) <code>g</code>.
-    </li>
-    <li>The size of (number of edges in) <code>g</code>.
-    </li>
-    <li>The number of all contained elements (nodes and edges) of <code>g</code>.
-    </li>
-    <li>The total degree (sum of degrees over all nodes) of <code>g</code>.
-    </li>
-    <li>The distinct, decreasing set of degrees over all nodes of <code>g</code>.
-    </li>
-    <li>The non-decreasing sequence of in-degrees over all nodes in <code>g</code>
-        with inner node references.
-    </li>
-    <li>A map of degrees over all nodes in <code>g</code> with nodes
-        having the degree of key.
-    </li>
-    <li>The same map as on line <em>7</em> restricted to degrees greater than <code>3</code>.
-    </li>
+    <li value="3">The order of (number of nodes in) <code>g</code>.</li>
+    <li>The size of (number of edges in) <code>g</code>.</li>
+    <li>The number of all contained elements (nodes and edges) of <code>g</code>.</li>
+    <li>The total degree (sum of degrees over all nodes).</li>
+    <li>The distinct, decreasing set of degrees over all nodes of <code>g</code>.</li>
+    <li>The non-decreasing sequence of in-degrees over all nodes in <code>g</code> with inner node references.</li>
+    <li>A map of degrees over all nodes in <code>g</code> with nodes having the degree of key.</li>
+    <li>The same map as on line <em>9</em> restricted to degrees greater than <code>3</code>.</li>
 </ol>
-<p>All degree methods have implicit parameters to query in- or
-    out-degrees and filtering degrees.
+<p> Degree methods come with implicit parameters to choose in- or out-degrees and optionally filter them.
 </p>
 
-<h2 id="Classifying">Classifying Graphs</h2>
-<pre class="prettyprint lang-scala linenums"
->val g = Graph(1, 2~>3) 
-g.isConnected                   // false 
-(g + 2 ~> 1).isConnected        // true
-(g get 2).findConnected(_.toOuter == 3) // Some(3)
-g.isCyclic                      // false
-(g + 3 ~> 2).isCyclic           // true
-g.isComplete                    // false 
+<h2 id="Classifying">Classify your Graph</h2>
+<pre class="prettyprint lang-scala linenums">val g = Graph(1, 2 ~> 3)
+
+g.isConnected                                                  // false
+(g addOne 2 ~> 1).isConnected                                  // true
+(g get 2).findConnected(_.outer == 3)                          // Some(3)
+g.isCyclic                                                     // false
+(g addOne 3 ~> 2).isCyclic                                     // true
+g.isComplete                                                   // false
 (g ++ List(1 ~> 2, 1 ~> 3, 2 ~> 1, 3 ~> 1, 3 ~> 2)).isComplete // true
-g.isDirected                    // true 
-g.isHyper                       // false 
-g.isMulti                       // false 
+g.isDirected                                                   // true
+g.isHyper                                                      // false
+g.isMulti                                                      // false
 </pre>
-<p>As to</p>
-<ol>
-    <li value="4">Besides determining whether <code>g</code> is connected it is
-        also possible to call <code>findConnected</code> at a specific node.
-    </li>
-    <li>See also <code>findCycle</code> on the graph instance or
-        starting at a specific node.
-    </li>
-</ol>
