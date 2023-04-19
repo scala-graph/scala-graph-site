@@ -31,7 +31,7 @@ import scalax.collection.OuterImplicits._
 import scalax.collection.immutable.Graph // or mutable
 </pre>
 
-<h2 id="Result">Traverse for a Specific Node, a Path or Cycle</h2>
+<h2 id="Result">Traverse for a specific node, a path or a cycle</h2>
 <p> Mostly you are solely interested in the result of a graph traversal such as a specific node, a path or cycle
     rather than in tracking visited elements.
     Chances are good that you will find a method that meets your requirement out of the box.
@@ -143,7 +143,7 @@ g.findCycleContaining(g get 1)                // None
 <p> Cycle detecting works for directed, undirected and mixed graphs, alike.
 </p>
 
-<h2 id="Properties">Refine Traversers by Properties</h2>
+<h2 id="Properties">Refine traversers by properties</h2>
 <p> You may have noticed a call of <code>withSubgraph</code> above.
     We also refer to such methods, all prefixed by <code>with</code>, as <i>fluent traverser properties</i>
     since they encourage a fluent way of method calls.
@@ -243,7 +243,7 @@ val traverser    = (g get root).outerNodeTraverser.withOrdering(edgeOrdering)
 traverser.toList  // List(1 to 7: _*)
 </pre>
 
-<h2 id="Elements">Traverse for Elements</h2>
+<h2 id="Elements">Traverse for elements</h2>
 <p><code>Traverser</code>s also enable to inspect graph elements (nodes and/or edges) during the traversal.
     By doing so they ensure that the passed visitor method is called once and only once for each visited element.
     As a side note, <code>DownUpTraverser</code>s are different in that they call the visitor twice.
@@ -335,7 +335,7 @@ n1.innerElemTraverser
         both the inner and the outer element.
 </ol>
 
-<h3 id="DownUp">Visit Elements Down and Up</h3>
+<h3 id="DownUp">Visit elements down and up</h3>
 <p> Assume you'd like to traverse a graph, especially a tree, in a stack-like manner
     because you need to carry out one action when touching a node the first time and another action when touching the
     same node the second time in course of traversing up in an imaginary tree.
@@ -356,7 +356,7 @@ val result = innerRoot.innerNodeDownUpTraverser.foldLeft(ArrayBuffer.empty[Strin
 result.fold("")(_ + _) // "(A[B1][B2])" or "(A[B2][B1])"
 </pre>
 
-<h3 id="Extended">Extend Visitors</h3>
+<h3 id="Extended">Extend visitors</h3>
 <p> In case you need to process the internal state of a traversal including the count of visited nodes,
     the current search depth, the internal stack etc. extended visitors come in handy.
     Beware that these are implementation specific:
@@ -377,7 +377,7 @@ info.sortWith((a: ValDepth, b: ValDepth) =>
 ) // List((1, 0), (2, 1), (3, 1), (4, 2)))
 </pre>
 
-<h2 id="Combined">Combine Queries with Visitors</h2>
+<h2 id="Combined">Combine queries with visitors</h2>
 <p> You can also append a visitor to any traversal for a result like a path or cycle like:
 </p>
 <pre class="prettyprint lang-scala nolinenum">val g = Graph(1 ~> 2, 1 ~> 3, 2 ~> 3, 3 ~> 4, 4 ~> 2)
@@ -398,7 +398,7 @@ center                                                                   // Some
     need not be part of the cycle.
 </p>
 
-<h2 id="Components">Find Components</h2>
+<h2 id="Components">Find components</h2>
 <p> You can search for weakly or strongly connected components.
     In both cases you first need to decide on where the search should start:
 </p>
@@ -410,7 +410,7 @@ center                                                                   // Some
     </li>
 </ul>
 
-<h3 id="WeakComponents">Find Weakly Connected Components</h3>
+<h3 id="WeakComponents">Find weakly connected components</h3>
 <pre class="prettyprint lang-scala linenums">val componentEdges = {
   def edges(i: Int) = List(i ~> (i + 1), i ~> (i + 2), (i + 1) ~> (i + 2))
   (edges(1), edges(5))
@@ -433,7 +433,7 @@ val sums =
 anyNode.weakComponent.nodes // componentEdges._1.size = 3
 </pre>
 
-<h3 id="StrongComponents">Find Strongly Connected Components</h3>
+<h3 id="StrongComponents">Find strongly connected components</h3>
 <p> Strongly connected components are computed based on a tail-recursive version of Tarjan's algorithm.
 </p>
 <p> Let us refer to the
@@ -481,13 +481,13 @@ startAt.innerNodeTraverser.strongComponents(println)
     Also, you may invoke <code>toGraph</code> on a component.
 </p>
 
-<h2 id="TopoSort">Sort Topologically</h2>
+<h2 id="TopoSort">Sort topologically</h2>
 <p><em id="G4S">Graph for Scala</em> comes with three flavors of topological sorting
     along with a remarkably informative result type.
     For the following examples, assume <code>graph</code> is of type <code>Graph</code>
     and <code>root</code> is of type <code>graph.NodeT</code>.
 </p>
-<h3>Sort on Graph Level</h3>
+<h3>Sort on graph level</h3>
 <p> As a matter of course, you can call <code>topologicalSort</code> directly on your graph instance:
 </p>
 <pre class="prettyprint lang-scala nolinenum">graph.topologicalSort.fold(
@@ -503,14 +503,14 @@ startAt.innerNodeTraverser.strongComponents(println)
     they live in different components.
 </p>
 
-<h3>Combine your Sort with Fluent Properties</h3>
+<h3>Combine your sort with fluent properties</h3>
 <p> To combine <code>topologicalSort</code> with any of the familiar fluent properties,
     call <code>componentTraverser</code> first like
 </p>
 <pre class="prettyprint lang-scala nolinenum">graph.componentTraverser().withSubgraph(nodes = myNodeFilter).topologicalSort
 </pre>
 
-<h3>Sort on Node Level</h3>
+<h3>Sort on node level</h3>
 <p> Whenever starting at a concrete inner node, <code>topologicalSort()</code> will only include nodes
     within the comopnent spanned by that node.
     In reverse, if you know your graph is connected you need not call <code>TopologicalOrder</code>
@@ -522,7 +522,7 @@ startAt.innerNodeTraverser.strongComponents(println)
 <pre class="prettyprint lang-scala nolinenum">root.topologicalSort()
 </pre>
 
-<h3>Sort on Component Level</h3>
+<h3>Sort on component level</h3>
 <p> Further, if you are interested in the topological order of the components of your graph, simply call
 </p>
 <pre class="prettyprint lang-scala nolinenum">graph.componentTraverser().topologicalSortByComponent
@@ -557,7 +557,7 @@ startAt.innerNodeTraverser.strongComponents(println)
     </li>
 </ul>
 
-<h2 id="Canceling">Cancel your Traversal</h2>
+<h2 id="Canceling">Cancel your traversal</h2>
 <p> To cancel a traversal
 </p>
 <ul>
@@ -571,7 +571,7 @@ startAt.innerNodeTraverser.strongComponents(println)
     </li>
 </ul>
 
-<h2 id="Building">Build Walks and Paths</h2>
+<h2 id="Building">Build walks and paths</h2>
 <p><a href="/api/core/api/#scalax.collection.GraphTraversal$WalkBuilder">WalkBuilder</a> and
     <a href="/api/core/api/#scalax.collection.GraphTraversal$PathBuilder">PathBuilder</a> allow you to build a
     <a href="/api/core/api/#scalax.collection.GraphTraversal$Walk">Walk</a> respectively

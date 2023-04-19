@@ -82,7 +82,7 @@ val library = Graph[Library,HyperEdge](
 	TJsonDemo.scala</a>.
 </p>
 
-<h2 id="Exporting">Exporting Graphs</h2>
+<h2 id="Exporting">Exporting graphs</h2>
 <p>	To export a graph instance to JSON text you call <code>toJson</code>:
 </p>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json._
@@ -100,7 +100,7 @@ val exported = jsonText(astToExport)
 	but what about the <code>descriptor</code> argument?
 </p>
 
-<h2 id="Descriptors">Working with Descriptors</h2>
+<h2 id="Descriptors">Working with descriptors</h2>
 <p>	Fine-grained control over JSON import/export is achieved by means
 	of Graph JSON descriptors, a kind of export/import configuration made up of
 </p>
@@ -330,7 +330,7 @@ val parsed = parse(jsonText, descriptor)
 val result = Graph.fromJson[...](parsed)
 </pre>
 
-<h2 id="CustomEdge">Working with Custom Edge Types</h2>
+<h2 id="CustomEdge">Working with custom edge types</h2>
 <p>	As in the following example, custom edge types must mix in <code>Attributes</code>
 	and their companion objects must extend <code>CEdgeCompanion</code>
 	to adhere to JSON descriptor requirements. Lets examine the custom edge type
@@ -381,7 +381,7 @@ object Transition extends CEdgeCompanion[Transition] {
   sampleAttributes = Tuple1('A'))
 </pre>
 
-<h2 id="Inversion">Note on Inversion</h2>
+<h2 id="Inversion">Note on inversion</h2>
 <pre class="prettyprint lang-scala nolinenum">val expLibrary = library.toJson(descriptor)
 Graph.fromJson[Library,HyperEdge](
                expLibrary, descriptor) should equal (library)
@@ -444,7 +444,7 @@ Graph.fromJson[Library,HyperEdge](
 	</tr>
 </table>
 
-<h3>Notes on the Grammar Notation</h3>
+<h3>Notes on the grammar notation</h3>
 <ol>
 	<li>Entries with the prefix <code>Json</code> refer to JSON values
 		as defined in RFC 4627. The parenthesis following such a <code>Json</code>
@@ -463,7 +463,7 @@ Graph.fromJson[Library,HyperEdge](
 	</li>
 </ol>
 
-<h3>Notes on Specific Grammar Elements</h3>
+<h3>Notes on specific grammar elements</h3>
 <ol>
 	<li><code>nodeSection</code>/<code>edgeSection</code> JSON fields:
 		<p>	The JSON text passed to the <code>Graph</code> conversion method

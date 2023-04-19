@@ -18,7 +18,7 @@ sideMenuItems: >
 	of customization are eligible:
 </p>
 
-<h2>Altering Configuration Options</h2>
+<h2>Alter configuration options</h2>
 <p>	In the default implementation, adjacency lists are represented by
 	<code>ArraySet</code>s, a specific collection type included in Graph-core.
 	<code>ArraySet</code>s bank on JVM native arrays to provide higher performance.
@@ -52,7 +52,7 @@ implicit val myConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
 	For more details please refer to the Scaladoc of <code>ArraySet.Hints</code>.
 </p>
 
-<h2>Enriching Graph</h2>
+<h2>Enrich your graph</h2>
 <p> You may want to add new methods to the library implementation of
 	<code>Graph</code> or its inner traits <code>InnerNodeLike</code>,
 	<code>NodeSet</code>, <code>InnerEdgeLike</code> or <code>EdgeSet</code>.
@@ -81,7 +81,7 @@ Graph(1~2).foo
 	<a href="https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/custom/TExtByImplicit.scala">TExtByImplicit.scala</a>.
 </p>
 
-<h2>Defining Custom Edges</h2>
+<h2>Define custom edges</h2>
 <p>	You may decide to bypass the predefined edge classes and design your
 	own edge type. Recapping the <code>Flight</code> label example,
 	it is also possible to define a custom edge type <code>Flight</code>.
@@ -204,5 +204,5 @@ object Flight {
 	<code>object scalax.collection.GraphPredef._</code><br />
 </p>
 
-<h2>Defining User Constraints</h2>
+<h2>Define user constraints</h2>
 <p>Please refer to the <a href="/guides/constrained.html">Constrained User Guide</a>.</p>

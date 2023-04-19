@@ -73,7 +73,7 @@ g +=? 2 ~ 3                                // Right(Graph(1, 2, 3, 4, 1~2, 2~3, 
     (<code>graph-constrained_&lt;ScalaVer&gt;-&lt;Graph4ScalaVer&gt;.jar</code>).
 </p>
 
-<h2 id="UseCases">Use Cases</h2>
+<h2 id="UseCases">Use cases</h2>
 <p> Among others, the constrained module is worth considering in the following situations:
 </p>
 <ol><li>You have to ensure that some constraints which cannot be achieved by type constructors
@@ -91,7 +91,7 @@ g +=? 2 ~ 3                                // Right(Graph(1, 2, 3, 4, 1~2, 2~3, 
     </li>
 </ol>
 
-<h2 id="Lifecycle">The Constraint Lifecycle</h2>
+<h2 id="Lifecycle">The constraint lifecycle</h2>
 <p> For the purpose of a comparison, let's first illustrate the "lifecycle" of an operation such as
     <code>+</code> or <code>+=</code> on a non-constrained <code>Graph</code>:
 </p>
@@ -120,7 +120,7 @@ g +=? 2 ~ 3                                // Right(Graph(1, 2, 3, 4, 1~2, 2~3, 
     or rolled back (return: <code>Left</code>).
 </p>
 
-<h2 id="Implementing">Implementing Your Own Constraint</h2>
+<h2 id="Implementing">Implementing your own constraint</h2>
 <p> If none of the supplied constraints meets your needs you are encouraged to implement your own constraint.
 </p>
 <p> To warm up, you might contemplate the rather simple predefined constraint <code>Connected.scala</code>
@@ -177,14 +177,14 @@ g +=? 2 ~ 3                                // Right(Graph(1, 2, 3, 4, 1~2, 2~3, 
 <p> If you feel the community could take benefit of your constraint implementation, please consider contribution.
 </p>
 
-<h2 id="Composing">Composing Constraints</h2>
+<h2 id="Composing">Composing constraints</h2>
 <p> Constraints may be composed by the <code>&amp;&amp;</code> and <code>||</code> operators like:
 </p>
 <pre class="prettyprint lang-scala nolinenum">implicit val conf: Config = Connected && Acyclic // ConstrainedConfig(...)
 val e = Graph.from(nodeList, edgeList)
 </pre>
 
-<h2 id="Aliases">Providing Aliases</h2>
+<h2 id="Aliases">Providing aliases</h2>
 <p> By now you know when and how to implement constraints and how to pass them to <code>Graph</code>
     values at instantiation time. You may wonder how to call factory methods without repeatedly supplying your constraint.
 </p>

@@ -23,7 +23,7 @@ import scalax.collection.mutable.Graph
 <p> Note that all the demonstrated features also work for immutable graphs unless commented to the contrary.
 </p>
 
-<h2 id="Iterating">Iterate over Elements</h2>
+<h2 id="Iterating">Iterate over elements</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(2 ~ 3, 3 ~ 1)
   g.toString            // "Graph(NodeSet(1, 2, 3), EdgeSet(2 ~ 3, 3 ~ 1))"
   g.nodes mkString ", " // "1, 2, 3"
@@ -46,7 +46,7 @@ import scalax.collection.mutable.Graph
     by also adding a few methods like <code>draw</code> for picking a random element.
 </p>
 
-<h2 id="LookingUp">Look up Nodes and Edges</h2>
+<h2 id="LookingUp">Look up nodes and edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1 ~ 2)
 g find 1              // Option[g.NodeT] = Some(1)
 g find 3              // Option[g.NodeT] = None
@@ -82,7 +82,7 @@ g addAndGet 3         // g.NodeT = 3
     Look-ups are implemented in terms of <code>hashCode</code> and <code>equals</code>.
 </p>
 
-<h2 id="Ends">Inspect Edge Ends</h2>
+<h2 id="Ends">Inspect edge ends</h2>
 <pre class="prettyprint lang-scala linenums"
 >val unDiEdge = 3 ~ 4           // UnDiEdge[Int]
 unDiEdge._1 * unDiEdge._2      // Int = 12
@@ -131,7 +131,7 @@ diHyperEdge match {
     </li>
 </ol>
 
-<h2 id="LabeledEdges">Pattern Match Labeled Edges</h2>
+<h2 id="LabeledEdges">Pattern match labeled edges</h2>
 <p> Besides <a href="/guides/core/editing.html#InfixEdgeExtractors">how to add infix edge extractors</a>,
     please refer to any of the numerous examples in the test code base like
 </p>
@@ -150,7 +150,7 @@ diHyperEdge match {
     </li>
 </ul>
 
-<h2 id="Neighbors">Inspect Neighbors and Incident Edges</h2>
+<h2 id="Neighbors">Inspect neighbors and incident edges</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph[Int, AnyEdge](0, 1 ~ 3, 3 ~> 2)
 
 def n(outer: Int): g.NodeT = g get outer
@@ -227,7 +227,7 @@ n(2).incoming       // Set[g.EdgeT] = Set(3 ~> 2)
         href="/guides/core/traversing.html">Traversing</a>.
 </p>
 
-<h2 id="Querying">Query the Node or Edge Set</h2>
+<h2 id="Querying">Query the node or edge set</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph[Int, AnyEdge](2 ~> 3, 3 ~ 1, 5)
 
 g.nodes.filter(_.outer > 2)         // Set[g.NodeT] = Set(3, 5)
@@ -277,7 +277,7 @@ g.iterator
     </li>
 </ol>
 
-<h2 id="Union">Compute Union, Difference and Intersection</h2>
+<h2 id="Union">Compute union, difference and intersection</h2>
 <pre class="prettyprint lang-scala nolinenum">val g = Graph(1~2, 2~3, 2~4, 3~5, 4~5)
 val h = Graph(3 ~ 4, 3 ~ 5, 4 ~ 6, 5 ~ 6)
 g union h      // Graph(1 ~ 2, 2 ~ 3, 2 ~ 4, 3 ~ 5, 4 ~ 5, 3 ~ 4, 4 ~ 6, 5 ~ 6)
@@ -291,7 +291,7 @@ g &= h         // Graph(4, 3 ~ 5), mutated instance
 <p> Use any of the above operators followed by <code>=</code> to mutate your mutable graph.
 </p>
 
-<h2 id="Measuring">Measure your Graph</h2>
+<h2 id="Measuring">Measure your graph</h2>
 <p> Assume <code>g</code> being the mixed graph in chapter
     <a href="/guides/core/traversing.html">Traverse Your Graph</a>. Then
 </p>
@@ -322,7 +322,7 @@ g.degreeNodesMap(degreeFilter = _ > 3) // Map(4 -> Set(3, 4))
 <p> Degree methods come with implicit parameters to choose in- or out-degrees and optionally filter them.
 </p>
 
-<h2 id="Classifying">Classify your Graph</h2>
+<h2 id="Classifying">Classify your graph</h2>
 <pre class="prettyprint lang-scala linenums">val g = Graph(1, 2 ~> 3)
 
 g.isConnected                                                  // false

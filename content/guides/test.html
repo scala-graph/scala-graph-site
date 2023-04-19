@@ -24,13 +24,13 @@ sideMenuItems: >
 	>smallConnectedIntDi</a>.
 </p>
 
-<h2 id="RandomGraphs">Creating Random Graphs</h2>
+<h2 id="RandomGraphs">Creating random graphs</h2>
 <p>	Think of <code>RandomGraph</code> as the native implementation to generate
 	any kind of <code>Graph</code> with random nodes and edges satisfying user-defined
 	graph metrics.
 </p>
 
-<h3>Obtaining Generators for Graphs with Predefined Metrics</h3>
+<h3>Obtaining generators for graphs with predefined metrics</h3>
 <p>	The simplest way to obtain a random graph is to use a predefined generator like
 </p>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.generator._
@@ -69,7 +69,7 @@ val sparseGraph = randomSparse.draw // Graph[Int,UnDiEdge]
 	</li>
 </ol>
 	
-<h3>Obtaining Generators for Individual Graph Types</h3>
+<h3>Obtaining generators for individual graph types</h3>
 <p>	As you have noticed the previous generator was restricted to the
 	node type of <code>Int</code>. But to cover your use case you usually
 	need to obtain random graphs with a specific node type. Let's define a
@@ -136,7 +136,7 @@ val mixedGraph = randomMixedGraph.draw
 <p>	You can even supply your own label and weight generators.
 </p>
 
-<h3>Keeping Metric Constraints in Mind</h3>
+<h3>Keeping metric constraints in mind</h3>
 <p>	You may wonder why we divided the number of all possible combinations of
 	first names and surnames by 10. The reason is that <code>RandomGraph</code>
 	must be able to draw distinct nodes. Ok, they become most probably distinct
@@ -164,7 +164,7 @@ val mixedGraph = randomMixedGraph.draw
 	previous examples. We assume some knowledge of <code>ScalaCheck</code>. 
 </p>
 
-<h3>Obtaining <code>Arbitrary</code> Instances for Graphs with Predefined Metrics</h3>
+<h3>Obtaining <code>Arbitrary</code> instances for graphs with predefined metrics</h3>
 <pre class="prettyprint lang-scala nolinenum">type IntDiGraph = Graph[Int,DiEdge]
 implicit val arbitraryTinyGraph = GraphGen.tinyConnectedIntDi[Graph](Graph)
   
@@ -174,7 +174,7 @@ val properTiny = forAll(arbitrary[IntDiGraph]) { g: IntDiGraph =&gt;
 properTiny.check
 </pre>
      
-<h3>Setting Individual Graph Metrics for <code>Arbitrary</code> Instances</h3>
+<h3>Setting individual graph metrics for <code>Arbitrary</code> instances</h3>
 <pre class="prettyprint lang-scala nolinenum">object Sparse_1000_Int extends GraphGen.Metrics[Int] {
   val order = 1000
   val nodeDegrees = NodeDegreeRange(1,10)
@@ -193,7 +193,7 @@ val properSparse = forAll(arbitrary[IntUnDiGraph]) { g: IntUnDiGraph =&gt;
 properSparse.check
 </pre>
     
-<h3>Obtaining <code>Arbitrary</code> Instances to Generate Individual Graph Types</h3>
+<h3>Obtaining <code>Arbitrary</code> instances to generate individual graph types</h3>
 <pre class="prettyprint lang-scala nolinenum">import scalax.collection.edge.LDiEdge
   
 case class Person(name: String, yearOfBirth: Int)
@@ -230,7 +230,7 @@ val properMixedGraph = forAll(arbitrary[Mixed]) { g: Mixed =&gt;
 properMixedGraph.check
 </pre>
   
-<h3>Limiting the Minimum Number of Successful Test</h3>
+<h3>Limiting the minimum number of successful test</h3>
 <p>	As you know, by default <code>ScalaCheck</code> executes 100 tests
 	before it takes your property proved. You may desire to limit the number
 	of tests because, for instance, you are dealing with bigger graphs.

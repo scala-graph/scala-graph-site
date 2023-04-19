@@ -13,7 +13,7 @@ sideMenuItems: >
 ---
 <h1>Core User Guide: Plan Your Graph</h1>
 
-<h2 id="NodesEdges">Nodes and Edges</h2>
+<h2 id="NodesEdges">Nodes and edges</h2>
 <p> Presumably, you go for graphs because you have <em>things</em> that are <em>connected</em>, and you want to easily
     navigate along those <em>connections</em>.
     So the <em>things</em> become the nodes and their <em>connections</em> the edges.
@@ -149,7 +149,7 @@ val g: Graph[SchemaObject, Relation] = ...
 <p> With hyperedges at your fingertips, don't hesitate to take advantage of them whenever they improve your design.
 </p>
 
-<h2 id="DirectedUndirected">Directed versus Undirected</h2>
+<h2 id="DirectedUndirected">Directed versus undirected</h2>
 <p> If the relation you plan to represent is symmetrical go for undirected edges or undirected hyperedges.
     To test for symmetry, just read the relation from both sides:
     If you end up with the same phrase from both sides your relation is symmetrical.
@@ -219,7 +219,7 @@ case class Children(parent: Person, children: OneOrMore[Person])
     </li>
 </ul>
 
-<h2 id="Labelled">Labelled Edges</h2>
+<h2 id="Labelled">Labelled edges</h2>
 <p> Most often you also need some edge label. Feel free to add any number of fields to your typed edge for this purpose.
     In terms of our above database schema example, we could add a "unique" property to the <code>Index</code> edge like:
 </p>
@@ -250,7 +250,7 @@ case class Children(parent: Person, children: OneOrMore[Person])
     </li>
 </ul>
 
-<h2 id="Mixed">Mixed Graphs</h2>
+<h2 id="Mixed">Mixed graphs</h2>
 <p> You are free to mix any combination of directed, undirected and hyperedges in the same graph.
     Just look up the lowest common ancestor of your edge types in
 </p>
