@@ -24,6 +24,13 @@ sideMenuItems: >
     The below examples refer to directed and undirected graphs but, notably,
     hypergraph transformation methods have dedicated signatures.
 </p>
+<p>The examples below make use of</p>
+<pre class="prettyprint lang-scala nolinenum">import scala.concurrent.duration._
+import scalax.collection.OuterImplicits._
+import scalax.collection.edges._
+import scalax.collection.generic.AnyEdge
+import scalax.collection.immutable.Graph // or mutable
+</pre>
 
 <h2 id="Filter">Filter your graph</h2>
 <pre class="prettyprint lang-scala nolinenum">val g = Graph[Int, AnyEdge](2 ~> 3, 3 ~ 1, 5)
