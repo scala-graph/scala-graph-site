@@ -1,15 +1,149 @@
 ---
 title: Core User Guide
 sideMenuItems: >
-  <li><a href="/guides/core/index.html">Contents</a></li>
-  <li><a href="/guides/core/concepts.html">Key Concepts</a></li>
-  <li><a href="/guides/core/planning.html">Plan Your Graph</a></li>
-  <li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
-  <li><a href="/guides/core/inspecting.html">Inspect Your Graph</a></li>
-  <li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
-  <li><a>Transform Your Graph</a></li>
-  <li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
-  <li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
+<li><a href="/guides/core/index.html">Contents</a></li>
+<li><a href="/guides/core/concepts.html">Key Concepts</a></li>
+<li><a href="/guides/core/planning.html">Plan Your Graph</a></li>
+<li><a href="/guides/core/editing.html">Edit Your Graph</a></li>
+<li><a href="/guides/core/inspecting.html">Inspect Your Graph</a></li>
+<li><a href="/guides/core/traversing.html">Traverse Your Graph</a></li>
+<li><a>Transform Your Graph</a></li>
+<li><a href="/guides/core/enriching.html">Enrich Your Graph</a></li>
+<li><a href="/guides/core/characteristics.html">Run-time Characteristics</a></li>
 ---
 <h1>Core User Guide: Transform Your Graph</h1>
-<p>(TBD...)</p>
+<p>You can transform your graph by means of
+</p>
+<ol>
+    <li><code>filter</code>, <code>filterNot</code></li>
+    <li><code>foldLeft</code>, <code>foldLeftOuter</code></li>
+    <li><code>map</code> methods and</li>
+    <li><code>flatMap</code> methods.</li>
+</ol>
+<p> The mapping functionality is provided by methods with numerous signatures to meet all possible needs.
+    The below examples refer to directed and undirected graphs but, notably,
+    hypergraph transformation methods have dedicated signatures.
+</p>
+
+<h2 id="Filter">Filter your graph</h2>
+<pre class="prettyprint lang-scala nolinenum">val g = Graph[Int, AnyEdge](2 ~> 3, 3 ~ 1, 5)
+
+g filter (nodeP = _ >= 2)                         // Graph(NodeSet(2, 3, 5), EdgeSet(2 ~> 3))
+g filter (edgeP = _.isDirected)                   // Graph(NodeSet(1, 2, 3, 5), EdgeSet(2 ~> 3))
+g filter (nodeP = _ >= 2, edgeP = _.isUndirected) // Graph(NodeSet(2, 3, 5))
+</pre>
+
+<h2 id="Fold">Fold your graph</h2>
+<pre class="prettyprint lang-scala nolinenum">val g = Graph(1 ~> 2, 1 ~> 3, 4)
+
+g.foldLeft(Graph.empty[Int, DiEdge[Int]])(
+  opNode = {
+    case (cum, g.InnerNode(n, _)) if n.isIsolated => cum + n
+    case (cum, _)                                 => cum
+  },
+  opEdge = {
+    case (cum, g.InnerEdge(e, _)) if cum.size % 2 == 0 => cum + e
+    case (cum, _) => cum
+  }
+) // Graph(NodeSet(1, 2, 4), EdgeSet(1 ~> 2)) or
+  // Graph(NodeSet(1, 3, 4), EdgeSet(1 ~> 3))
+</pre>
+
+<h2 id="MapGeneric">Map your generic graph</h2>
+<p> To recall, edges of a generic graph may be of any type.
+    Thus mapping a generic graph is similar to mapping any collection in the Scala standard library.
+    The only difference is that you are free to pass a mapping function for nodes and edges in separate.
+</p>
+<pre class="prettyprint lang-scala linenums"
+>Graph(1 ~ 2).map(
+  fNode = _.outer + 1,
+  fEdge = (n1: Int, n2: Int) => n1 ~> n2
+) // Graph(NodeSet(2, 3), EdgeSet(2 ~> 3))
+</pre>
+<p>As to</p>
+<ol>
+    <li value="2">Increment node values by 1.</li>
+    <li>Transform any edge to a directed edge.</li>
+</ol>
+
+<h2 id="FlatMapGeneric">Flat-map your generic graph</h2>
+<p> Here is an example for how you would transform directed or undirected edges to two directed edges each
+    while incrementing node values:
+</p>
+<pre class="prettyprint lang-scala nolinenum"
+>Graph(1 ~ 2).flatMap(
+  fNode = _.outer + 1 :: Nil,
+  fEdge = (n1s: Seq[Int], n2s: Seq[Int]) =>
+    (n1s, n2s) match {
+      case (Seq(n1, _*), Seq(n2, _*)) => List(n1 ~> n2, n2 ~> n1)
+    } // Graph(NodeSet(2, 3), EdgeSet(2 ~> 3, 3 ~> 2))
+</pre>
+
+<h2 id="MapTyped">Map your typed graph</h2>
+<p> Mapping typed graphs is more complex because you cannot transform the node of a typed edge to an arbitrary type.
+    For instance, having edges like <code>Friends(one: Person, another: Person)</code>,
+    you cannot replace Persons with Strings
+    unless you also transform the edge to a type that allows for ends of type String.
+</p>
+<ol>
+    <li>mapping within your edge ADT, called <code>mapBound</code>, and</li>
+    <li>mapping that is free to escape your edge ADT, called <code>map</code>.</li>
+</ol>
+<p> Using the example of a <a href="https://github.com/scala-graph/scala-graph/blob/9327639cb085e1b2424cc71d1c0ec4e1f062e0ae/core/src/test/scala/demo/FlightDemoSpec.scala#L29">net of flights</a> represented by <code>g</code>,
+    assume that airport <code>hamburg</code> gets closed unexpectedly.
+    Then, you could replace all flights from/to <code>hamburg</code> by flights from/to <code>frankfurt</code> by
+</p>
+<pre class="prettyprint lang-scala nolinenum"
+>g.mapBound((airport: g.NodeT) => if (airport == hamburg) frankfurt else airport)
+</pre>
+<p> You could transform the above net of flights to a <code>Graph[String, DiEdge[String]]</code> by
+</p>
+<pre class="prettyprint lang-scala nolinenum"
+>g.map(
+  fNode = (airport: g.NodeT) => airport.outer.toString,
+  fEdge = (from: String, to: String) => DiEdge(from, to)
+)
+</pre>
+
+<h2 id="FlatMapTyped">Flat-map your typed graph</h2>
+<p> As an extension of the above <code>mapBound</code> example, suppose that you
+    not only need to replace <code>hamburg</code> by <code>frankfurt</code>
+    but also restrict flights to those having a duration of less than 1 hour:
+</p>
+<pre class="prettyprint lang-scala nolinenum"
+>def ham(flight: Flight): Boolean      = flight.departure == hamburg || flight.destination == hamburg
+def shortHam(flight: Flight): Boolean = ham(flight) && flight.duration < 1.hour
+
+g.flatMapBound(
+  fNode = (airport: g.NodeT) =>
+    (if (airport == hamburg) frankfurt else airport.outer) :: Nil,
+  fEdge = (edge: g.EdgeT, newDepartures: Seq[Airport], newDestinations: Seq[Airport]) => {
+    val outer = edge.outer
+    if (shortHam(outer))
+      outer.copy(departure = newDepartures.head, destination = newDestinations.head) :: Nil
+    else if (ham(outer)) Nil
+    else outer :: Nil
+  }
+)
+</pre>
+<p> To demonstrate an escaping flat map, you could also transform the above net of flights
+    to a <code>Graph[String, DiEdge[String]]</code>
+    while maintaining the functionality of the previous <code>flatMapBound</code> in one step:
+</p>
+<pre class="prettyprint lang-scala nolinenum"
+>g.flatMap(
+  fNode = (airport: g.NodeT) => {
+    def existing = airport.outer.toString
+    if (airport == hamburg) existing :: frankfurt.toString :: Nil
+    else existing :: Nil
+  },
+  fEdge = (edge: g.EdgeT, from: Seq[String], to: Seq[String]) => {
+    val outer = edge.outer
+    if (shortHam(outer)) {
+      def replaced(a: Airport) = (if (a == hamburg) frankfurt else a).toString
+      DiEdge(replaced(outer.departure), replaced(outer.destination)) :: Nil
+    } else if (ham(outer)) Nil
+    else DiEdge(from.head, to.head) :: Nil
+  }
+)
+</pre>
