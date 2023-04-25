@@ -2,34 +2,124 @@
 title: Download
 ---
 <h1>Download</h1>
-<p>The latest stable release of Graph Core is</p>
+<p>The latest stable release is</p>
 <table>
-	<tr><td></td>							<td>Scala 2.12</td>				<td>Scala 2.13</td>
+	<tr>
+		<td>Module</td>
+		<td>Major</td>
+		<td align="right">Scala 2.12</td>
+		<td align="right">Scala 2.13/3.x</td>
+		<td align="right">Scala.js</td>
 	</tr>
-    <tr><td><code>graph-core</code></td>	<td><code>1.13.1</code></td>	<td><code>1.13.6</code></td>
-    </tr>
+  <tr>
+		<td><code>graph-core</code></td>
+		<td align="right">2</td>
+		<td align="right">-</td>
+		<td align="right"><code>2.0.0</code></td>
+		<td align="right"><code>planned</code></td>
+  </tr>
+	<tr>
+		<td><code>graph-core</code></td>
+		<td align="right">1</td>
+		<td align="right"><code>1.13.1</code></td>
+		<td align="right"><code>1.13.6</code></td>
+		<td align="right"><code>1.13.3</code></td>
+	</tr>
 </table>
-
+<p>	where the Scala 2.13 release also works for Scala 3.x.
+</p>
 <p>To download the latest release of the core module, add the following to your SBT settings:
 </p>
-
-<pre>scalaVersion := "2.13.8"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.13.6"</pre>
-
+<pre>scalaVersion := "2.13.10"
+libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
+</pre>
 <p>The latest stable releases of the optional modules are:</p>
 <table>
-	<tr><td></td>								<td>Scala 2.12</td>			<td>Scala 2.13</td>
+	<tr>
+		<td></td>
+		<td>Major</td>
+		<td>Scala 2.12</td>
+		<td>Scala 2.13/3.x</td>
+		<td align="right">Scala.js</td>
 	</tr>
-	<tr><td><code>graph-constrained</code></td>	<td><code>1.13.1</code></td><td><code>1.13.2</code></td>
+	<tr>
+		<td><code>graph-constrained</code></td>
+		<td align="right">2</td>
+		<td align="right"><code>-</code></td>
+		<td align="right"><code>?</code></td>
+		<td align="right"><code>?</code></td>
 	</tr>
-	<tr><td><code>graph-dot</code></td>			<td><code>1.13.0</code></td><td><code>1.13.3</code></td>
+	<tr>
+		<td><code>graph-dot</code></td>
+		<td align="right">2</td>
+		<td align="right"><code>-</code></td>
+		<td align="right"><code>planned</code></td>
+		<td align="right"><code>planned</code></td>
 	</tr>
-	<tr><td><code>graph-json</code></td>		<td><code>1.13.0</code></td><td><code>1.13.0</code></td>
+	<tr>
+		<td><code>graph-json</code></td>
+		<td align="right">2</td>
+		<td align="right"><code>-</code></td>
+		<td align="right"><code>planned</code></td>
+		<td align="right"><code>planned</code></td>
+	</tr>
+	<tr>
+		<td><code>graph-constrained</code></td>
+		<td align="right">1</td>
+		<td align="right"><code>1.13.1</code></td>
+		<td align="right"><code>1.13.2</code></td>
+		<td align="right"><code>1.13.0</code></td>
+	</tr>
+	<tr>
+		<td><code>graph-dot</code></td>
+		<td align="right">1</td>
+		<td align="right"><code>1.13.0</code></td>
+		<td align="right"><code>1.13.3</code></td>
+		<td align="right"><code>1.13.3</code></td>
+	</tr>
+	<tr>
+		<td><code>graph-json</code></td>
+		<td align="right">1</td>
+		<td align="right"><code>1.13.0</code></td>
+		<td align="right"><code>1.13.0</code></td>
+		<td align="right"><code>1.13.0</code></td>
 	</tr>
 </table>
+<p>	You may find or manually download any Maven release including Scaladoc from
+		<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a>.
+</p>
+<p>	Upcoming features go into major release 2 while major release 1 is deprecated except for bug fixes.
+</p>
 
-You may find or manually download any Maven release including Scaladoc from
-<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a>.
+<h2 id="2.0">2.0 Release notes</h2>
+<p>	2.0 introduces some significant improvements over 1.x:
+</p>
+<ul>
+	<li>new: Easier <a href="/guides/core/editing.html">custom edge creation</a> facilitated by a string of traits.
+	</li>
+	<li>new: Easy definition of <a href="/guides/core/planning.html#NodesEdges">edge ADTs</a>.
+	</li>
+	<li>new: Support for <a href="/guides/core/transform.html">graph transformations</a>
+			via <code>map</code> and <code>flatMap</code>.
+	</li>
+	<li>new: Directed hyperedges come with <a href="/guides/core/concepts.html#HyperEdgeEquality">multiple sources</a>.
+	</li>
+	<li>new: Directed and undirected hyperedges have now type safe signatures.
+	</li>
+	<li>modified: The type parameter <code>E</code> for the edge type of graphs is now a simple type
+			as opposed to a higher kinded type as before.
+	</li>
+  <li>modified: Edge types are modularized by packages and traits for easier custom edge definitions.
+  </li>
+	<li>dropped: Generic labelled edges are <a href="/guides/core/concepts.html#EdgeClasses">superseded by custom edges</a>.
+	</li>
+</ul>
+<h3>Migration notes</h3>
+<p>	2.0 introduces some significant improvements over 1.x at the cost of breaking changes.
+	Take your time to familiarise yourself with the new <a href="/guides/core/concepts.html">concepts</a> and then
+	start to migrate your code by <a href="/guides/core/planning.html">choosing</a> the most appropriate edge types.
+	For missing pieces, please refer to ScalaDoc and the numerous tests.
+</p>
 
 <h2 id="1.13">1.13 Release notes</h2>
 
@@ -144,7 +234,7 @@ You may find or manually download any Maven release including Scaladoc from
 <h2 id="1.11">1.11 Release notes</h2>
 <h3 id="1.11.5">1.11.5</h3>
 <ul>
-	<li>fix: <code>topologicalSort</code> of a cyclic graph could leave cycle undetected. 
+	<li>fix: <code>topologicalSort</code> of a cyclic graph could leave cycle undetected.
 		Closes <a href="https://github.com/scala-graph/scala-graph/issues/68" target="_blank">#68</a>.
 	</li>
 	<li>fix: on DOT export, non-empty child subgraphs of an empty subgraph did not render.
@@ -195,17 +285,17 @@ You may find or manually download any Maven release including Scaladoc from
 	<li>mod: Java serialization has been customized for more efficiency. Due to the
 		<a href="https://issues.scala-lang.org/browse/SI-5773?jql=text%20~%20%22%40transient%22" target="_blank">
 		Scala issue on @transient</a> there is a constant footprint of approximately 4 kb, though.
-		Please vote for this issue if you feel bothered.  
+		Please vote for this issue if you feel bothered.
 	</li>
 	<li>fix: In case of possibly mixed graphs, <code>isDirected</code>, <code>isHyper</code> and <code>isMulti</code>
 		now also consider the graph content as opposed to solely checking the edge type parameter.
 		This is achieved O(1) except for <code>isMulti</code>.
 	</li>
 	<li>fix <a href="https://github.com/scala-graph/scala-graph/issues/57" target="_blank">#57</a>:
-		issue with componentTraverser  
+		issue with componentTraverser
 	</li>
 	<li>mod: The node type parameter of edge types is now covariant thus honoring algebraic data types on edges.
-		This meets <a href="https://github.com/scala-graph/scala-graph/issues/40" target="_blank">#40</a>. 
+		This meets <a href="https://github.com/scala-graph/scala-graph/issues/40" target="_blank">#40</a>.
 	</li>
 </ul>
 
@@ -213,9 +303,9 @@ You may find or manually download any Maven release including Scaladoc from
 <h3 id="1.10.1">1.10.1</h3>
 <ul>
 	<li>new: Added <a href="/guides/core-traversing.html#Properties">withMaxWeight</a> as a fluent property.
-		<code>withMaxWeight</code> is implemented for BreadthFirst, DepthFirst and findCycle.  
+		<code>withMaxWeight</code> is implemented for BreadthFirst, DepthFirst and findCycle.
 	</li>
-	<li>fix #54: Removing an edge in a mutable graph could cause erroneous diSuccessors.  
+	<li>fix #54: Removing an edge in a mutable graph could cause erroneous diSuccessors.
 	</li>
 </ul>
 <h3 id="1.10.0">1.10.0</h3>
@@ -224,20 +314,20 @@ You may find or manually download any Maven release including Scaladoc from
 		<code>topologicalSort</code> is now integrated in the <code>Traverser</code> framework
 		allowing for fluent properties.
 		Among others, <code>TopologicalOrder</code>, the result of a topological sort,
-		may be viewed and ordered layer by layer.  
+		may be viewed and ordered layer by layer.
 	</li>
 	<li>new: Directed or undirected hyperedge endpoints may now be of either
 		<code>Bag</code> or <code>Sequence</code> collection kind.
 	</li>
-	<li>mod: Dependency on <code>scala-reflect</code> has been dropped.  
+	<li>mod: Dependency on <code>scala-reflect</code> has been dropped.
 	</li>
-	<li>mod: Module <code>Graph-test</code> is now integrated in <code>Graph-core</code>.  
+	<li>mod: Module <code>Graph-test</code> is now integrated in <code>Graph-core</code>.
 	</li>
-	<li>fix #34: No more racing condition occurs when running traversals under stress such as 100000 in parallel.  
+	<li>fix #34: No more racing condition occurs when running traversals under stress such as 100000 in parallel.
 	</li>
-	<li>fix #38: Under a rare condition, JSON output was invalid.  
+	<li>fix #38: Under a rare condition, JSON output was invalid.
 	</li>
-	<li>fix #47: <code>DiHyperEdge</code>'s target nodes now allow for duplicate nodes by default.  
+	<li>fix #47: <code>DiHyperEdge</code>'s target nodes now allow for duplicate nodes by default.
 	</li>
 	<li>fix #51: Constructing <code>EqHashSetIterator</code> is now O(1).
 	</li>
@@ -246,42 +336,42 @@ You may find or manually download any Maven release including Scaladoc from
 	</li>
 	<li>new: Added DOT record shape support - see also the test method
 		<code>def `Colons (':') in node_id's are handled correctly`</code> in <a href =
-		"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala" 
-		target="_blank">TExport.scala</a>. 
-	</li>  
+		"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala"
+		target="_blank">TExport.scala</a>.
+	</li>
 </ul>
-<h3>Migration notes:</h3> 
+<h3>Migration notes:</h3>
 <ul>
 	<li>Signatures for the DOT export have changed slightly:
 		Since the previous representation of <em>DOT ID</em> and <em>DOT node_id</em> by
 		<code>String</code> has been replaced by the case classes <code>Id</code> respectively
 		<code>NodeId</code> user code needs to be updated. For this purpose you
 		either invoke these constructors explicitly or you
-		<code>import scalax.collection.io.dot.implicits._</code> to utilize implicit conversions.      
+		<code>import scalax.collection.io.dot.implicits._</code> to utilize implicit conversions.
 	</li>
 	<li>Also, <code>DotRootGraph</code> and <code>DotSubGraph</code> have an additional parameter
-		<code>attrStmts</code> while <code>kvList</code> has been renamed to <code>attrList</code>.      
+		<code>attrStmts</code> while <code>kvList</code> has been renamed to <code>attrList</code>.
 	</li>
 </ul>
 
 <h2 id="1.9">1.9 Release notes</h2>
 <h3 id="1.9.4">1.9.4</h3>
 <ul>
-	<li>fix: Java serialization fix in 1.9.3 was not correct.  
+	<li>fix: Java serialization fix in 1.9.3 was not correct.
 	</li>
 </ul>
 
 <h3 id="1.9.3">1.9.3</h3>
 <ul>
-	<li>fix: issues #24, #36, #39 including Java serialization.  
+	<li>fix: issues #24, #36, #39 including Java serialization.
 	</li>
 </ul>
 
 <h3 id="1.9.2">1.9.2</h3>
 <ul>
-	<li>mod: JSON export creates now single node/edge sections subsuming all class types.  
+	<li>mod: JSON export creates now single node/edge sections subsuming all class types.
 	</li>
-	<li>fix: issue with node neighbors in mixed graphs.  
+	<li>fix: issue with node neighbors in mixed graphs.
 	</li>
 </ul>
 
@@ -289,7 +379,7 @@ You may find or manually download any Maven release including Scaladoc from
 <ul>
 	<li>fix: equality of non-basic directed hyperedges did no more work correctly since 1.7.1.
 	</li>
-	<li>fix: equality of hyperedges with one or more hooks did not work correctly.  
+	<li>fix: equality of hyperedges with one or more hooks did not work correctly.
 	</li>
 </ul>
 
@@ -300,16 +390,16 @@ You may find or manually download any Maven release including Scaladoc from
 		of the underlying graph.
 	</li>
 	<li>new: DOT-Export allows to <a href="/guides/dot.html#hyper">map hyperedges</a>
-		to a sequence of DOT edge statements. 
+		to a sequence of DOT edge statements.
 	</li>
 	<li>mod: Members marked deprecated in 1.8.0 have been removed. Visitors no more
-		return <code>Continue</code> or <code>Cancel</code>.  
+		return <code>Continue</code> or <code>Cancel</code>.
 	</li>
-	<li>mod: Traversing has been optimized for speed and refactored for better modularity.  
+	<li>mod: Traversing has been optimized for speed and refactored for better modularity.
 	</li>
 	<li>mod: Scala 2.11 jars are now compiled with Scala 2.11.1 following the
 		<a href="https://groups.google.com/forum/#!topic/scala-user/qQYsF_QJGu8" target="_blank">
-		recommendation</a> of the Scala core team. 
+		recommendation</a> of the Scala core team.
 	</li>
 </ul>
 
@@ -326,9 +416,9 @@ You may find or manually download any Maven release including Scaladoc from
 	</li>
 	<li>new: Parameter <code>orderHint</code> added to <code>GraphConfig</code>.
 	</li>
-	<li>mod: Factory method <code>fromStream</code> removed. 
+	<li>mod: Factory method <code>fromStream</code> removed.
 	</li>
-	<li>And some fixes. 
+	<li>And some fixes.
 	</li>
 </ul>
 <h3 id="1.8.0">1.8.0</h3>
@@ -337,20 +427,20 @@ You may find or manually download any Maven release including Scaladoc from
 		taken to the next level.</strong>
 	</li>
 	<li>mod: Some conversion methods and rarely used classes have been renamed
-		for clarity and uniformity. 
+		for clarity and uniformity.
 	</li>
 </ul>
-<h3>Migration notes:</h3> 
+<h3>Migration notes:</h3>
 <ul>
 	<li>Please replace deprecated method calls in a timely manner since	deprecated
 		methods will be removed from the library probably as soon as in April 2014.
 		Besides reading the updated User Guide it should be worthwhile to inspect
-		<code>TTraversal.scala</code> near the bottom of 
+		<code>TTraversal.scala</code> near the bottom of
 		<a href="https://github.com/scala-graph/scala-graph/commit/7082893711c98491d029d0bc4962c006be8c5dd8"
-		target="_blank">test migration changes</a> providing a handful of migration examples.  
+		target="_blank">test migration changes</a> providing a handful of migration examples.
 	</li>
 	<li><p>Please update your code base with the following renamed methods and classes:
-		</p> 
+		</p>
 		<table>
 			<tr><td>up to 1.7</td>
 		  		<td>as of 1.8 renamed to</td>
@@ -409,8 +499,8 @@ You may find or manually download any Maven release including Scaladoc from
 	<li>new: Edge extractors have been added/modified.
 		Latter may require user-site source code changes in edge patterns. See
 		<a href="/guides/core-operations.html#Endpoints">Inspecting Endpoints</a> and
-		<a href="/guides/core-operations.html#Patterns">More Edge Patterns</a>. 
+		<a href="/guides/core-operations.html#Patterns">More Edge Patterns</a>.
 	</li>
-	<li>mod: SBT upgraded to 0.13.0. 
+	<li>mod: SBT upgraded to 0.13.0.
 	</li>
 </ul>
