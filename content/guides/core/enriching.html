@@ -13,196 +13,32 @@ sideMenuItems: >
 ---
 <h1>Core User Guide: Enrich Your Graph</h1>
 
-<p>	You can start to utilize <code>Graph</code> out of the box but often you want
-	to achieve a certain degree of customization. Basically, the following kinds
-	of customization are eligible:
+<p>	You can roll out your extension methods on top level or on inner trait level.
 </p>
 
-<h2>Alter configuration options</h2>
-<p>	In the default implementation, adjacency lists are represented by
-	<code>ArraySet</code>s, a specific collection type included in Graph-core.
-	<code>ArraySet</code>s bank on JVM native arrays to provide higher performance.
+<h2 id="graph">Enrich your graph</h2>
+<p> To enrich your graph with your own methods on top level is straightforward:
 </p>
-<p>	Mostly you can go with the default <code>ArraySet</code>
-	settings which were chosen by careful measurements. In production
-	however, it may be desirable to tune them. Based on the node density
-	and density distribution of your graphs you can determine up to which
-	number of neighbors the underlying <code>ArraySet</code>s
-	should use arrays.
-	Once this limit is reached, <code>ArraySet</code> will transparently
-	switch from the array to hash set representation.
-</p>
-<p>	Let <code>g</code> be your <code>Graph</code> instance. Then
-</p>
-<p>	<code>g.config</code>
-</p>
-<p>	returns the immutable configuration for <code>g</code>.
-	To override these settings, define your own implicit value prior to
-	<code>Graph</code> creation:
-</p>
-<pre class="prettyprint lang-scala nolinenum">import scalax.collection.config.CoreConfig
-import scalax.collection.mutable.ArraySet.Hints
-implicit val myConfig = CoreConfig(orderHint = 5000, Hints(64, 0, 64, 75))
-</pre>
-<p>	The first argument will be used for preallocations depending on the
-	expected order of the graph. The second argument ensures that both
-	the initial array capacity and the hash set limit are set to <code>64</code>.
-	These values would be preferable for <code>Graph</code>s with an average
-	node degree of roughly 30 to 55 for the majority of nodes.
-	For more details please refer to the Scaladoc of <code>ArraySet.Hints</code>.
-</p>
+<pre class="prettyprint lang-scala nolinenum"
+>implicit class ExtGraph[N, E <: Edge[N]](val g: Graph[N, E]) {
+	def foo: String = "bar"
+}
 
-<h2>Enrich your graph</h2>
-<p> You may want to add new methods to the library implementation of
-	<code>Graph</code> or its inner traits <code>InnerNodeLike</code>,
-	<code>NodeSet</code>, <code>InnerEdgeLike</code> or <code>EdgeSet</code>.
-	Adding new methods to Graph may be achieved by the standard <em>enrich
-	my library</em> pattern using <code>implicit</code> functions.
-</p>
-<p> To enrich <code>Graph</code> with your own methods simply use the
-	enrich-me pattern like:
-</p>
-<pre class="prettyprint lang-scala nolinenum">implicit class ExtGraph[N, E[X] <: EdgeLikeIn[X]](g: Graph[N,E]) {
-  def foo = "bar"
-}
-Graph(1~2).foo
+Graph(1 ~ 2)foo // String: "bar"
 </pre>
-<p>	To enrich the inner type <code>NodeT</code> is more subtle:
-</p>
-<pre class="prettyprint lang-scala nolinenum">implicit class ExtGraphNode[N, E[X] <: EdgeLikeIn[X]](node_ : Graph[N,E]#NodeT) {
-    type NodeT = graph.NodeT
-    val graph = node_.containingGraph
-    val node  = node_.asInstanceOf[NodeT]
-    def foo = this.toString + "bar"
-  }
-  Graph(1~2).nodes.headOption map (_.foo)
-</pre>
-<p> For more sophisticated enrichment alternatives see
-	<a href="https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/custom/TExtByImplicit.scala">TExtByImplicit.scala</a>.
-</p>
 
-<h2>Define custom edges</h2>
-<p>	You may decide to bypass the predefined edge classes and design your
-	own edge type. Recapping the <code>Flight</code> label example,
-	it is also possible to define a custom edge type <code>Flight</code>.
-	Armed with such a custom edge type you can create <code>Graph</code>
-	instances of the type <code>Graph[Airport, Flight]</code>.
-	For the sake of simplicity we design the <code>Flight</code> edge to have
-	the single attribute <code>flightNo</code>. Given the node class
+<h2 id="inner">Enrich inner types</h2>
+<p>	One way to enrich inner types is to bank on type projection.
+		To add your extension methods to <code>NodeT</code> you can do:
 </p>
-<pre class="prettyprint lang-scala nolinenum">case class Airport(val code: String) {
-  override def toString = code // without Airport-prefix
+<pre class="prettyprint lang-scala nolinenum"
+>implicit class ExtInnerNode[N, E <: Edge[N]](node: Graph[N, E]#NodeT) {
+  def outOverInDegree: Int = node.outDegree - node.inDegree
 }
-val (ham, ny) = (Airport("HAM"), Airport("JFK")) // two nodes
-</pre>
-<p>assume we want to be able to write</p>
-<pre class="prettyprint lang-scala nolinenum">val flight = ham ~> ny ## "007"	// flightNo 007 - doesn't work yet
-val g = Graph(flight) // Graph[Airport, Flight] - doesn't work yet
-</pre>
-<p>	<a name="RichViewCheckpoint0"></a> Here is how to achieve the above
-	requirements:
-</p>
-<pre class="prettyprint lang-scala linenums"
->case class Flight[+N](fromAirport: N, toAirport: N, flightNo: String)
-  extends DiEdge[N](NodeProduct(fromAirport, toAirport))
-  with    ExtendedKey[N]
-  with    EdgeCopy[Flight]
-  with    OuterEdge[N,Flight] 
-{
-  private def this(nodes: Product, flightNo: String) {
-    this(nodes.productElement(0).asInstanceOf[N],
-         nodes.productElement(1).asInstanceOf[N], flightNo)
-  }
-  def keyAttributes = Seq(flightNo)
-  override def copy[NN](newNodes: Product) = new Flight[NN](newNodes, flightNo)
-  override protected def attributesToString = s" ($flightNo)" 
-}
-object Flight {
-  implicit final class ImplicitEdge[A &lt;: Airport](val e: DiEdge[A]) extends AnyVal {
-    def ## (flightNo: String) = new Flight[A](e.source, e.target, flightNo)
-  } 
-}
-</pre>
-<p>As to</p>
-<ol>
-	<li value="2"><code>DiEdge</code> should be the base of any directed custom
-		edge. <code>Airport</code> is the node type.</li>
-	<li>If any of the label attributes is part of the key of the edge
-		type, <code>ExtendedKey</code> must be mixed in. An attribute is a key
-		if it must be considered by <code>equals</code>. <code>flightNo</code>
-		is such a key attribute because there may exist several flights from
-		and to the same airport so we distinguished them by <code>flightNo</code>.
-	</li>
-	<li>All edge implementations must mix in <code>EdgeCopy</code>.
-	</li>
-	<li>All edge implementations must mix in <code>OuterEdge</code>.
-	</li>
-	<li value="11">Key attributes must be added to this <code>Seq</code>.
-	</li>
-	<li><code>copy</code> will be called by <code>Graph</code>
-		transparently to create an inner edge. Thus <code>copy</code> plays
-		the role of an inner edge factory. It must return an instance of the
-		edge class.
-	</li>
-	<li value="16">Establishes the <code>Flight</code> edge factory shortcut
-		<code>##</code> that propagates a directed edge to <code>Flight</code>.
-	</li>
-</ol>
-<p>
-	Note that the supplied tests contain a more complete implementation of
-	the flight example - see <code>Flight.scala</code>, <code>TFlight.scala</code>
-	and <code>FlightRouteMap.jpg</code> in the repository.
-</p>
-<p>In general, when deciding on how to define your custom edge, the
-	following steps apply:</p>
-<ol>
-	<li>Select a <a href="/guides/core/initializing.html#EdgeFactories">predefined edge class</a>
-		to derive from.
-	</li>
-	<li>If your edge type is labeled by one or more attributes, decide
-		for each attribute whether it counts as a key or as a non-key
-		attribute. You have to deal with key attributes only in case your
-		graph is to be laid out for multi-edges. Then, similar to SQL database
-		primary key design, the attributes making up the thought unique key must be
-		defined as key attributes.<br>If you have one or more key
-		attributes, mix in <code>ExtendedKey</code> and enter all key
-		attributes into the list returned by <code>def keyAttributes</code>
-		which you must override.<br>For any non-key attribute it is
-		sufficient to be added as a constructor parameter.
-	</li>
-	<li><code>EdgeCopy</code> must always be mixed in to override its
-		abstract method <code>copy</code>.</li>
-	<li>If you want to avoid any loop in your graph, you can achieve
-		this by simply mixing in <code>LoopFreeEdge</code>.
-	</li>
-	<li>If <code>weight</code> is your single custom attribute go with either
-		<code>WUnDiEdge</code> or <code>WDiEdge</code>. If you have more custom attributes
-		you may select one of the predefined <code>WL*</code> edges but, for better type safety,
-		you are recommended to implement your own custom edge.
-	</li>
-	<li>In your custom edge class you are free to override <code>validate</code>
-		that is called at edge instantiation time. For instance, the
-		predefined <code>validate</code> requires that no edge end equals to <code>null</code>.
-	</li>
-	<li>Optionally, customize <code>toString</code>. Notice that <code>EdgeLike</code>
-		comes with several protected methods for prefixes, braces etc.such as<code>
-			attributesToString</code> which just need to be overridden. Thus they remove
-		the burden of programming <code>toString</code> from the bottom up.
-	</li>
-	<li>In the custom edge companion object, implement an <code>implicit def</code> to
-		make edge creation more readable.
-	</li>
-	<li>Optionally, you are free to implement your custom edge factory
-		shortcut. Doing this you may also opt to reuse any of standard edge factory
-		shortcuts like <code>~</code> or <code>~&gt;</code>.
-	</li>
-</ol>
-<p>	In case of mixed graphs, prefer an ADT of custom edge classes.
-</p>
-<p> See also:<br />
-	<code>object scalax.collection.GraphEdge._</code><br />
-	<code>object scalax.collection.GraphPredef._</code><br />
-</p>
 
-<h2>Define user constraints</h2>
-<p>Please refer to the <a href="/guides/constrained.html">Constrained User Guide</a>.</p>
+Graph(1 ~> 2).nodes foreach {
+  case n if n.outer == 1 => n.outOverInDegree // Int:  1
+  case n if n.outer == 2 => n.outOverInDegree // Int: -1
+  case _                 => fail()
+}
+</pre>
