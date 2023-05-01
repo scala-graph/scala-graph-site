@@ -6,7 +6,7 @@ title: Download
 <table>
 	<tr>
 		<td>Module</td>
-		<td>Major</td>
+		<td align="right">Major</td>
 		<td align="right">Scala 2.12</td>
 		<td align="right">Scala 2.13/3.x</td>
 		<td align="right">Scala.js</td>
@@ -16,7 +16,7 @@ title: Download
 		<td align="right">2</td>
 		<td align="right">-</td>
 		<td align="right"><code>2.0.0</code></td>
-		<td align="right"><code>planned</code></td>
+		<td align="right">planned</td>
   </tr>
 	<tr>
 		<td><code>graph-core</code></td>
@@ -37,31 +37,31 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <table>
 	<tr>
 		<td></td>
-		<td>Major</td>
-		<td>Scala 2.12</td>
-		<td>Scala 2.13/3.x</td>
+		<td align="right">Major</td>
+		<td align="right">Scala 2.12</td>
+		<td align="right">Scala 2.13/3.x</td>
 		<td align="right">Scala.js</td>
 	</tr>
 	<tr>
 		<td><code>graph-constrained</code></td>
 		<td align="right">2</td>
-		<td align="right"><code>-</code></td>
-		<td align="right"><code>?</code></td>
-		<td align="right"><code>?</code></td>
+		<td align="right">-</td>
+		<td align="right">deprecated</td>
+		<td align="right">deprecated</td>
 	</tr>
 	<tr>
 		<td><code>graph-dot</code></td>
 		<td align="right">2</td>
-		<td align="right"><code>-</code></td>
-		<td align="right"><code>planned</code></td>
-		<td align="right"><code>planned</code></td>
+		<td align="right">-</td>
+		<td align="right">planned</td>
+		<td align="right">planned</td>
 	</tr>
 	<tr>
 		<td><code>graph-json</code></td>
 		<td align="right">2</td>
-		<td align="right"><code>-</code></td>
-		<td align="right"><code>planned</code></td>
-		<td align="right"><code>planned</code></td>
+		<td align="right">-</td>
+		<td align="right">planned</td>
+		<td align="right">planned</td>
 	</tr>
 	<tr>
 		<td><code>graph-constrained</code></td>
@@ -92,7 +92,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 </p>
 
 <h2 id="2.0">2.0 Release notes</h2>
-<p>	2.0 introduces some significant improvements over 1.x:
+<p>	2.0 introduces some significant enhancements over 1.x:
 </p>
 <ul>
 	<li>new: Easier <a href="/guides/core/editing.html">custom edge creation</a> facilitated by a string of traits.
@@ -115,8 +115,10 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 	</li>
 </ul>
 <h3>Migration notes</h3>
-<p>	2.0 introduces some significant improvements over 1.x at the cost of breaking changes.
-	Take your time to familiarise yourself with the new <a href="/guides/core/concepts.html">concepts</a> and then
+<p>	Unfortunately, the enhancements could only be achieved at the expense of backwards compatibility.
+	To make this clear, we bumped the major version to 2.
+</p>
+<p> Take your time to familiarise yourself with the new <a href="/guides/core/concepts.html">concepts</a> and then
 	start to migrate your code by <a href="/guides/core/planning.html">choosing</a> the most appropriate edge types.
 	For missing pieces, please refer to ScalaDoc and the numerous tests.
 </p>
@@ -126,7 +128,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <h3 id="1.13.6">1.13.6</h3>
 <ul>
 	<li>Fixes <a href="https://github.com/scala-graph/scala-graph/issues/264">Topological sort may not return a node in a cycle when it fails</a>.
-		Note that the failure part of the <a href="http://www.scala-graph.org/api/core/api/scalax/collection/GraphTraversal.html#TopologicalSort=Either[GraphTraversal.this.TopologicalSortFailure,GraphTraversal.this.TopologicalOrder[GraphTraversal.this.NodeT]]">returned</a> <code>Either</code> has also changed.
+		Note that the failure part of the <a href="/api/core/scalax/collection/GraphTraversal$TopologicalSort.html" target="_blank">returned</a> <code>Either</code> has also changed.
 	</li>
 </ul>
 
@@ -163,7 +165,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 	<li>Refactored constraint violation handling in the <code>constrained</code> module.
 		Instead of implementing error handlers, you may now call specific methods that inform you
 		whether an operation was accepted or rejected.
-		Grab the updated <a href="/guides/constrained.html">Constrained Guide</a> to learn more.
+		Grab the updated <a href="/guides/1.x/constrained.html">Constrained Guide</a> to learn more.
 		Many thanks go to Mario for his continuous support on the test side and his advice on true usability
 		of the improved design.
 	</li>
@@ -223,7 +225,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 
 <h3 id="1.12.0">1.12.0</h3>
 <ul>
-	<li>new: Support for <a href="/guides/core-traversing.html#StrongComponents" target="_blank">finding strongly connected components</a>.
+	<li>new: Support for <a href="/guides/1.x/core-traversing.html#StrongComponents" target="_blank">finding strongly connected components</a>.
 		Also closes <a href="https://github.com/scala-graph/scala-graph/issues/74" target="_blank">#74</a>.
 	</li>
 	<li>fix: Compiler option "-Yinline" in Scala 2.11 did not work in some cases.
@@ -302,7 +304,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <h2 id="1.10">1.10 Release notes</h2>
 <h3 id="1.10.1">1.10.1</h3>
 <ul>
-	<li>new: Added <a href="/guides/core-traversing.html#Properties">withMaxWeight</a> as a fluent property.
+	<li>new: Added <a href="/guides/1.x/core-traversing.html#Properties">withMaxWeight</a> as a fluent property.
 		<code>withMaxWeight</code> is implemented for BreadthFirst, DepthFirst and findCycle.
 	</li>
 	<li>fix #54: Removing an edge in a mutable graph could cause erroneous diSuccessors.
@@ -310,7 +312,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 </ul>
 <h3 id="1.10.0">1.10.0</h3>
 <ul>
-	<li>new: Added <a href="/guides/core-traversing.html#TopoSort">topological sorting</a>in several flavors.
+	<li>new: Added <a href="/guides/1.x/core-traversing.html#TopoSort">topological sorting</a>in several flavors.
 		<code>topologicalSort</code> is now integrated in the <code>Traverser</code> framework
 		allowing for fluent properties.
 		Among others, <code>TopologicalOrder</code>, the result of a topological sort,
@@ -385,7 +387,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 
 <h3 id="1.9.0">1.9.0</h3>
 <ul>
-	<li>new: <a href="/guides/core-traversing.html#Building"><code>WalkBuilder</code> and
+	<li>new: <a href="/guides/1.x/core-traversing.html#Building"><code>WalkBuilder</code> and
 		<code>PathBuilder</code></a> allow to create walks and paths in terms
 		of the underlying graph.
 	</li>
@@ -423,7 +425,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 </ul>
 <h3 id="1.8.0">1.8.0</h3>
 <ul>
-	<li>new: <strong><a href="/guides/core-traversing.html">Traversing API</a>
+	<li>new: <strong><a href="/guides/1.x/core-traversing.html">Traversing API</a>
 		taken to the next level.</strong>
 	</li>
 	<li>mod: Some conversion methods and rarely used classes have been renamed
@@ -498,8 +500,8 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <ul>
 	<li>new: Edge extractors have been added/modified.
 		Latter may require user-site source code changes in edge patterns. See
-		<a href="/guides/core-operations.html#Endpoints">Inspecting Endpoints</a> and
-		<a href="/guides/core-operations.html#Patterns">More Edge Patterns</a>.
+		<a href="/guides/1.x/core-operations.html#Endpoints">Inspecting Endpoints</a> and
+		<a href="/guides/1.x/core-operations.html#Patterns">More Edge Patterns</a>.
 	</li>
 	<li>mod: SBT upgraded to 0.13.0.
 	</li>

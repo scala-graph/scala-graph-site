@@ -98,8 +98,8 @@ g.foldLeft(Graph.empty[Int, DiEdge[Int]])(
     <li>mapping that is free to escape your edge ADT, called <code>map</code>.</li>
 </ol>
 <p> Using the example of a <a
-        href="https://github.com/scala-graph/scala-graph/blob/9327639cb085e1b2424cc71d1c0ec4e1f062e0ae/core/src/test/scala/demo/FlightDemoSpec.scala#L29">net
-    of flights</a> represented by <code>g</code>,
+        href="https://github.com/scala-graph/scala-graph/blob/9327639cb085e1b2424cc71d1c0ec4e1f062e0ae/core/src/test/scala/demo/FlightDemoSpec.scala#L29"
+        target="_blank">net of flights</a> represented by <code>g</code>,
     assume that airport <code>hamburg</code> gets closed unexpectedly.
     Then, you could replace all flights from/to <code>hamburg</code> by flights from/to <code>frankfurt</code> by
 </p>
@@ -120,8 +120,8 @@ g.foldLeft(Graph.empty[Int, DiEdge[Int]])(
     If this partial function is not defined for some <code>N</code>, the library will fall back to a built-in edge type.
 </p>
 <p> In the <a
-        href="https://github.com/scala-graph/scala-graph/blob/ae0ba1897d216911c117efb315e7910dbae117ff/core/src/test/scala/scalax/collection/labeled/aviation/Flight.scala#L44">flight
-    example</a>,
+        href="https://github.com/scala-graph/scala-graph/blob/ae0ba1897d216911c117efb315e7910dbae117ff/core/src/test/scala/scalax/collection/labeled/aviation/Flight.scala#L44"
+        target="_blank">flight example</a>,
     any mapped <code>Airport</code> yields a new <code>Flight</code> with labels retained by calling <code>copy</code>.
     Actually, retaining labels is not really meaningful since <code>duration</code>, <code>departure</code> etc.
     should reflect the new <code>Airports</code>.
