@@ -13,7 +13,8 @@ sideMenuItems: >
 ---
 <h1>Core User Guide: Traverse Your Graph</h1>
 
-<p> Graph traversals are invoked by means of a <a href="/api/core/api/#scalax.collection.GraphTraversal$Traverser">Traverser</a>
+<p> Graph traversals are invoked by means of a <a
+        href="/api/core/scalax/collection/GraphTraversal$Traverser.html" target="_blank">Traverser</a>
     that extends <code>scala.collection.Traversable</code> in turn. This may happen
 </p>
 <ul>
@@ -39,7 +40,15 @@ import scalax.collection.immutable.Graph // or mutable
 <p> Playing around with the weighted mixed graph along with a lookup function
 </p>
 <pre class="prettyprint lang-scala nolinenum"
->val g = Graph[Int, AnyEdge](1 ~ 2 % 4, 2 ~ 3 % 2, 1 ~> 3 % 5, 1 ~ 5 % 3, 3 ~ 5 % 2, 3 ~ 4 % 1, 4 ~> 4 % 1, 4 ~> 5 % 0)
+>val g = Graph[Int, AnyEdge](
+  1 ~ 2 % 4,
+  2 ~ 3 % 2,
+  1 ~> 3 % 5,
+  1 ~ 5 % 3,
+  3 ~ 5 % 2,
+  3 ~ 4 % 1,
+  4 ~> 4 % 1,
+  4 ~> 5 % 0)
 def n(outer: Int): g.NodeT = g get outer
 </pre>
 <figure>
@@ -161,34 +170,31 @@ g.findCycleContaining(g get 1)                // None
         <td><code>kind: Kind</code></td>
         <td><code>withKind</code></td>
         <td><code>DepthFirst</code></td>
-        <td>members of <code><a href=
-                                        "/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
+        <td>members of <code><a href="/api/core/scalax/collection/GraphTraversal$$Parameters.html" target="_blank">Parameters</a></code>
         </td>
     </tr>
     <tr>
         <td><code>direction: Direction</code></td>
         <td><code>withDirection</code></td>
         <td><code>Successors</code></td>
-        <td>members of <code><a href=
-                                        "/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
+        <td>members of <code><a href="/api/core/scalax/collection/GraphTraversal$$Parameters.html" target="_blank">Parameters</a></code>
         </td>
     </tr>
     <tr>
         <td><code>maxDepth: Int</code></td>
         <td><code>withMaxDepth</code></td>
         <td><code>30</code></td>
-        <td>members of <code><a href=
-                                        "/api/core/api/scalax.collection.GraphTraversal$$Parameters">Parameters</a></code>
+        <td>members of <code><a href="/api/core/scalax/collection/GraphTraversal$$Parameters.html" target="_blank">Parameters</a></code>
         </td>
     </tr>
     <tr>
         <td><code>maxWeight: MaxWeight</code></td>
         <td><code>withMaxWeight</code></td>
         <td><code>125.3</code></td>
-        <td>members of <code><a href=
-                                        "/api/core/api/scalax.collection.GraphTraversal$FluentProperties">FluentProperties</a></code>
-            and<br/>subclasses of <code><a href=
-                                                   "/api/core/api/scalax.collection.GraphTraversal$Properties">Properties</a></code>
+        <td>members of <code>
+            <a href="/api/core/scalax/collection/GraphTraversal$FluentProperties.html" target="_blank">FluentProperties</a></code>
+            and<br/>subclasses of <code>
+                <a href="/api/core/scalax/collection/GraphTraversal$Properties.html" target="_blank">Properties</a></code>
         </td>
     </tr>
     <tr>
@@ -196,20 +202,19 @@ g.findCycleContaining(g get 1)                // None
             edges: (EdgeT) =&gt; Boolean</code></td>
         <td><code>withSubgraph</code></td>
         <td><code>_.inDegree &lt; 10</code></td>
-        <td>members of <code><a href=
-                                        "/api/core/api/scalax.collection.GraphTraversal$FluentProperties">FluentProperties</a></code>
-            and<br/>subclasses of <code><a href=
-                                                   "/api/core/api/scalax.collection.GraphTraversal$Properties">Properties</a></code>
+        <td>members of <code>
+            <a href="/api/core/scalax/collection/GraphTraversal$FluentProperties.html" target="_blank">FluentProperties</a></code>
+            and<br/>subclasses of <code>
+                <a href="/api/core/scalax/collection/GraphTraversal$Properties.html" target="_blank">Properties</a></code>
         </td>
     </tr>
     <tr>
         <td><code>ordering: GraphTraversal.ElemOrdering</code></td>
         <td><code>withOrdering</code></td>
         <td><code>myOrdering</code></td>
-        <td>members of <code><a href=
-                                        "/api/core/api/scalax.collection.GraphTraversal$$FluentProperties">FluentProperties</a></code>
-            and<br/>subclasses of <code><a href=
-                                                   "/api/core/api/scalax.collection.GraphBase$ElemOrdering">ElemOrdering</a></code>
+        <td>members of <code>
+            <a href="/api/core/scalax/collection/GraphTraversal$FluentProperties.html" target="_blank">FluentProperties</a></code>
+            and<br/>subclasses of <code><a href="/api/core/scalax/collection/GraphBase$ElemOrdering.html" target="_blank">ElemOrdering</a></code>
         </td>
     </tr>
 </table>
@@ -218,9 +223,9 @@ g.findCycleContaining(g get 1)                // None
 </p>
 <pre class="prettyprint lang-scala nolinenum">(g get 1).withSubgraph(nodes = _ != 2) pathTo (g get 4)
 </pre>
-<p> For more examples on how to make use of properties, check out <a href=
-                                                                             "https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TraversalSpec.scala">
-    TraversalSpec.scala</a>
+<p> For more examples on how to make use of properties, check out <a
+        href="https://github.com/scala-graph/scala-graph/blob/master/core/src/test/scala/scalax/collection/TraversalSpec.scala"
+        target="_blank">TraversalSpec.scala</a>
 </p>
 
 <h3>Ordering</h3>
@@ -476,7 +481,7 @@ startAt.innerNodeTraverser.strongComponents(println)
 
 <h3>To the type <code>Component</code></h3>
 <p> What about the type returned by a component search?
-    <a href="/api/core/api/#scalax.collection.GraphTraversal$Component">Component</a>
+    <a href="/api/core/scalax/collection/GraphTraversal$Component.html" target="_blank">Component</a>
     is a strict set of the <code>nodes</code> and a lazy set of the contained <code>edges</code>.
     Also, you may invoke <code>toGraph</code> on a component.
 </p>
@@ -572,17 +577,17 @@ startAt.innerNodeTraverser.strongComponents(println)
 </ul>
 
 <h2 id="Building">Build walks and paths</h2>
-<p><a href="/api/core/api/#scalax.collection.GraphTraversal$WalkBuilder">WalkBuilder</a> and
-    <a href="/api/core/api/#scalax.collection.GraphTraversal$PathBuilder">PathBuilder</a> allow you to build a
-    <a href="/api/core/api/#scalax.collection.GraphTraversal$Walk">Walk</a> respectively
-    <a href="/api/core/api/#scalax.collection.GraphTraversal$Path">Path</a>
+<p> <a href="/api/core/scalax/collection/GraphTraversal$WalkBuilder.html" target="_blank">WalkBuilder</a> and
+    <a href="/api/core/scalax/collection/GraphTraversal$PathBuilder.html" target="_blank">PathBuilder</a> allow you to build a
+    <a href="/api/core/scalax/collection/GraphTraversal$Walk.html" target="_blank">Walk</a> respectively
+    <a href="/api/core/scalax/collection/GraphTraversal$Path.html" target="_blank">Path</a>
     in terms of the underlying graph.
     This comes in handy whenever you have some results computed outside the library and would like to represent them
     by <em id="G4S">Graph for Scala</em> path-dependent types.
     Since <code>WalkBuilder</code> and <code>PathBuilder</code> enforce proper walk/path semantics
     they are also well suited for checking user-supplied paths.
 </p>
-<p> Here is how you can create a path in <a href="Result">the sample graph above</a> step by step
+<p> Here is how you can create a path in <a href="#Result">the sample graph above</a> step by step
     by means of a <code>PathBuilder</code>:
 </p>
 <pre class="prettyprint lang-scala linenums"
