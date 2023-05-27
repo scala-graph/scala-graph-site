@@ -174,7 +174,7 @@ g.toDot(root, edgeTransformer)
 def nodeTransformer(innerNode: Graph[String,LDiEdge]#NodeT):
     Option[(DotGraph,DotNodeStmt)] =
   Some(sub, DotNodeStmt(innerNode.toString, Nil))
-g.toDot(root, edgeTransformer, Some(nodeTransformer))
+g.toDot(root, edgeTransformer, cNodeTransformer = Some(nodeTransformer))
 </pre>
 <p>
 	Once the above <code>nodeTransformer</code> is passed to <code>toDot</code>
