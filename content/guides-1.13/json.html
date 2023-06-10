@@ -1,0 +1,505 @@
+---
+title: JSON User Guide
+sideMenuItems: >
+  <li><a href="#Introduction">Introduction</a></li>
+  <li><a href="#Exporting">Exporting Graphs</a></li>
+  <li><a href="#Descriptors">Working with Descriptors</a></li>
+  <li><a href="#Importing">Importing JSON texts</a></li>
+  <li><a href="#CustomEdge">Working with Custom Edge Types</a></li>
+  <li><a href="#Inversion">Note on Inversion</a></li>
+  <li><a href="#Grammar">Grammar</a></li>
+---
+<h1>JSON User Guide</h1>
+<h2 id="Introduction">Introduction</h2>
+<p>	This document inducts the user of <em id="G4S">Graph for Scala</em>
+	into how to export Graph instances to <a href="http://www.json.org/">JSON</a>-text
+	and how to populate graphs from JSON text. Thus, it may be viewed as a
+	supplement of the User Guide.
+</p>
+<p>	JSON texts may embed node/edge sections at any point. These sections
+	must adhere to the <em id="G4S">Graph for Scala JSON Grammar</em> to
+	enable data retrieval. The <em id="G4S">Graph for Scala JSON
+		Grammar</em>, an extended JSON grammar, has been planned to be flexible in
+	the following ways:
+</p>
+<ul>
+	<li>An arbitrary number of node/edge sections within the same JSON
+		text will be processed to support different node end edge types within
+		the same Graph instance.</li>
+	<li>JSON texts to be imported may include any non-graph related
+		data which will be discarded.</li>
+	<li>All identifiers within the JSON text marking node/edge
+		sections or node/edge types are configurable.</li>
+	<li>The user has full control over JSON formats representing
+		nodes/edges.</li>
+	<li>The user has also fine-grained control over each phase of the
+		import/export process.</li>
+</ul>
+<p>	With the exception of serializers, <em id="G4S">Graph for Scala</em>
+	JSON import/export is transparently implemented on top of
+	<a href="https://github.com/lift/framework/tree/master/core/json">Lift-Json</a>.
+</p>
+<p>	<em id="G4S">Graph for Scala JSON</em> is supplied as an extra module (jar). 
+	<code>graph-json_XXX.jar</code> depends on <code>graph-core_XXX</code>,
+	<code>lift-json_YYY</code> and <code>paranamer-ZZZ</code> all of which
+	must be available at run-time. For the latest release numbers see
+	<a href="https://github.com/scala-graph/scala-graph/blob/master/project/Version.scala">
+	Version.scala</a>.
+</p>
+<p>	Most examples in the following chapters are based on a partial
+	<sup><a id="f1" title="Footnote" href="#partial">[1]</a></sup>
+	<em>academic library</em> application backed by a graph. In this <em>library
+	graph</em>, books and authors are represented by nodes, authorship by
+	edges:
+</p>
+<pre class="prettyprint lang-scala nolinenum">// node types: Book, Author
+sealed trait Library
+case class Book  (val title: String, 
+                  val isbn:  String) extends Library
+case class Author(val surName:   String,
+                  val firstName: String) extends Library
+
+// node data: 2 books, 4 authors
+val (programming, inDepth) = (
+  Book("Programming in Scala", "978-0-9815316-2-5"),
+  Book("Scala in Depth",       "978-1-9351827-0-2")
+)
+val (martin, lex, bill, josh) = (
+  Author("Odersky", "Martin"),
+  Author("Spoon", "Lex"),
+  Author("Venners", "Bill"),
+  Author("Suereth", "Joshua D.")
+)
+
+// graph with 2 authorships
+val library = Graph[Library,HyperEdge](
+  programming ~> martin ~> lex ~> bill,
+  inDepth ~> josh
+)
+</pre>
+<p>	The example code is incorporated in
+	<a href="https://github.com/scala-graph/scala-graph/blob/master/json/src/test/scala/demo/TJsonDemo.scala">
+	TJsonDemo.scala</a>.
+</p>
+
+<h2 id="Exporting">Exporting graphs</h2>
+<p>	To export a graph instance to JSON text you call <code>toJson</code>:
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json._
+val exported = library.toJson(descriptor)
+</pre>
+<p>Alternatively, you can control export phases one by one:</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json.exp.Export
+val export = new Export[N,E](library, descriptor)
+import export._
+val (nodesToExport, edgesToExport) = (jsonASTNodes, jsonASTEdges)
+val astToExport = jsonAST(nodesToExport ++ edgesToExport)
+val exported = jsonText(astToExport)
+</pre>
+<p>	Clearly, <code>exported</code> of type <code>String</code> will contain the JSON text,
+	but what about the <code>descriptor</code> argument?
+</p>
+
+<h2 id="Descriptors">Working with descriptors</h2>
+<p>	Fine-grained control over JSON import/export is achieved by means
+	of Graph JSON descriptors, a kind of export/import configuration made up of
+</p>
+<ul>
+	<li>node descriptors for each node type (see arguments <code>defaultNodeDescriptor
+		</code>and <code>namedNodeDescriptors</code>)
+	</li>
+	<li>edge descriptors for each edge type (see arguments <code>defaultEdgeDescriptor
+		</code>and <code>namedEdgeDescriptors</code>) and
+	</li>
+	<li>node/edge section identifiers (see argument <code>sectionIds</code>)
+	</li>
+</ul>
+<p>	Prior to calling <code>toJson</code> you need to make some thoughts about
+	what node/edge types your graph contains and how you want to serialize these
+	in terms of Lift-Json serialization. In case of our <em>academic library</em>
+	example you may start with
+</p>
+<pre class="prettyprint lang-scala nolinenum">val bookDescriptor = new NodeDescriptor[Book](typeId = "Books") {
+  def id(node: Any) = node match {
+    case Book(_, isbn) => isbn
+  }
+}
+val authorDescriptor = new NodeDescriptor[Author](typeId = "Authors"){
+  def id(node: Any) = node match {
+    case Author(surName, firstName) => "" + surName(0) + firstName(0) }
+  }
+import scalax.collection.io.json.descriptor.predefined.DiHyper
+val quickJson = new Descriptor[Library](
+  defaultNodeDescriptor = authorDescriptor,
+  defaultEdgeDescriptor = DiHyper.descriptor[Library]()
+)
+</pre>
+<p>	First, we defined node descriptors for the node types <code>Book</code>
+	and <code>Author</code> respectively where
+</p>
+<ul><li>the <code>typeId</code> argument is used to denote the node type
+		in the JSON node sections like <em>Books</em> in<br>
+		<pre class="prettyprint lang-json">{"nodes":{
+   "Books":[{"title":"Programming in Scala","isbn":"978-0-9815316-2-5"}, ...
+]}}		</pre> and
+	</li>
+	<li> <code>id</code> is responsible for generating a meaningful short cut for
+		individual nodes to be inserted in JSON edges as a reference like
+		<code>"SJ"</code> in <pre class="prettyprint lang-json">{"edges":{
+   "DiEdge":[["978-1-9351827-0-2","SJ"], ...]
+}}		</pre>
+		Without introducing short cuts for nodes, JSON edges would contain all
+		node data meaning that, in proportion to the complexity of nodes and the
+		order of the graph, JSON texts would explode in length.<br>
+		Please exercise great care when designing the <code>id</code> method to
+		ensure to return unique keys.
+	</li>
+</ul>
+<p>	Thereafter, we assembled a <code>Descriptor</code> with the type argument
+	<code>Library</code> and the constructor arguments <code>authorDescriptor</code>
+	along with the predefined edge descriptor <code>DiHyper</code>.
+	Predefined edge descriptors have a <code>typeId</code> equaling to their name
+	and are type-safe with respect to the corresponding predefined edge types
+	bearing the name of the edge descriptor suffixed with <code>Edge</code>,
+	in our example <code>DiHyperEdge</code>.
+	Predefined edge descriptors are merely short-cuts for individually
+	configurable instances of <code>EdgeDescriptor</code> which we do not cover
+	in this introductory.
+</p>
+<p>	At this point you&#8217;d like to inspect the resulting JSON text but, instead,
+	you get a run-time exception teaching you that "<samp>No 'NodeDescriptor'
+	capable of processing type "demo.Book" found</samp>".
+	So it turns out that you did have reason for wondering about the completeness of 
+	<code>quickJson</code>. Indeed, Graph JSON descriptors must cover all node/edge
+	types contained in your graph. If you really wanted a partial export you should
+	<code>filter</code> your graph instance prior to exporting.
+</p>
+<p>	Learned this lesson, here is a complete descriptor sufficing our
+	<em>academic library</em> graph (named arguments may be omitted &#8211;
+	we verbose them just for better readability):
+</p>
+<pre class="prettyprint lang-scala nolinenum">val descriptor = new Descriptor[Library](
+  defaultNodeDescriptor = authorDescriptor,
+  defaultEdgeDescriptor = DiHyper.descriptor[Library](),
+  namedNodeDescriptors  = Seq(bookDescriptor),
+  namedEdgeDescriptors  = Seq(Di.descriptor[Library]())
+)
+</pre>
+<p>	Passing the above <code>descriptor</code> to <code>toJson</code> yields
+	the following afterwards prettified JSON text:
+</p>
+<pre class="prettyprint lang-json">{
+  "nodes":{
+    "Books":[{
+      "title":"Scala in Depth",
+      "isbn":"978-1-9351827-0-2"
+    },{
+      "title":"Programming in Scala",
+      "isbn":"978-0-9815316-2-5"
+    }],
+    "Authors":[{
+      "surName":"Odersky",
+      "firstName":"Martin"
+    },{
+      "surName":"Spoon",
+      "firstName":"Lex"
+    },{
+      "surName":"Venners",
+      "firstName":"Bill"
+    },{
+      "surName":"Suereth",
+      "firstName":"Joshua D."
+    }]
+  },
+  "edges":{
+    "DiEdge":[{
+      "n1":"978-1-9351827-0-2",
+      "n2":"SJ"
+    }],
+    "DiHyperEdge":[{
+      "nodeIds":["978-0-9815316-2-5","OM","SL","VB"]
+    }]
+  }
+}
+</pre>
+<p>Let's analyze this JSON text in more detail:
+</p>
+<p>	You can easily identify the two node and two edge sections denoted by
+	the field names <code>"nodes" </code> and <code>"edges" </code>
+	respectively. These names are default names which may be altered by
+	supplying a fifth argument to the constructor of <code>Descriptor</code>.
+</p>
+<p>	Our above JSON text may raise criticism in that it is polluted with the
+	repeated field names <code>"surName"</code>, <code>"firstName"</code>
+	etc. You might be inclined to reject such a lengthy output. If so just opt
+	for what we call <em>positional JSON</em> meaning that JSON values will be matched
+	to node/edge class fields by their position. To let the export generate
+	positional JSON requires a little bit of programming, however, namely the
+	definition of appropriate Lift-Json custom serializers:
+</p>
+<pre class="prettyprint lang-scala nolinenum">object PositionedNodeDescriptor {
+  import net.liftweb.json._
+  final class AuthorSerializer extends CustomSerializer[Author] ( fmts => ( 
+    { case JArray(JString(surName) :: JString(firstName) :: Nil) => 
+           Author(surName, firstName)
+    },
+    { case Author(surName, firstName) =>
+           JArray(JString(surName) :: JString(firstName) :: Nil)
+    }))
+  val author = new NodeDescriptor[Author](
+                   typeId            = "Authors",
+                   customSerializers = Seq(new AuthorSerializer)){
+    def id(node: Any) = node match {
+      case Author(surName, firstName) => "" + surName(0) + firstName(0) }
+    }
+}
+</pre>
+<p>	For each node type we need to extend <code>net.liftweb.json.Serializer</code>
+	what is really straightforward. Then we pass an instance of
+	the custom serializer <code>AuthorSerializer</code> to the node descriptor
+	<code>author</code>. We have hidden implementation details by enveloping
+	<code>AuthorSerializer </code> and the new NodeDescriptor <code>author</code>
+	into the object <code>PositionedNodeDescriptor</code> which should also contain
+	a custom serializer for <code>Book</code> (left out here).
+</p>
+<p>	Now we are ready to assemble a descriptor utilizing positioned JSON texts.
+	As the Graph for Scala JSON package also contains predefined serializers
+	for predefined edges we do not need to implement them separately:
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json.serializer.{
+         HyperEdgeSerializer, EdgeSerializer}
+val descriptor = new Descriptor[Library](
+  defaultNodeDescriptor = PositionedNodeDescriptor.author,
+  defaultEdgeDescriptor = DiHyper.descriptor[Library](
+                                Some(new HyperEdgeSerializer)),
+  namedNodeDescriptors  = Seq(PositionedNodeDescriptor.book),
+  namedEdgeDescriptors  = Seq(Di.descriptor[Library](
+                                Some(new EdgeSerializer)))
+)
+</pre>
+<p>	Armed with the above descriptor we then call
+</p>
+<pre class="prettyprint lang-scala nolinenum">val exported = library.toJson(descriptor)
+</pre>
+<p>and verify the resulting, "condensed" JSON text:
+</p>
+<pre class="prettyprint lang-json">{
+  "nodes":{
+    "Books":[
+      ["Scala in Depth","978-1-9351827-0-2"],
+      ["Programming in Scala","978-0-9815316-2-5"]
+    ],
+    "Authors":[
+      ["Odersky","Martin"],
+      ["Spoon","Lex"],
+      ["Venners","Bill"],
+      ["Suereth","Joshua D."]
+    ]
+  },
+  "edges":{
+    "DiHyperEdge":[["978-0-9815316-2-5","OM","SL","VB"]],
+    "DiEdge":[["978-1-9351827-0-2","SJ"]]
+  }
+}
+</pre>
+
+<h2 id="Importing">Importing JSON texts</h2>
+<p>	Being well versed in the design of <em id="G4S">Graph for Scala</em>
+	JSON descriptors, there is virtually nothing more left to learn to be
+	able to populate Graph instances from JSON texts. To process JSON texts
+	you call <code>fromJson</code>:
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json._
+val library = Graph.fromJson[Library,HyperEdge](jsonTextLibrary, descriptor)
+</pre>
+<p>	<code>library</code> of type Graph <code>[Library,HyperEdge]</code>
+	will contain all nodes/edges derived from the node/edge sections of the
+	JSON text <code>jsonTextLibrary</code>. The <code>descriptor</code>
+	argument will generally be the same value as used for the export unless
+	you intend to alter node/edge types what would correspond to
+	<code>map</code> a graph to another graph.
+</p>
+<p>	Note that the compiler can infer the type arguments but the
+	result of this inference will be unsatisfactory so you are strongly
+	advised to explicitly state the correct type arguments.
+</p>
+<p>	Alternatively, you can control import phases one by one:
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.json.imp.Parser._
+val parsed = parse(jsonText, descriptor)
+val result = Graph.fromJson[...](parsed)
+</pre>
+
+<h2 id="CustomEdge">Working with custom edge types</h2>
+<p>	As in the following example, custom edge types must mix in <code>Attributes</code>
+	and their companion objects must extend <code>CEdgeCompanion</code>
+	to adhere to JSON descriptor requirements. Lets examine the custom edge type
+	<code>Transition</code> that could serve as a transition between program states
+	depending on keys. For the sake of simplicity we abstract away from the key
+	modifiers Alt, Ctrl and Shift:
+</p>
+<pre class="prettyprint lang-scala nolinenum">class Transition[N](from: N, to: N, val key: Char)
+    extends DiEdge  [N](NodeProduct(from, to))
+    with ExtendedKey[N]
+    with EdgeCopy   [Transition]
+    with EdgeIn     [N,Transition]
+    with Attributes [N] {
+  def keyAttributes = Seq(key)
+  override protected def attributesToString = " (" + key + ")"
+
+  type P = Transition.P
+  override def attributes: P = new Tuple1(key)
+  override def copy[NN](newNodes: Product): Transition[NN] = 
+    Transition.newEdge[NN](newNodes, attributes)
+}
+
+object Transition extends CEdgeCompanion[Transition] {
+  /** nodes are of type String. */
+  def apply(from: String, to: String, key: Char) =
+    new Transition[String](from, to, key)
+  def unapply[N](e: Transition[String]): Option[(String,String,Char)] =
+    if (e eq null) None
+    else Some(e.from, e.to, e.key)
+
+  type P = Tuple1[Char]
+  override protected def newEdge[N](nodes: Product, attributes: P) =
+    nodes match {
+      case (from: N, to: N) =>
+        new Transition[N](from, to, attributes._1)
+    }
+}
+</pre>
+<p>	Most notably, <code>attributes</code> must be overridden by a 	<code>Product</code>
+	containing all custom fields. The companion object must extend
+	<code>CEdgeCompanion</code> and define <code>newEdge</code>.
+</p>
+<p>	Given the above definition of <code>Transition</code> we can instantiate
+	a custom edge descriptor as follows:
+</p>
+<pre class="prettyprint lang-scala nolinenum">new CEdgeDescriptor[String, Transition, Transition.type, Transition.P](
+  edgeCompanion    = Transition,
+  sampleAttributes = Tuple1('A'))
+</pre>
+
+<h2 id="Inversion">Note on inversion</h2>
+<pre class="prettyprint lang-scala nolinenum">val expLibrary = library.toJson(descriptor)
+Graph.fromJson[Library,HyperEdge](
+               expLibrary, descriptor) should equal (library)
+</pre>
+<p>	Thinking of the JSON export as the inverse function of JSON
+	import, the following rules apply:
+</p>
+<ul>
+	<li><code>Import(Export(graph)) </code>
+		<code>==</code>
+		<code> graph</code><br>as demonstrated above</li>
+	<li><code>Export(Import(JSON-text)) </code>
+		<code>&#8800;</code>
+		<code> JSON-text</code><br>in most cases.</li>
+</ul>
+<p>	This relation should be obvious because a (JSON-)text is an
+	ordered collection of characters while a graphs contains unordered sets
+	of nodes and edges.
+</p>
+
+<h2 id="Grammar">Grammar</h2>
+<table class="grammar">
+	<tr><td>nodeSection<sup>0..*</sup></td>
+  		<td>::= JsonField( nodeSectionId : nodeValues )</td>
+	</tr>
+	<tr><td>nodeValues</td>
+  		<td>::= nodeList<br />
+  			| &nbsp;&nbsp;JsonObject( nodeTypeId : nodeList )<sup>0-1</sup>
+  		</td>
+	</tr>
+	<tr><td>nodeList</td>
+  		<td>::= JsonArray( JsonObject( nodeFieldId : nodeField )<sup>1..*</sup> )<sup>0-1</sup><br />
+			| &nbsp;&nbsp;JsonArray( JsonArray ( nodeField )1..* )<sup>0-1</sup>
+		</td>
+	</tr>
+	<tr><td>nodeField</td>
+  		<td>::= JsonValue</td>
+	</tr>
+	<tr><td>edgeSection<sup>0..*</sup></td>
+  		<td>::= JsonField( edgeSectionId : edgeValues )</td>
+	</tr>
+	<tr><td>edgeValues</td>
+  		<td>::= edgeList<br />
+  			| &nbsp;&nbsp;JsonObject( edgeTypeId : edgeList )<sup>0-1</sup>
+  		</td>
+	</tr>
+	<tr><td>edgeList</td>
+  		<td>::= JsonArray( JsonObject( edgeIdFields )2..* )<sup>0-1</sup><br />
+			| &nbsp;&nbsp;JsonArray( JsonArray ( edgeFields )<sup>2..*</sup> )<sup>0-1</sup>
+		</td>
+	</tr>
+	<tr><td>edgeIdFields</td>
+  		<td>::= (edgeFieldId : edgeField)<sup>1..*</sup></td>
+	</tr>
+	<tr><td>edgeFields</td>
+  		<td>::= (edgeField)<sup>1..*</sup></td>
+	</tr>
+	<tr><td>edgeField</td>
+  		<td>::= JsonValue</td>
+	</tr>
+</table>
+
+<h3>Notes on the grammar notation</h3>
+<ol>
+	<li>Entries with the prefix <code>Json</code> refer to JSON values
+		as defined in RFC 4627. The parenthesis following such a <code>Json</code>
+		entry are not part of the syntax. For instance,<br> &nbsp; &nbsp;
+		&nbsp; &nbsp;<code>JsonArray( JsonObject( edgeIdFields ))</code><br>reads
+		"a JSON array containing JSON objects containing <code>edgeIdFields</code>".
+	</li>
+	<li>If the multiplicity of a repetitive JSON element is
+		restricted, the allowed multiplicity is given in superscript notation.
+		For instance,<br />
+		<code>JsonObject( edgeTypeId : edgeList )<sup>0-1</sup></code>
+		translates to<br />
+		<code>&#8216;{&#8216; edgeTypeId &#8216;:&#8216; edgeList &#8216;}&#8216;</code><br />
+		with zero or one field in the JSON 	object.
+		Thus it reads "a JSON object containing zero or one field".
+	</li>
+</ol>
+
+<h3>Notes on specific grammar elements</h3>
+<ol>
+	<li><code>nodeSection</code>/<code>edgeSection</code> JSON fields:
+		<p>	The JSON text passed to the <code>Graph</code> conversion method
+			<code>fromJson</code> will be parsed for an arbitrary number of
+			<code>nodeSection</code>s and <code>edgeSection</code>s both described
+			in the above grammar.
+		</p>
+	</li>
+	<li><code>*Id</code> JSON strings:
+		<p>	Grammar elements suffixed with <code>Id</code> such as
+			<code>nodeSectionId, nodeTypeId, edgeSectionId or gedgeTypeId</code>
+			are always JSON strings.&nbsp; In general, they allow using custom JSON
+			constants. <br>For instance, JSON objects containing edges will be
+			found in the JSON text based on <code>edgeSectionId</code> which defaults to
+			<code>"edges"</code> but may be altered to any other name such as
+			<code>"vertices"</code>.
+			Then, the caller of a <code>Graph</code> conversion method passes the
+			appropriate value for <code>edgeSectionId</code> in the
+			<code>jsonDescriptor</code> argument.
+		</p>
+	</li>
+	<li><code>nodeTypeId</code>/<code>edgeTypeId </code>JSON Strings:
+		<p> These <code>Id</code>s provide a means to select the appropriate nod/edge
+			descriptor.
+		</p>
+	</li>
+	<li><code>nodeList</code>/<code>edgeList </code>JSON arrays:
+		<p>	Nodes/edges enlisted in <code>nodeList</code>/<code>edgeList</code>
+			may be represented either by JSON objects (named fields) or by JSON
+			arrays (positioned field values).
+		</p>
+	</li>
+</ol>
+<hr noshade style="color: #c0c0c0" width="30%" align="left" size="2">
+<p id="Partial">
+	<em>1</em> We could also represent a complete <em>academic library</em>
+	application by a graph containing different edge types for authorship,
+	lectorship, etc.
+</p>
