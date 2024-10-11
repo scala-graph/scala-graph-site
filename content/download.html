@@ -2,97 +2,70 @@
 title: Download
 ---
 <h1>Download</h1>
-<p>The latest stable release is</p>
+<p>The latest stable releases are</p>
 <table>
 	<tr>
 		<td>Module</td>
-		<td align="right">Major</td>
-		<td align="right">Scala 2.12</td>
-		<td align="right">Scala 2.13/3.x</td>
-		<td align="right">Scala.js</td>
+		<td align="right">Scala 2.13</td>
+		<td align="right">Scala.js 2.13</td>
+		<td align="right">Scala 3</td>
+		<td align="right">Scala.js 3</td>
+		<td align="right">Scala Native 3</td>
 	</tr>
-  <tr>
-		<td><code>graph-core</code></td>
-		<td align="right">2</td>
-		<td align="right">-</td>
-		<td align="right"><code>2.0.0</code></td>
-		<td align="right">planned</td>
-  </tr>
 	<tr>
 		<td><code>graph-core</code></td>
-		<td align="right">1</td>
-		<td align="right"><code>1.13.1</code></td>
-		<td align="right"><code>1.13.6</code></td>
-		<td align="right"><code>1.13.3</code></td>
+		<td align="right"><code>2.0.2</code></td>
+		<td align="right"><code>2.0.2</code></td>
+		<td align="right"><code>2.0.2</code></td>
+		<td align="right"><code>2.0.2</code></td>
+		<td align="right"><code>2.0.2</code></td>
+	</tr>
+	<tr>
+		<td><code>graph-dot</code></td>
+		<td align="right"><code>2.0.0</code></td>
+		<td align="right"><code>2.0.0</code></td>
+		<td align="right"><code>2.0.0</code></td>
+		<td align="right"><code>2.0.0</code></td>
+		<td align="right"><code>2.0.0</code></td>
+	</tr>
+	<tr>
+		<td><code>graph-json</code></td>
+		<td align="right"><code>2.0.0</code></td>
+		<td align="right"><code>2.0.0</code></td>
+		<td align="right">-</td>
+		<td align="right">-</td>
+		<td align="right">-</td>
 	</tr>
 </table>
-<p>	where the Scala 2.13 release also works for Scala 3.x.
+<p>To download the latest Scala release of <code>core</code>, add the following to your SBT settings:
 </p>
-<p>To download the latest release of the core module, add the following to your SBT settings:
-</p>
-<pre>scalaVersion := "2.13.10"
-libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
+<pre>libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.2"
 </pre>
-<p>The latest stable releases of the optional modules are:</p>
-<table>
-	<tr>
-		<td></td>
-		<td align="right">Major</td>
-		<td align="right">Scala 2.12</td>
-		<td align="right">Scala 2.13/3.x</td>
-		<td align="right">Scala.js</td>
-	</tr>
-	<tr>
-		<td><code>graph-constrained</code></td>
-		<td align="right">2</td>
-		<td align="right">-</td>
-		<td align="right">deprecated</td>
-		<td align="right">deprecated</td>
-	</tr>
-	<tr>
-		<td><code>graph-dot</code></td>
-		<td align="right">2</td>
-		<td align="right"><code>-</code></td>
-		<td align="right"><code>2.0.0</code></td>
-		<td align="right">planned</td>
-	</tr>
-	<tr>
-		<td><code>graph-json</code></td>
-		<td align="right">2</td>
-		<td align="right">-</td>
-		<td align="right"><code>2.0.0</code></td>
-		<td align="right">planned</td>
-	</tr>
-	<tr>
-		<td><code>graph-constrained</code></td>
-		<td align="right">1</td>
-		<td align="right"><code>1.13.1</code></td>
-		<td align="right"><code>1.13.2</code></td>
-		<td align="right"><code>1.13.0</code></td>
-	</tr>
-	<tr>
-		<td><code>graph-dot</code></td>
-		<td align="right">1</td>
-		<td align="right"><code>1.13.0</code></td>
-		<td align="right"><code>1.13.3</code></td>
-		<td align="right"><code>1.13.3</code></td>
-	</tr>
-	<tr>
-		<td><code>graph-json</code></td>
-		<td align="right">1</td>
-		<td align="right"><code>1.13.0</code></td>
-		<td align="right"><code>1.13.0</code></td>
-		<td align="right"><code>1.13.0</code></td>
-	</tr>
-</table>
-<p>	You may find or manually download any Maven release including Scaladoc from
-		<a href = "http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-graph%22" target="_blank">org.scala-graph</a>.
+<p> You may find or manually download any release including Scaladoc from
+	<a href="https://central.sonatype.com/search?q=g%3Aorg.scala-graph&smo=true&sort=published" target="_blank">org.scala-graph
+		on Maven</a>.
 </p>
-<p>	Upcoming features go into major release 2 while major release 1 is deprecated except for bug fixes.
+<p> Major release 1 is deprecated except for bug fixes.
 </p>
 
 <h2 id="2.0">2.0 Release notes</h2>
-<p>	2.0 introduces some significant enhancements over 1.x:
+<h3 id="2.0.2">2.0.2</h3>
+<ul>
+	<li><code>core</code> and <code>dot</code> are now cross-compiled against Scala 2.13 and Scala 3.
+		The <code>json</code> module is not ready for Scala 3 due to a dependency that is not available for Scala 3.
+		<em>Graph for Scala</em> is now published for the platforms Scala, Scala.js and Scala Native.
+	</li>
+</ul>
+
+<h3 id="2.0.1">2.0.1</h3>
+<ul>
+	<li>Fixes <a href="https://github.com/scala-graph/scala-graph/issues/300">case class for typed edges does not work
+		in Scala 3</a>.
+	</li>
+</ul>
+
+<h3 id="2.0.0">2.0.0</h3>
+<p> 2.0 introduces some significant enhancements over 1.x:
 </p>
 <ul>
 	<li>new: Easier <a href="/guides/core/editing.html">custom edge creation</a> facilitated by a string of traits.
@@ -100,22 +73,23 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 	<li>new: Easy definition of <a href="/guides/core/planning.html#NodesEdges">edge ADTs</a>.
 	</li>
 	<li>new: Support for <a href="/guides/core/transform.html">graph transformations</a>
-			via <code>map</code> and <code>flatMap</code>.
+		via <code>map</code> and <code>flatMap</code>.
 	</li>
 	<li>new: Directed hyperedges come with <a href="/guides/core/concepts.html#HyperEdgeEquality">multiple sources</a>.
 	</li>
 	<li>new: Directed and undirected hyperedges have now type safe signatures.
 	</li>
 	<li>modified: The type parameter <code>E</code> for the edge type of graphs is now a simple type
-			as opposed to a higher kinded type as before.
+		as opposed to a higher kinded type as before.
 	</li>
-  <li>modified: Edge types are modularized by packages and traits for easier custom edge definitions.
-  </li>
-	<li>dropped: Generic labelled edges are <a href="/guides/core/concepts.html#EdgeClasses">superseded by custom edges</a>.
+	<li>modified: Edge types are modularized by packages and traits for easier custom edge definitions.
+	</li>
+	<li>dropped: Generic labelled edges are <a href="/guides/core/concepts.html#EdgeClasses">superseded by custom
+		edges</a>.
 	</li>
 </ul>
 <h3>Migration notes</h3>
-<p>	Unfortunately, the enhancements could only be achieved at the expense of backwards compatibility.
+<p> Unfortunately, the enhancements could only be achieved at the expense of backwards compatibility.
 	To make this clear, we bumped the major version to 2.
 </p>
 <p> Take your time to familiarise yourself with the new <a href="/guides/core/concepts.html">concepts</a> and then
@@ -127,8 +101,10 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 
 <h3 id="1.13.6">1.13.6</h3>
 <ul>
-	<li>Fixes <a href="https://github.com/scala-graph/scala-graph/issues/264">Topological sort may not return a node in a cycle when it fails</a>.
-		Note that the failure part of the <a href="/api/core/scalax/collection/GraphTraversal$TopologicalSort.html" target="_blank">returned</a> <code>Either</code> has also changed.
+	<li>Fixes <a href="https://github.com/scala-graph/scala-graph/issues/264">Topological sort may not return a node in
+		a cycle when it fails</a>.
+		Note that the failure part of the <a href="/api/core/scalax/collection/GraphTraversal$TopologicalSort.html"
+											 target="_blank">returned</a> <code>Either</code> has also changed.
 	</li>
 </ul>
 
@@ -183,13 +159,15 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <h2 id="1.12">1.12 Release notes</h2>
 <h3 id="1.12.7">1.12.7</h3>
 <ul>
-	<li>fix in module constrained: += and ++= could fail to restore the exact original graph after some <code>postCheck</code> failure.
+	<li>fix in module constrained: += and ++= could fail to restore the exact original graph after some
+		<code>postCheck</code> failure.
 	</li>
 </ul>
 
 <h3 id="1.12.6">1.12.6</h3>
 <ul>
-	<li>fix in module constrained: Checks were not always suspended internally when handling <code>postCheck</code> failures.
+	<li>fix in module constrained: Checks were not always suspended internally when handling <code>postCheck</code>
+		failures.
 	</li>
 </ul>
 
@@ -212,7 +190,8 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 
 <h3 id="1.12.3">1.12.3</h3>
 <ul>
-	<li>fix: Added workaround for <a href="https://youtrack.jetbrains.com/issue/SCL-13199" target="_blank">JetBrains SCL-13199</a>
+	<li>fix: Added workaround for <a href="https://youtrack.jetbrains.com/issue/SCL-13199" target="_blank">JetBrains
+		SCL-13199</a>
 		to provide full IntelliJ IDEA user experience.
 	</li>
 </ul>
@@ -225,7 +204,8 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 
 <h3 id="1.12.0">1.12.0</h3>
 <ul>
-	<li>new: Support for <a href="/guides/1.x/core-traversing.html#StrongComponents" target="_blank">finding strongly connected components</a>.
+	<li>new: Support for <a href="/guides/1.x/core-traversing.html#StrongComponents" target="_blank">finding strongly
+		connected components</a>.
 		Also closes <a href="https://github.com/scala-graph/scala-graph/issues/74" target="_blank">#74</a>.
 	</li>
 	<li>fix: Compiler option "-Yinline" in Scala 2.11 did not work in some cases.
@@ -278,7 +258,8 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <ul>
 	<li>mod: Changed Maven group id to <code>org.scala-graph</code>.
 	</li>
-	<li>new: Published <a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22graph-core_sjs0.6_2.11%22">Graph-core Scala.js</a>.
+	<li>new: Published <a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22graph-core_sjs0.6_2.11%22">Graph-core
+		Scala.js</a>.
 	</li>
 </ul>
 
@@ -286,7 +267,7 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <ul>
 	<li>mod: Java serialization has been customized for more efficiency. Due to the
 		<a href="https://issues.scala-lang.org/browse/SI-5773?jql=text%20~%20%22%40transient%22" target="_blank">
-		Scala issue on @transient</a> there is a constant footprint of approximately 4 kb, though.
+			Scala issue on @transient</a> there is a constant footprint of approximately 4 kb, though.
 		Please vote for this issue if you feel bothered.
 	</li>
 	<li>fix: In case of possibly mixed graphs, <code>isDirected</code>, <code>isHyper</code> and <code>isMulti</code>
@@ -334,12 +315,13 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 	<li>fix #51: Constructing <code>EqHashSetIterator</code> is now O(1).
 	</li>
 	<li>mod: Added type-safe support for DOT <code>ID</code> and DOT <code>node_id</code>
-		that were covered by <code>String</code> 	previously.
+		that were covered by <code>String</code> previously.
 	</li>
 	<li>new: Added DOT record shape support - see also the test method
-		<code>def `Colons (':') in node_id's are handled correctly`</code> in <a href =
-		"https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala"
-		target="_blank">TExport.scala</a>.
+		<code>def `Colons (':') in node_id's are handled correctly`</code> in
+		<a href=
+				   "https://github.com/scala-graph/scala-graph/blob/master/dot/src/test/scala/scalax/collection/io/dot/TExport.scala"
+		   target="_blank">TExport.scala</a>.
 	</li>
 </ul>
 <h3>Migration notes:</h3>
@@ -400,8 +382,8 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 	<li>mod: Traversing has been optimized for speed and refactored for better modularity.
 	</li>
 	<li>mod: Scala 2.11 jars are now compiled with Scala 2.11.1 following the
-		<a href="https://groups.google.com/forum/#!topic/scala-user/qQYsF_QJGu8" target="_blank">
-		recommendation</a> of the Scala core team.
+		<a href="https://groups.google.com/forum/#!topic/scala-user/qQYsF_QJGu8" target="_blank">recommendation</a> of
+		the Scala core team.
 	</li>
 </ul>
 
@@ -434,34 +416,40 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 </ul>
 <h3>Migration notes:</h3>
 <ul>
-	<li>Please replace deprecated method calls in a timely manner since	deprecated
+	<li>Please replace deprecated method calls in a timely manner since deprecated
 		methods will be removed from the library probably as soon as in April 2014.
 		Besides reading the updated User Guide it should be worthwhile to inspect
 		<code>TTraversal.scala</code> near the bottom of
 		<a href="https://github.com/scala-graph/scala-graph/commit/7082893711c98491d029d0bc4962c006be8c5dd8"
-		target="_blank">test migration changes</a> providing a handful of migration examples.
+		   target="_blank">test migration changes</a> providing a handful of migration examples.
 	</li>
 	<li><p>Please update your code base with the following renamed methods and classes:
-		</p>
+	</p>
 		<table>
-			<tr><td>up to 1.7</td>
-		  		<td>as of 1.8 renamed to</td>
+			<tr>
+				<td>up to 1.7</td>
+				<td>as of 1.8 renamed to</td>
 			</tr>
-			<tr><td><code>toEdgeIn, toNodeInSet, toEdgeInSet</code></td>
-		  		<td><code>toOuter</code></td>
+			<tr>
+				<td><code>toEdgeIn, toNodeInSet, toEdgeInSet</code></td>
+				<td><code>toOuter</code></td>
 			</tr>
-			<tr><td><code>NodeIn, EdgeIn</code></td>
-		  		<td><code>OuterNode, OuterEdge</code></td>
+			<tr>
+				<td><code>NodeIn, EdgeIn</code></td>
+				<td><code>OuterNode, OuterEdge</code></td>
 			</tr>
-			<tr><td><code>NodeOut, EdgeOut</code></td>
-		  		<td><code>InnerNodeParam, InnerEdgeParam</code></td>
+			<tr>
+				<td><code>NodeOut, EdgeOut</code></td>
+				<td><code>InnerNodeParam, InnerEdgeParam</code></td>
 			</tr>
-			<tr><td><code>InnerNodeLike, InnerEdgeLike</code></td>
-		  		<td><code>InnerNode, InnerEdge</code><br />
-		  			with the common base <code>InnerElem</code></td>
+			<tr>
+				<td><code>InnerNodeLike, InnerEdgeLike</code></td>
+				<td><code>InnerNode, InnerEdge</code><br/>
+					with the common base <code>InnerElem</code></td>
 			</tr>
-			<tr><td><code>GraphParam*</code></td>
-		  		<td><code>*Param</code></td>
+			<tr>
+				<td><code>GraphParam*</code></td>
+				<td><code>*Param</code></td>
 			</tr>
 		</table>
 	</li>
@@ -470,8 +458,9 @@ libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.0"
 <h2 id="1.7">1.7 Release notes</h2>
 <h3 id="1.7.3">1.7.3</h3>
 <ul>
-	<li>mod: faster processing of direct successors, 	O(1) access for
-		<code>findOutgoingTo</code>.</li>
+	<li>mod: faster processing of direct successors, O(1) access for
+		<code>findOutgoingTo</code>.
+	</li>
 	<li>mod: <code>Manifest</code> migrated to <code>TypeTag</code>.
 		<code>Manifest</code> maintained in <code>Graph_json</code> because of
 		<code>lift.json</code>.
