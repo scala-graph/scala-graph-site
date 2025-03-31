@@ -10,18 +10,20 @@ title: Download
 		<td align="right">Scala.js 2.13</td>
 		<td align="right">Scala 3</td>
 		<td align="right">Scala.js 3</td>
+		<td align="right">Scala Native 2.13</td>
 		<td align="right">Scala Native 3</td>
 	</tr>
 	<tr>
 		<td><code>graph-core</code></td>
-		<td align="right"><code>2.0.2</code></td>
-		<td align="right"><code>2.0.2</code></td>
-		<td align="right"><code>2.0.2</code></td>
-		<td align="right"><code>2.0.2</code></td>
-		<td align="right"><code>2.0.2</code></td>
-	</tr>
-	<tr>
+		<td align="right"><code>2.0.3</code></td>
+		<td align="right"><code>2.0.3</code></td>
+		<td align="right"><code>2.0.3</code></td>
+		<td align="right"><code>2.0.3</code></td>
+		<td align="right"><code>2.0.3</code></td>
+		<td align="right"><code>2.0.3</code></td>
+	</tr>3	<tr>
 		<td><code>graph-dot</code></td>
+		<td align="right"><code>2.0.0</code></td>
 		<td align="right"><code>2.0.0</code></td>
 		<td align="right"><code>2.0.0</code></td>
 		<td align="right"><code>2.0.0</code></td>
@@ -35,11 +37,12 @@ title: Download
 		<td align="right">-</td>
 		<td align="right">-</td>
 		<td align="right">-</td>
+		<td align="right">-</td>
 	</tr>
 </table>
 <p>To download the latest Scala release of <code>core</code>, add the following to your SBT settings:
 </p>
-<pre>libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.2"
+<pre>libraryDependencies += "org.scala-graph" %% "graph-core" % "2.0.3"
 </pre>
 <p> You may find or manually download any release including Scaladoc from
 	<a href="https://central.sonatype.com/search?q=g%3Aorg.scala-graph&smo=true&sort=published" target="_blank">org.scala-graph
@@ -49,6 +52,17 @@ title: Download
 </p>
 
 <h2 id="2.0">2.0 Release notes</h2>
+<h3 id="2.0.3">2.0.3</h3>
+<ul>
+	<li>Modified <code>diSuccessors</code>/<code>diPredecessors</code> to include self if some loop exists
+		as a follow-up on <a href="https://github.com/scala-graph/scala-graph/issues/177">this problem report</a>.
+		Migration: In case of graphs with loops, replace existing calls to <code>diSuccessors</code>/<code>diPredecessors</code>
+		with calls to <code>outNeighbors</code>/<code>inNeighbors</code> with the latter not containing the looping node.
+	</li>
+	<li>Fixed <a href="https://github.com/scala-graph/scala-graph/pull/357">missing hashCode() for Graph</a>.
+	</li>
+</ul>
+
 <h3 id="2.0.2">2.0.2</h3>
 <ul>
 	<li><code>core</code> and <code>dot</code> are now cross-compiled against Scala 2.13 and Scala 3.
