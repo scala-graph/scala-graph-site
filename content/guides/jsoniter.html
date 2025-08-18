@@ -1,0 +1,283 @@
+---
+title: JSON for Scala 3 User Guide
+sideMenuItems: >
+  <li><a href="#Overview">Overview</a></li>
+  <li><a href="#Codec">Create your Graph codec</a></li>
+  <li><a href="#Encode">Encode your Graph</a></li>
+  <li><a href="#Decode">Decode your JSON</a></li>
+---
+<h1>JSON for Scala 3 User Guide</h1>
+
+<h2 id="Overview">Overview</h2>
+<p> With this extension module of <code>graph-core</code>, you are able to encode and decode Graphs to and from a
+	<a href="http://www.json.org/" target="_blank">JSON text</a> in an efficient way.
+	Codecs are implemented in terms of <a href="https://github.com/plokhotnyuk/jsoniter-scala/" target="_blank">jsoniter-scala</a>.
+</p>
+<p> Your encoded Graphs will be laid out like
+</p>
+<pre class="prettyprint lang-json nolinenum">{
+  "nodes": [ &lt;a JSON object per node&gt; ],
+  "edges": [ &lt;a JSON object per edge&gt; ]
+}
+</pre>
+<p> While nodes will be encoded without any transformation, for edge codecs you can choose between
+	the following two schemas:
+</p>
+<ol>
+	<li>The <a
+			href="https://www.scala-graph.org/api/jsoniter/scalax/collection/io/jsoniter/GraphCodec$.html#withEmbeddedNodes-ffffff33"
+			target="_blank">
+		codec for embedded edge ends</a>
+		encodes edge ends the very same way as it encodes nodes.
+		This codec schema is recommended whenever your node type argument for <code>N</code> is of a primitive-like type
+		including primitive types, <code>String</code>, or any other type with a fairly small JSON representation.
+	</li>
+	<li>For complex node types, you may want to choose the second, more sophisticated schema
+		where edge ends are transformed to node IDs to save space and increase readability.
+		For this purpose, you need to provide an ID function for your nodes.
+		Actually, there exist two distinct signatures for this schema to cover
+		<a href="https://www.scala-graph.org/api/jsoniter/scalax/collection/io/jsoniter/nonlabeled/GraphCodec$.html#withNodeReferences-c7b"
+		   target="_blank">
+			non-labeled</a> and
+		<a href="https://www.scala-graph.org/api/jsoniter/scalax/collection/io/jsoniter/labeled/GraphCodec$.html#withNodeReferences-577"
+		   target="_blank">
+			labeled</a>
+		edges in separate.
+	</li>
+</ol>
+
+<h2 id="Codec">Create your Graph codec</h2>
+<p> To be able to encode your Graph or decode your JSON to a Graph, you need to instantiate a Graph codec.
+	Graph codecs vary with the coding schema and the edge type argument used for your Graph.
+</p>
+
+<h3 id="Codec-embedded-nodes">Create codecs for embedded edge ends</h3>
+<p> Using this schema, edge ends are represented by fully encoded nodes.
+	This schema is your friend whenever your node type argument is of a primitive-like type.
+	Let's look at some examples:
+</p>
+<p> Given
+</p>
+<pre class="prettyprint lang-scala nolinenum">type G = Graph[Int, DiEdge[Int]]
+</pre>
+<p> you get the codec like
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.jsoniter.GraphCodec
+given nodeCodec: JsonValueCodec[Int]         = JsonCodecMaker.make
+given edgeCodec: JsonValueCodec[DiEdge[Int]] = JsonCodecMaker.make
+given graphCodec: JsonValueCodec[G] =
+  GraphCodec.withEmbeddedNodes(
+    Graph.from(_, _)(_),
+    yourGraphConfig,
+    yourNullHandling
+  )
+</pre>
+<p> Given
+</p>
+<pre class="prettyprint lang-scala nolinenum">type People = Graph[Person, Relation]
+</pre>
+<p> where <code>Person</code> is a case class and <code>Relation</code> is an ADT of edges with constructors like
+	<code>Relatives</code>, <code>Friends</code>, or <code>Neighbors</code>,
+	you can create the codec in the very same way
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.jsoniter.GraphCodec
+given nodeCodec: JsonValueCodec[Person]   = JsonCodecMaker.make
+given edgeCodec: JsonValueCodec[Relation] = JsonCodecMaker.make
+given graphCodec: JsonValueCodec[People]  =
+  GraphCodec.withEmbeddedNodes(
+    Graph.from(_, _)(_),
+    yourGraphConfig,
+    yourNullHandling
+)
+</pre>
+<p> Further, specific handling of non-ADT edge type arguments is provided since this is not covered by jsoniter-scala.
+	Given
+</p>
+<pre class="prettyprint lang-scala nolinenum">type G = Graph[String, AnyEdge[String]]
+</pre>
+<p> where your Graph contains the concrete edge classes <code>DiEdge</code> and <code>UnDiEdge</code>,
+	you can create the codec like
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.jsoniter.GraphCodec
+given nodeCodec: JsonValueCodec[String]             = JsonCodecMaker.make
+given anyEdgeCodec: JsonValueCodec[AnyEdge[String]] =
+  given unDiEdgeCodec: JsonValueCodec[UnDiEdge[String]] = JsonCodecMaker.make
+  given diEdgeCodec: JsonValueCodec[DiEdge[String]]     = JsonCodecMaker.make
+  EdgeCodec.makePolymorphicWithEmbeddedNodes[AnyEdge[String], (UnDiEdge[String], DiEdge[String])]()
+given graphCodec: JsonValueCodec[G] =
+  GraphCodec.withEmbeddedNodes(
+    Graph.from(_, _)(_),
+    yourGraphConfig,
+    yourNullHandling
+  )
+</pre>
+<p> For complete examples refer to
+	<a href="https://github.com/scala-graph/scala-graph/blob/2.x/jsoniter/src/test/scala/scalax/collection/io/jsoniter/EmbeddedNodesSpec.scala">
+		EmbeddedNodesSpec.scala</a>.
+</p>
+
+<h3 id="Codec-nodes-by-id">Create codecs for edge ends by ID</h3>
+<p> With this schema, edge ends are encoded to node IDs that are obtained by invoking your ID function.
+	This schema is your friend whenever you are concerned about the size and readability of the encoded edges.
+</p>
+<p> The replacement of edge ends by a corresponding node ID is implemented such that edges get transformed into
+	constructor instances of the
+	<a href="https://github.com/scala-graph/scala-graph/blob/2.x/jsoniter/src/main/scala/scalax/collection/io/jsoniter/nonlabeled/WithNodeReferences.scala"
+	   target="_blank">
+		nonlabeled.WithNodeReferences</a> respectively
+	<a href="https://github.com/scala-graph/scala-graph/blob/2.x/jsoniter/src/main/scala/scalax/collection/io/jsoniter/nonlabeled/WithNodeReferences.scala"
+	   target="_blank">
+		labeled.WithNodeReferences</a> ADT.
+	These instances will then be encoded to JSON.
+</p>
+<p> Let's look at an example for a Graph with non-labeled and another example for a Graph with labeled edges:
+</p>
+<p> To start with non-labeled edges, given
+</p>
+<pre class="prettyprint lang-scala nolinenum">case class Airport(code: String, nameByLanguage: Map[String, String])
+
+sealed trait Relation                                    extends AnyHyperEdge[Airport]
+case class NonStop(airport1: Airport, airport2: Airport) extends AbstractUnDiEdge(airport1, airport2) with Relation
+case class Partnership(partners: Several[Airport])       extends AbstractHyperEdge(partners) with Relation
+
+type Airports = Graph[Airport, Relation]
+object Airports extends TypedGraphFactory[Airport, Relation]
+</pre>
+<p> here is how to create a codec that encodes edge ends by the airport <code>code</code> which is unique over airports:
+</p>
+<pre class="prettyprint lang-scala linenums">import scalax.collection.io.jsoniter.nonlabeled.*
+import AnyHyperEdgeWithNodeReferences.compactClassNames
+
+given nodeCodec: JsonValueCodec[Airport]                                = JsonCodecMaker.make
+given idCodec: JsonValueCodec[String]                                   = JsonCodecMaker.make
+given edgeCodec: JsonValueCodec[AnyHyperEdgeWithNodeReferences[String]] = JsonCodecMaker.make(compactClassNames)
+given graphCodec: JsonValueCodec[Airports]                              =
+  GraphCodec.withNodeReferences(
+    _.code,
+    HyperEdgeWithNodeReferences.apply,
+    Graph.from(_, _)(_),
+    yourGraphConfig,
+    yourNullHandling,
+    edgeFactory = Some { case ("NonStop", a1, a2) =>
+      NonStop(a1, a2)
+    },
+    hyperEdgeFactory = Some { case ("Partnership", ends) =>
+      Partnership(ends)
+    }
+  )
+</pre>
+<p>As to</p>
+<ol>
+	<li value="1">Imported the <code>nonlabeled</code> package because edges are not labeled.</li>
+	<li>Support for compact class names so <code>"type": "UnDiEdgeWithNodeReferences"</code> gets <code>"type": "UnDiR"</code>.</li>
+	<li value="5">Codec for <code>String</code> reflecting the type of <code>code</code> returned by the ID function.</li>
+	<li>Codec for <code>AnyHyperEdgeWithNodeReferences[String]</code> because the Graph contains both undirected edges and hyperedges.</li>
+	<li value="9">The ID function.</li>
+	<li>Factory for constructors of <code>AnyHyperEdgeWithNodeReferences</code>
+		that consumes any edge type having the superclass <code>HyperEdge</code>.</li>
+	<li value="14">Used for decoding. If the encoded edge contains <code>"edgeT": "NonStop"</code>,
+		we create an edge of type <code>NonStop</code>.
+		Note that at invocation, the codec has transformed the ID back to <code>Airport</code>
+		by looking up the airport in the decoded nodes by <code>code</code>.
+	</li>
+	<li value="17">Used for decoding. If the encoded edge contains <code>"edgeT": "Partnership"</code>,
+		we create a hyperedge of type <code>Partnership</code>.
+		<strong>Importantly</strong>, you need to cover all participating edge types by the passed edge factories.
+		Otherwise, decoding throws an exception.
+	</li>
+</ol>
+<p> Second, given a related use case extended by edge labels
+</p>
+<pre class="prettyprint lang-scala nolinenum">case class Airport(code: String, nameByLanguage: Map[String, String])
+
+sealed trait Relation extends AnyDiEdge[Airport]
+
+case class NonStop(from: Airport, to: Airport, airline: String)
+    extends AbstractDiEdge(from, to)
+    with MultiEdge
+    with Relation:
+  override def extendKeyBy: OneOrMore[String] = OneOrMore(airline)
+
+case class Connecting(from: Airport, to: Airport, via: String, airline1: String, airline2: String)
+    extends AbstractDiEdge(from, to)
+    with MultiEdge
+    with Relation:
+  override def extendKeyBy: OneOrMore[(String, String, String)] = OneOrMore((via, airline1, airline2))
+
+type Airports = Graph[Airport, Relation]
+object Airports extends TypedGraphFactory[Airport, Relation]
+</pre>
+<p> you can get the Graph codec including labels like
+</p>
+<pre class="prettyprint lang-scala linenums">import scalax.collection.io.jsoniter.labeled.*
+import AnyEdgeWithNodeReferences.compactClassNames
+
+given nodeCodec: JsonValueCodec[Airport] = JsonCodecMaker.make
+given idCodec: JsonValueCodec[String]    = JsonCodecMaker.make
+
+sealed trait Label
+case class NonStopLabel(airline: String)                                    extends Label
+case class ConnectingLabel(via: String, airline1: String, airline2: String) extends Label
+
+given labelCodec: JsonValueCodec[Label]                                  = JsonCodecMaker.make
+given edgeCodec: JsonValueCodec[DiEdgeWithNodeReferences[String, Label]] = JsonCodecMaker.make(compactClassNames)
+given graphCodec: JsonValueCodec[Airports]                               =
+  GraphCodec.withNodeReferences(
+    _.code,
+    {
+      case NonStop(_, _, airline)        => NonStopLabel(airline)
+      case Connecting(_, _, via, a1, a2) => ConnectingLabel(via, a1, a2)
+    },
+    DiEdgeWithNodeReferences.apply,
+    factory = Graph.from(_, _)(_),
+    yourGraphConfig,
+    yourNullHandling,
+    edgeFactory = Some {
+      case ("NonStop", from, to, NonStopLabel(airline))           => NonStop(from, to, airline)
+      case ("Connecting", from, to, ConnectingLabel(via, a1, a2)) => Connecting(from, to, via, a1, a2)
+    }
+  )
+</pre>
+<p>Note the differences to the non-labeled use case</p>
+<ol>
+	<li value="1">Imported the <code>labeled</code> package to be able to deal with edge labels.</li>
+	<li value="7">ADT for labels necessary because of different label types of the participating edge types.</li>
+	<li value="12"><code>Label</code>s will also be encoded into <code>DiEdgeWithNodeReferences</code>.</li>
+	<li value="16">This <code>toLabel</code> argument defines what to encode as the <code>Label</code> part of edges.</li>
+	<li value="24">Used for decoding including labels.</li>
+</ol>
+
+<p> For more and complete examples refer to
+</p>
+<ul>
+	<li>
+		<a href="https://github.com/scala-graph/scala-graph/blob/2.x/jsoniter/src/test/scala/scalax/collection/io/jsoniter/nonlabeled/WithNodeReferencesSpec.scala">
+			nonlabeled.WithNodeReferencesSpec.scala</a>
+	</li>
+	<li>
+		<a href="https://github.com/scala-graph/scala-graph/blob/2.x/jsoniter/src/test/scala/scalax/collection/io/jsoniter/labeled/WithNodeReferencesSpec.scala">
+			labeled.WithNodeReferencesSpec.scala</a>
+	</li>
+	<li>
+		<a href="https://github.com/scala-graph/scala-graph/blob/2.x/jsoniter/src/test/scala/demo/nonlabeled/LibrarySpec.scala">
+			LibrarySpec.scala</a>
+	</li>
+</ul>
+<p> In the above Library example, by the way, nodes are modeled as an ADT, so the ID function needs to deal with every case.
+</p>
+
+<h2 id="Encode">Encode your Graph</h2>
+<p> With your Graph codec in the implicit scope, you are ready to encode your Graph by using syntactic sugar like
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.jsoniter.toJson
+val json: String = graph.toJson
+</pre>
+
+<h2 id="Decode">Decode your JSON</h2>
+<p> With your Graph codec in the implicit scope, you can decode your JSON to a Graph by simply
+</p>
+<pre class="prettyprint lang-scala nolinenum">import scalax.collection.io.jsoniter.toGraph
+val graph: G = json.toGraph[G]
+</pre>
+<p> where <code>G</code> stands for your Graph type.
+</p>
