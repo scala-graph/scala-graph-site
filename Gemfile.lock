@@ -6,13 +6,15 @@ GEM
     colored (1.2)
     cri (2.10.1)
       colored (>= 1.2)
-    kramdown (1.16.2)
+    kramdown (2.3.1)
+      rexml
     mini_portile2 (2.4.0)
     nanoc (4.9.2)
       cri (~> 2.10.1)
     nokogiri (1.10.8)
       mini_portile2 (~> 2.4.0)
     rack (2.2.3)
+    rexml (3.2.4)
     sass (3.5.6)
 
 PLATFORMS
